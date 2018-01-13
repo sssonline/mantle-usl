@@ -358,4 +358,54 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
         </actions>
     </service>
+
+    <!-- ============ Benefit Related Services ============ -->
+    <service verb="accrue" noun="EmploymentBenefits">
+        <in-parameters>
+            <parameter name="partyRelationshipId" required="true"/>
+            <parameter name="timePeriodId" required="true"/>
+        </in-parameters>
+        <actions>
+            <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRelationship"/>
+            <entity-find-one entity-name="mantle.humanres.employment.Employment" value-field="employment"/>
+            <!-- <set field="position" from="employment.position"/> -->
+            <set field="benefitList" from="employment.benefits"/>
+            <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
+
+            <iterate list="benefitList" entry="benefit">
+                <entity-find-one entity-name="mantle.humanres.position.EmplPositionBenefit" value-field="positionBenefit">
+                    <field-map field-name="emplPositionId" from="employment.emplPositionId"/>
+                    <field-map field-name="benefitTypeEnumId" from="benefit.benefitTypeEnumId"/>
+                </entity-find-one>
+
+                <set field="accrualStartDays" from="benefit.accrualStartDays ?: positionBenefit?.accrualStartDays ?: 0"/>
+                <set field="accrualMethodEnumId" from="benefit.accrualMethodEnumId ?: positionBenefit?.accrualMethodEnumId"/>
+                <set field="accrualHours" from="benefit.accrualHours?: positionBenefit?.accrualHours"/>
+                <set field="accrualHourBlock" from="benefit.accrualHourBlock ?: positionBenefit?.accrualHourBlock"/>
+                <set field="accrualMaxHours" from="benefit.accrualMaxHours ?: positionBenefit?.accrualMaxHours"/>
+
+                <!-- does it need accrual? must have accrual method and have some days beyond accrualStartDays -->
+                <if condition="!accrualMethodEnumId"><continue/></if>
+                <set field="daysSinceStart" from="timePeriod.thruDate - partyRelationship.fromDate"/><!-- this might blow up, groovy subtract of Timestamp from java.sql.Date -->
+                <if condition="daysSinceStart &lt; accrualStartDays"><continue/></if>
+
+                <!-- calculate accrual based on method -->
+                <if condition="accrualMethodEnumId == 'EbamHoursWorked'"><then>
+                    <!-- TODO: calculate total hours worked for Employment: from TimeEntry with fromDate after PartyRelationship.fromDate plus accrualStartDays before end of current period -->
+                    <!-- TODO: subtract hours used so far for accruing this benefit to get hours available for accrual -->
+                    <set field="hoursAvailableForAccrual" from="TODO"/>
+
+                    <!-- calculate accrual based on blocks of hours available -->
+                </then><else-if condition="accrualMethodEnumId == 'EbamPerPaycheck'">
+                    <!-- TODO -->
+                </else-if><else-if condition="accrualMethodEnumId == 'EbamPerYearAnniv'">
+                    <!-- TODO -->
+                </else-if><else-if condition="accrualMethodEnumId == 'EbamPerYearBegin'">
+                    <!-- TODO -->
+                </else-if><else>
+                    <message>Found invalid accrual method ${accrualMethodEnumId} for employment ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId}</message>
+                </else></if>
+            </iterate>
+        </actions>
+    </service>
 </services>

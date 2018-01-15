@@ -84,6 +84,13 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="ORG"/>
     </view-entity>
 
+    <view-entity entity-name="EmploymentBenefitAccrualSum" package="mantle.humanres.employment">
+        <member-entity entity-alias="EBA" entity-name="mantle.humanres.employment.EmploymentBenefitAccrual"/>
+        <alias name="partyRelationshipId" entity-alias="EBA"/>
+        <alias name="benefitTypeEnumId" entity-alias="EBA"/>
+        <alias name="accruedHours" entity-alias="EBA" function="sum"/>
+    </view-entity>
+
     <view-entity entity-name="PayrollAdjustmentAndDetail" package="mantle.humanres.employment">
         <member-entity entity-alias="PADJ" entity-name="mantle.humanres.employment.PayrollAdjustment"/>
         <member-entity entity-alias="PADTL" entity-name="mantle.humanres.employment.PayrollAdjustmentDetail" join-from-alias="PADJ">

@@ -364,13 +364,16 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="partyRelationshipId" required="true"/>
             <parameter name="timePeriodId" required="true"/>
+            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.thruDate</description></parameter>
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRelationship"/>
             <entity-find-one entity-name="mantle.humanres.employment.Employment" value-field="employment"/>
             <!-- <set field="position" from="employment.position"/> -->
             <set field="benefitList" from="employment.benefits"/>
+
             <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
+            <if condition="payDate == null"><set field="payDate" from="timePeriod.thruDate"/></if>
 
             <iterate list="benefitList" entry="benefit">
                 <entity-find-one entity-name="mantle.humanres.position.EmplPositionBenefit" value-field="positionBenefit">
@@ -386,6 +389,7 @@ along with this software (see the LICENSE.md file). If not, see
 
                 <!-- does it need accrual? must have accrual method and have some days beyond accrualStartDays -->
                 <if condition="!accrualMethodEnumId"><continue/></if>
+                <if condition="!accrualHours"><continue/></if>
                 <set field="daysSinceStart" from="timePeriod.thruDate - partyRelationship.fromDate"/><!-- this might blow up, groovy subtract of Timestamp from java.sql.Date -->
                 <if condition="daysSinceStart &lt; accrualStartDays"><continue/></if>
 
@@ -397,7 +401,11 @@ along with this software (see the LICENSE.md file). If not, see
 
                     <!-- calculate accrual based on blocks of hours available -->
                 </then><else-if condition="accrualMethodEnumId == 'EbamPerPaycheck'">
-                    <!-- TODO -->
+                    <!-- TODO need to prorate if timePeriod.fromDate - partyRelationship.fromDate less than accrualStartDays? -->
+                    <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
+                            partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
+                            accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:accrualHours,
+                            timePeriodId:timePeriodId]"/>
                 </else-if><else-if condition="accrualMethodEnumId == 'EbamPerYearAnniv'">
                     <!-- TODO -->
                 </else-if><else-if condition="accrualMethodEnumId == 'EbamPerYearBegin'">
@@ -405,6 +413,21 @@ along with this software (see the LICENSE.md file). If not, see
                 </else-if><else>
                     <message>Found invalid accrual method ${accrualMethodEnumId} for employment ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId}</message>
                 </else></if>
+
+                <!-- NOTE: always accrue what is due, then after calculate total and see if it needs to be adjusted down to max -->
+                <entity-find entity-name="mantle.humanres.employment.EmploymentBenefitAccrualSum" list="accrualSumList">
+                    <econdition field-name="partyRelationshipId"/>
+                    <econdition field-name="benefitTypeEnumId" from="benefit.benefitTypeEnumId"/>
+                </entity-find>
+                <set field="accruedTotal" from="accrualSumList ? accrualSumList[0].accruedHours : 0.0"/>
+                <if condition="accrualMaxHours &amp;&amp; accruedTotal &gt; accrualMaxHours">
+                    <!-- accrued too much, add negative offset to bring down to max -->
+                    <set field="offsetHours" from="accrualMaxHours - accruedTotal"/><!-- will be negative number -->
+                    <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
+                            partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
+                            accrualTypeEnumId:'EbatMaximumAdj', accrualDate:payDate, accruedHours:offsetHours,
+                            timePeriodId:timePeriodId]"/>
+                </if>
             </iterate>
         </actions>
     </service>

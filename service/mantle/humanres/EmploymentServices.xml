@@ -374,6 +374,8 @@ along with this software (see the LICENSE.md file). If not, see
 
             <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
             <if condition="payDate == null"><set field="payDate" from="timePeriod.thruDate"/></if>
+            <set field="fromDateTime" from="java.time.ZonedDateTime.ofInstant(timePeriod.fromDate.toInstant(), java.time.ZoneId.systemDefault())"/>
+            <set field="thruDateTime" from="java.time.ZonedDateTime.ofInstant(timePeriod.thruDate.toInstant(), java.time.ZoneId.systemDefault())"/>
 
             <iterate list="benefitList" entry="benefit">
                 <entity-find-one entity-name="mantle.humanres.position.EmplPositionBenefit" value-field="positionBenefit">
@@ -407,9 +409,26 @@ along with this software (see the LICENSE.md file). If not, see
                             accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:accrualHours,
                             timePeriodId:timePeriodId]"/>
                 </else-if><else-if condition="accrualMethodEnumId == 'EbamPerYearAnniv'">
-                    <!-- TODO -->
+                    <!-- TODO this may not be adequate, what if no paycheck for period that crosses anniversary? -->
+                    <!-- if period from is before anniversary and thru is after do it now -->
+                    <set field="anniversaryDateTime" from="java.time.ZonedDateTime.ofInstant(partyRelationship.fromDate.toInstant(), java.time.ZoneId.systemDefault())"/>
+                    <set field="anniversaryDateTime" from="anniversaryDateTime.withYear(fromDateTime.getYear())"/>
+                    <if condition="fromDateTime.isBefore(anniversaryDateTime) &amp;&amp; thruDateTime.isAfter(anniversaryDateTime)">
+                        <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
+                                partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
+                                accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:accrualHours,
+                                timePeriodId:timePeriodId]"/>
+                    </if>
                 </else-if><else-if condition="accrualMethodEnumId == 'EbamPerYearBegin'">
-                    <!-- TODO -->
+                    <!-- TODO this may not be adequate, what if no paycheck for period that crosses year boundary?
+                        can look for last EmploymentBenefitAccrual, but not full year since as benefit may have changed from per paycheck to per year -->
+                    <!-- if period fromDate is in year before thruDate do it now -->
+                    <if condition="fromDateTime.getYear() != thruDateTime.getYear()">
+                        <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
+                                partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
+                                accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:accrualHours,
+                                timePeriodId:timePeriodId]"/>
+                    </if>
                 </else-if><else>
                     <message>Found invalid accrual method ${accrualMethodEnumId} for employment ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId}</message>
                 </else></if>

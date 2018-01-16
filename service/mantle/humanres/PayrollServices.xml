@@ -790,7 +790,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="phaseEnumIdList" from="['PrphNdBonus', 'PrphWages', 'PrphMakeupPay', 'PrphPaidTimeOff',
                                                 'PrphOvertime', 'PrphAddlComp', 'PrphPretaxDeductions', null,
                                                 'PrphTax', 'PrphDeductions', 'PrphGarnish', 'PrphQualExpense',
-                                                 'PrphOtherAdjustment']"/>
+                                                'PrphOtherAdjustment']"/>
 
             <!-- Workers Comp is likely among the adjustments that will need calculated.  Collect meta data on
                  the time entries as to which risk class applies to each time entry so it does not need to be

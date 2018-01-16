@@ -492,6 +492,8 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="TENT" name="workEffortId"/>
         <alias entity-alias="TENT" name="timesheetId"/>
         <alias entity-alias="TENT" name="rateTypeEnumId"/>
+        <alias entity-alias="TENT" name="partyId"/>
+        <alias entity-alias="TENT" name="clientPartyId"/>
         <alias entity-alias="TENT" name="hours" function="sum"/>
         <alias entity-alias="TENT" name="breakHours" function="sum"/>
     </view-entity>

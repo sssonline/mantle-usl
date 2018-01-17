@@ -346,7 +346,7 @@ along with this software (see the LICENSE.md file). If not, see
         </in-parameters>
         <out-parameters>
             <parameter name="timePeriod" type="EntityValue"/>
-            <parameter name="days"/>
+            <parameter name="days" type="BigDecimal"/>
             <parameter name="fromTimestamp" type="Timestamp"/>
             <parameter name="thruTimestamp" type="Timestamp">
                 <description>Meant to be used in an inclusive expression (last ms of period, use less than or equals)</description></parameter>
@@ -375,7 +375,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- Determine how many days are in the time period-->
             <script>
                 import static java.time.temporal.ChronoUnit.DAYS;
-                def days = 1 + DAYS.between(
+                BigDecimal days = 1 + DAYS.between(
                         java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli((long) timePeriod.fromDate.time),
                                 java.time.ZoneId.systemDefault()),
                         java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli((long) timePeriod.thruDate.time),

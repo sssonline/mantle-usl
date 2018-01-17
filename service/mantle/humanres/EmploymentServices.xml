@@ -367,11 +367,26 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.thruDate</description></parameter>
         </in-parameters>
         <actions>
-            <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRelationship"/>
+            <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRelationship" for-update="true"/>
             <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(partyRelationship.fromDate.toInstant(), java.time.ZoneId.systemDefault())"/>
             <entity-find-one entity-name="mantle.humanres.employment.Employment" value-field="employment"/>
             <!-- <set field="position" from="employment.position"/> -->
+
+            <!-- make sure there is a EmploymentBenefit record for each EmplPositionBenefit -->
             <set field="benefitList" from="employment.benefits"/>
+            <entity-find entity-name="mantle.humanres.position.EmplPositionBenefit" list="positionBenefitList">
+                <econdition field-name="emplPositionId" from="employment.emplPositionId"/></entity-find>
+            <iterate list="positionBenefitList" entry="posBenefit">
+                <if condition="!benefitList.find({ it.benefitTypeEnumId == posBenefit.benefitTypeEnumId })">
+                    <!-- TODO accrualStartDate from accrualStartDays, availableDate from availableDays-->
+                    <service-call name="create#mantle.humanres.employment.EmploymentBenefit" in-map="[
+                            partyRelationshipId:partyRelationshipId, benefitTypeEnumId:posBenefit.benefitTypeEnumId,
+                            accrualStartDate:TODO, availableDate:TODO, employerPaidPercent:posBenefit.employerPaidPercent]"/>
+                </if>
+            </iterate>
+            <!-- get fresh locked EmploymentBenefit records -->
+            <entity-find entity-name="mantle.humanres.employment.EmploymentBenefit" list="benefitList" for-update="true">
+                <econdition field-name="partyRelationshipId"/></entity-find>
 
             <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
             <if condition="payDate == null"><set field="payDate" from="timePeriod.thruDate"/></if>
@@ -380,10 +395,18 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="thruTimestamp" from="new Timestamp(thruDateTime.toInstant().toEpochMilli())"/>
 
             <iterate list="benefitList" entry="benefit">
+                <!-- get the related EmplPositionBenefit for defaults -->
                 <entity-find-one entity-name="mantle.humanres.position.EmplPositionBenefit" value-field="positionBenefit">
                     <field-map field-name="emplPositionId" from="employment.emplPositionId"/>
                     <field-map field-name="benefitTypeEnumId" from="benefit.benefitTypeEnumId"/>
                 </entity-find-one>
+
+                <set field="accrualStartDate" from="benefit.accrualStartDate"/>
+                <if condition="accrualStartDate == null">
+                    <!-- TODO: calc from accrualStartDays, set on EmploymentBenefit record -->
+                    <set field="accrualStartDateTime" from="startDateTime.plusDays(positionBenefit?.accrualStartDays ?: 0.0)"/>
+                    <set field="accrualStartTimestamp" from="new Timestamp(accrualStartDateTime.toInstant().toEpochMilli())"/>
+                </if>
 
                 <set field="accrualStartDays" from="benefit.accrualStartDays ?: positionBenefit?.accrualStartDays ?: 0"/>
                 <set field="accrualMethodEnumId" from="benefit.accrualMethodEnumId ?: positionBenefit?.accrualMethodEnumId"/>
@@ -391,17 +414,15 @@ along with this software (see the LICENSE.md file). If not, see
                 <set field="accrualHourBlock" from="benefit.accrualHourBlock ?: positionBenefit?.accrualHourBlock"/>
                 <set field="accrualMaxHours" from="benefit.accrualMaxHours ?: positionBenefit?.accrualMaxHours"/>
 
-                <!-- does it need accrual? must have accrual method and have some days beyond accrualStartDays -->
+                <!-- does it need accrual? must have accrual method and have some days beyond accrualStartDate -->
                 <if condition="!accrualMethodEnumId"><continue/></if>
                 <if condition="!accrualHours"><continue/></if>
-                <set field="daysSinceStart" from="timePeriod.thruDate - partyRelationship.fromDate"/><!-- this might blow up, groovy subtract of Timestamp from java.sql.Date -->
-                <if condition="daysSinceStart &lt; accrualStartDays"><continue/></if>
+                <if condition="timePeriod.thruDate &lt; accrualStartDate"><continue/></if>
 
                 <!-- calculate accrual based on method -->
                 <if condition="accrualMethodEnumId == 'EbamHoursWorked'"><then>
-                    <!-- calculate total hours worked for Employment: from TimeEntry with fromDate after PartyRelationship.fromDate plus accrualStartDays -->
-                    <set field="accrualStartDateTime" from="startDateTime.plusDays(accrualStartDays)"/>
-                    <set field="accrualStartTimestamp" from="new Timestamp(accrualStartDateTime.toInstant().toEpochMilli())"/>
+                    <!-- calculate total hours worked for Employment: from TimeEntry with fromDate after accrualStartDate -->
+                    <set field="accrualStartTimestamp" from="new Timestamp(java.time.ZonedDateTime.ofInstant(accrualStartDate.toInstant(), java.time.ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59).toInstant().toEpochMilli())"/>
                     <entity-find entity-name="mantle.work.time.TimeEntrySummary" list="teSumList">
                         <econdition field-name="partyId" from="partyRelationship.fromPartyId"/>
                         <econdition field-name="clientPartyId" from="partyRelationship.toPartyId"/>
@@ -411,13 +432,28 @@ along with this software (see the LICENSE.md file). If not, see
                     </entity-find>
                     <set field="hoursWorked" from="teSumList ? teSumList[0].hours : 0.0"/>
 
-                    <!-- TODO: subtract hours used so far for accruing this benefit to get hours available for accrual -->
-                    <set field="hoursAvailableForAccrual" from="TODO"/>
+                    <!-- subtract hours used so far for accruing this benefit to get hours available for accrual -->
+                    <set field="workHoursUsed" from="benefit.workHoursUsed ?: 0.0"/>
+                    <set field="hoursAvailableForAccrual" from="hoursWorked - workHoursUsed"/>
 
-                    <!-- TODO calculate accrual based on blocks of hours available -->
+                    <log level="warn" message="pos ${partyRelationshipId} benefit ${benefitTypeEnumId} start ${accrualStartTimestamp} block ${accrualHourBlock} hours avail ${hoursAvailableForAccrual}"/>
+                    <if condition="hoursAvailableForAccrual &gt;= accrualHourBlock">
+                        <!-- calculate accrual based on blocks of hours available -->
+                        <set field="hourBlocks" from="(hoursAvailableForAccrual as BigDecimal).divide(accrualHourBlock, 0, BigDecimal.ROUND_DOWN).intValue()"/>
+                        <set field="hoursUsedNow" from="hourBlocks * accrualHourBlock"/>
+                        <set field="hoursToAccrue" from="hourBlocks * accrualHours"/>
+                        <log level="warn" message="pos ${partyRelationshipId} benefit ${benefitTypeEnumId} blocks ${hourBlocks} hours used ${hoursUsedNow} hours accrue ${hoursToAccrue}"/>
 
+                        <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
+                                partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
+                                accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:hoursToAccrue,
+                                timePeriodId:timePeriodId]"/>
+
+                        <set field="benefit.workHoursUsed" from="workHoursUsed + hoursUsedNow"/>
+                        <entity-update value-field="benefit"/>
+                    </if>
                 </then><else-if condition="accrualMethodEnumId == 'EbamPerPaycheck'">
-                    <!-- NOTE: don't prorate if timePeriod.fromDate - partyRelationship.fromDate less than accrualStartDays, err on the generous side -->
+                    <!-- NOTE: don't prorate if timePeriod.fromDate after accrualStartDate, err on the generous side -->
                     <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
                             partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
                             accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:accrualHours,

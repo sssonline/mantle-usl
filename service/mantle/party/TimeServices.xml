@@ -370,6 +370,7 @@ along with this software (see the LICENSE.md file). If not, see
         </in-parameters>
         <out-parameters>
             <parameter name="timePeriod" type="EntityValue"/>
+            <parameter name="days" type="BigDecimal"/>
             <parameter name="fromTimestamp" type="Timestamp"/>
             <parameter name="thruTimestamp" type="Timestamp">
                 <description>Meant to be used in an inclusive expression (last ms of period, use less than or equals)</description></parameter>
@@ -394,6 +395,17 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="thruTimestamp" from="ec.l10n.parseTimestamp(timePeriod.thruDate.toString() + ' 23:59:59.999', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
             <set field="thruTimestampExclusive" from="ec.l10n.parseTimestamp((timePeriod.thruDate + 1).toString() + ' 00:00:00.000', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
             <set field="thruTimestampLate" from="ec.l10n.parseTimestamp(timePeriod.thruDate.toString() + ' 20:00:00.000', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
+
+            <!-- Determine how many days are in the time period-->
+            <script>
+                import static java.time.temporal.ChronoUnit.DAYS;
+                BigDecimal days = 1 + DAYS.between(
+                        java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli((long) timePeriod.fromDate.time),
+                                java.time.ZoneId.systemDefault()),
+                        java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli((long) timePeriod.thruDate.time),
+                                java.time.ZoneId.systemDefault()));
+            </script>
+
         </actions>
     </service>
     

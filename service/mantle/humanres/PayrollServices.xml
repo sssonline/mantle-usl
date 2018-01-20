@@ -99,6 +99,10 @@ along with this software (see the LICENSE.md file). If not, see
                         <script>addToListInMap(adjustment.payeePartyId, adjustment, payeeAdjustmentListByPartyId)</script>
                     </else-if></if>
                 </iterate>
+
+                <!-- accrue benefits -->
+                <service-call name="mantle.humanres.EmploymentServices.accrue#EmploymentBenefits"
+                        in-map="[partyRelationshipId:employment.partyRelationshipId, timePeriodId:timePeriodId, payDate:payDate]"/>
             </iterate>
 
             <!-- create tax liability invoices (from tax authority to employer) as applicable -->

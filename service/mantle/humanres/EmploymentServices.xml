@@ -508,4 +508,75 @@ along with this software (see the LICENSE.md file). If not, see
             </iterate>
         </actions>
     </service>
+
+    <service verb="use" noun="EmploymentBenefits">
+        <in-parameters>
+            <auto-parameters entity-name="mantle.humanres.employment.EmploymentBenefitAccrual">
+                <exclude field-name="benefitTypeEnumId"/>
+                <exclude field-name="partyRelationshipId"/>
+            </auto-parameters>
+            <parameter name="benefitTypeEnumId" required="true"/>
+            <parameter name="partyRelationshipId" required="true"/>
+        </in-parameters>
+        <out-parameters></out-parameters>
+        <actions>
+            <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRel">
+                <field-map field-name="partyRelationshipId"/>
+            </entity-find-one>
+            <entity-find-one entity-name="mantle.humanres.employment.EmploymentBenefit" value-field="emplBenefit">
+                <field-map field-name="benefitTypeEnumId"/>
+                <field-map field-name="partyRelationshipId"/>
+            </entity-find-one>
+
+            <entity-find entity-name="mantle.humanres.employment.EmploymentBenefitAccrual" list="accrualList">
+                <econdition field-name="partyRelationshipId"/>
+                <econdition field-name="benefitTypeEnumId"/>
+            </entity-find>
+
+            <set field="hoursAccrued" from="0"/>
+            <set field="usedHours" from="0"/>
+            <iterate list="accrualList" entry="accrual">
+                <if condition="accrual.accruedHours >= 0"><then>
+                    <set field="hoursAccrued" from="hoursAccrued + accrual.accruedHours"/>
+                </then><else>
+                    <set field="usedHours" from="usedHours + accrual.accruedHours"/>
+                </else></if>
+            </iterate>
+            <set field="availableHours" from="hoursAccrued + usedHours"/>
+
+            <!-- Check to see if they have available hours and if the benefit is available yet -->
+            <if condition="accrualDate &lt; emplBenefit.availableDate">
+                <return error="true" message="This benefit is not available yet"/>
+            </if>
+            <if condition="accruedHours &gt; availableHours">
+                <return error="true" message="Not enough available hours"/>
+            </if>
+
+            <set field="rateType"/>
+            <script>
+                switch(benefitTypeEnumId) {
+                    case 'EbtPaidHoliday':
+                        rateType = 'RatpHoliday'
+                        break
+                    case 'EbtPaidSickLeave':
+                        rateType = 'RatpSick'
+                        break
+                    case 'EbtPaidVacation':
+                        rateType = 'RatpVacation'
+                        break
+                    default:
+                        rateType = 'RatpPtoOther'
+                        break
+                }
+            </script>
+
+            <service-call name="mantle.work.TimeServices.store#TimeEntry"
+                          in-map="[partyId:partyRel.fromPartyId, clientPartyId:partyRel.toPartyId, rateTypeEnumId:rateType, fromDate: accrualDate, hours: accruedHours]"
+                          out-map="timeEntry"/>
+
+            <set field="accruedHours" from="-1 * accruedHours"/>
+
+            <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="context + [timeEntryId:timeEntry.timeEntryId]"/>
+        </actions>
+    </service>
 </services>

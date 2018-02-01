@@ -222,6 +222,10 @@ along with this software (see the LICENSE.md file). If not, see
                 <entity-delete value-field="payHistory"/>
             </iterate>
 
+            <!-- delete all EmploymentBenefitAccrual records for timePeriodId -->
+            <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentBenefitAccrual">
+                <econdition field-name="timePeriodId"/></entity-delete-by-condition>
+
             <!-- delete all periods invoices (paycheck, payee, etc), setting vendorInvoiceId to null on TimeEntry records -->
             <entity-find entity-name="mantle.account.invoice.Invoice" list="invoiceList">
                 <econdition field-name="timePeriodId"/></entity-find>

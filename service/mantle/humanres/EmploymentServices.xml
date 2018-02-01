@@ -440,7 +440,12 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="hoursWorked" from="teSumList ? teSumList[0].hours : 0.0"/>
 
                     <!-- subtract hours used so far for accruing this benefit to get hours available for accrual -->
-                    <set field="workHoursUsed" from="benefit.workHoursUsed ?: 0.0"/>
+                    <entity-find entity-name="mantle.humanres.employment.EmploymentBenefitAccrualSum" list="hoursUsedSumList">
+                        <econdition field-name="partyRelationshipId"/>
+                        <econdition field-name="benefitTypeEnumId" from="benefit.benefitTypeEnumId"/>
+                        <select-field field-name="workHoursUsed"/>
+                    </entity-find>
+                    <set field="workHoursUsed" from="hoursUsedSumList?.first?.workHoursUsed ?: 0.0"/>
                     <set field="hoursAvailableForAccrual" from="hoursWorked - workHoursUsed"/>
 
                     <log level="warn" message="pos ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId} start ${accrualStartTimestamp} block ${accrualHourBlock} hours avail ${hoursAvailableForAccrual}"/>
@@ -454,10 +459,7 @@ along with this software (see the LICENSE.md file). If not, see
                         <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
                                 partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,
                                 accrualTypeEnumId:'EbatBenefitAccrued', accrualDate:payDate, accruedHours:hoursToAccrue,
-                                timePeriodId:timePeriodId]"/>
-
-                        <set field="benefit.workHoursUsed" from="workHoursUsed + hoursUsedNow"/>
-                        <entity-update value-field="benefit"/>
+                                timePeriodId:timePeriodId, workHoursUsed:hoursUsedNow]"/>
                     </if>
                 </then><else-if condition="accrualMethodEnumId == 'EbamPerPaycheck'">
                     <!-- NOTE: don't prorate if timePeriod.fromDate after accrualStartDate, err on the generous side -->

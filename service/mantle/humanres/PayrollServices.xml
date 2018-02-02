@@ -260,6 +260,8 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- NOTE: could also delete AcctgTrans, after unposting, unless something manually done with a payroll invoice shouldn't be needed -->
                 <entity-delete-by-condition entity-name="mantle.account.payment.PaymentApplication">
                     <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
+                <entity-delete-by-condition entity-name="mantle.account.invoice.InvoiceItemDetail">
+                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
                 <entity-delete-by-condition entity-name="mantle.account.invoice.InvoiceItem">
                     <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
                 <entity-delete-by-condition entity-name="mantle.account.invoice.Invoice">

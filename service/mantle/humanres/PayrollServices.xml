@@ -1113,19 +1113,20 @@ along with this software (see the LICENSE.md file). If not, see
                              work location; residual payments for commercials; or a uniform allowance. -->
                     </iterate>
                 </else></if>
-            </else-if><else-if condition="rateBasisEnumId == 'PrbsHours'">
+            </else-if><else-if condition="rateBasisEnumId in ['PrbsHoursWorked', 'PrbsHoursTotal']">
                 <if condition="payrollAdjustment.riskClassEnumId"><then>
                     <set field="adjustmentBasisAmount" from="0.0"/>
                     <set field="riskClassMatch" from="false"/>
                     <!--<set field="adjustmentYtdAmount" value="0"/>-->
-
                     <iterate list="timeEntryRiskClassInfoList" entry="timeEntryRiskClassInfo">
                         <if condition="timeEntryRiskClassInfo.riskClassEnumId == payrollAdjustment.riskClassEnumId">
-                            <set field="timeEntry" from="timeEntryRiskClassInfo.timeEntry"/>
-                            <!-- Do not include timeEntry.breakHours, those are for non-paid breaks -->
-
-                            <set field="riskClassMatch" from="true"/>
-                            <set field="adjustmentBasisAmount" from="adjustmentBasisAmount + timeEntry.hours"/>
+                            <if condition="(rateBasisEnumId == 'PrbsHoursTotal') ||
+                                           !(timeEntry.rateTypeEnumId in ['RatpVacation', 'RatpHoliday', 'RatpSick', 'RatpPtoOther'])">
+                                <set field="timeEntry" from="timeEntryRiskClassInfo.timeEntry"/>
+                                <!-- Do not include timeEntry.breakHours, those are for non-paid breaks -->
+                                <set field="riskClassMatch" from="true"/>
+                                <set field="adjustmentBasisAmount" from="adjustmentBasisAmount + timeEntry.hours"/>
+                            </if>
                         </if>
                     </iterate>
                     <!-- If the adjustment has a risk class code but there is no qualifying time entry then it doesn't apply -->
@@ -1134,8 +1135,11 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="adjustmentBasisAmount" from="0.0"/>
                     <!--<set field="adjustmentYtdAmount" value="0"/>-->
                     <iterate list="timeEntryList" entry="timeEntry">
-                        <!-- Do not include timeEntry.breakHours, those are for non-paid breaks -->
-                        <set field="adjustmentBasisAmount" from="adjustmentBasisAmount + timeEntry.hours"/>
+                        <if condition="(rateBasisEnumId == 'PrbsHoursTotal') ||
+                                       !(timeEntry.rateTypeEnumId in ['RatpVacation', 'RatpHoliday', 'RatpSick', 'RatpPtoOther'])">
+                            <!-- Do not include timeEntry.breakHours, those are for non-paid breaks -->
+                            <set field="adjustmentBasisAmount" from="adjustmentBasisAmount + timeEntry.hours"/>
+                        </if>
                     </iterate>
                 </else></if>
             </else-if><else>

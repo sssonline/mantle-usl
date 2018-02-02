@@ -89,6 +89,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="partyRelationshipId" entity-alias="EBA"/>
         <alias name="benefitTypeEnumId" entity-alias="EBA"/>
         <alias name="accruedHours" entity-alias="EBA" function="sum"/>
+        <alias name="workHoursUsed" entity-alias="EBA" function="sum"/>
     </view-entity>
 
     <view-entity entity-name="PayrollAdjustmentAndDetail" package="mantle.humanres.employment">

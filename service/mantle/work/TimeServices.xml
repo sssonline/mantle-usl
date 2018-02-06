@@ -953,7 +953,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="partyId"/>
             <!-- check for relevant employments -->
             <parameter name="partyRelationshipId"/>
-            <parameter name="employerPartyId"/>
+            <parameter name="vendorPartyId"/> <!-- employerPartyId -->
+            <parameter name="clientPartyId"/> <!-- customerPartyId -->
             <!-- must match or null; match as many as possible (to allow for nulls) with this priority if more than one match with same number of fields -->
             <parameter name="workTypeEnumId"/>
             <parameter name="payGradeId"/>
@@ -964,6 +965,10 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="rateAmount" type="BigDecimal"/>
         </out-parameters>
         <actions>
+            <!-- TODO: Do we need a concept of a vendor/client party on RateAmount? -->
+            <!-- TODO: If so and the rate purpose is RaprVendor, we don't care about the clientPartyId -->
+            <!-- TODO: If so and the rate purpose is RaprClient, do we care about the vendorPartyId to get the payGrade and positionClass? -->
+
             <if condition="workEffortId">
                 <entity-find-one entity-name="mantle.work.effort.WorkEffort" value-field="taskWorkEffort">
                     <field-map field-name="workEffortId"/></entity-find-one>
@@ -1000,7 +1005,7 @@ along with this software (see the LICENSE.md file). If not, see
                 </else-if></if>
             </if>
             <set field="workTypeEnumId" from="workTypeEnumId ?: taskWorkEffort?.workTypeEnumId"/>
-
+            
             <!-- If there is a party or employment, find the employment and attempt to define the payGrade and positionClass.
                  If there are any party specific rates, do a maximal match against them. -->
             <if condition="partyId || partyRelationshipId">
@@ -1010,20 +1015,21 @@ along with this software (see the LICENSE.md file). If not, see
                         <date-filter valid-date="thruDate"/>
                         <econdition field-name="partyRelationshipId"/>
                         <econdition field-name="fromPartyId" from="partyId" ignore-if-empty="true"/>
-                        <econdition field-name="toPartyId" from="employerPartyId" ignore-if-empty="true"/>
+                        <econdition field-name="toPartyId" from="vendorPartyId" ignore-if-empty="true"/>
                     </entity-find>
                     <set field="employment" from="employmentList ? employmentList[0] : null"/>
                     <set field="partyId" from="partyId ?: employment?.fromPartyId ?: null"/> <!-- Need party from employment if not set -->
-                </then><else-if condition="partyId &amp;&amp; employerPartyId">
+                </then><else-if condition="partyId &amp;&amp; vendorPartyId">
                     <entity-find entity-name="mantle.humanres.employment.EmploymentAndRelationship" list="employmentList">
                         <date-filter valid-date="thruDate"/>
                         <econdition field-name="fromPartyId" from="partyId"/>
-                        <econdition field-name="toPartyId" from="employerPartyId"/>
+                        <econdition field-name="toPartyId" from="vendorPartyId"/>
                     </entity-find>
                     <set field="employment" from="employmentList ? employmentList[0] : null"/>
                 </else-if></if>
 
-                <if condition="employment?.emplPositionId">
+                <!-- Lookup up the position if it will be used to determine the payGrade or positionClass -->
+                <if condition="(!payGradeId || !emplPositionClassId) &amp;&amp; !employment?.emplPositionId">
                     <entity-find-one entity-name="mantle.humanres.position.EmplPosition" value-field="emplPosition">
                         <field-map field-name="emplPositionId" from="employment.emplPositionId"/></entity-find-one>
                 </if>
@@ -1082,10 +1088,12 @@ along with this software (see the LICENSE.md file). If not, see
         </out-parameters>
         <actions>
             <service-call name="mantle.work.TimeServices.find#RateAmount" out-map="context"
-                    in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate, ratePurposeEnumId:ratePurposeEnumId,
-                        rateTypeEnumId:rateTypeEnumId, rateCurrencyUomId:rateCurrencyUomId,timePeriodUomId:timePeriodUomId,
-                        workEffortId:timeEntry.workEffortId, partyId:timeEntry.partyId, employerPartyId:timeEntry.vendorPartyId,
-                        workTypeEnumId:timeEntry.workTypeEnumId, emplPositionClassId:timeEntry.emplPositionClassId]"/>
+                    in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate,
+                             ratePurposeEnumId:ratePurposeEnumId, rateTypeEnumId:rateTypeEnumId,
+                             rateCurrencyUomId:rateCurrencyUomId,timePeriodUomId:timePeriodUomId,
+                             workEffortId:timeEntry.workEffortId, partyId:timeEntry.partyId,
+                             vendorPartyId:timeEntry.vendorPartyId, clientPartyId:timeEntry.clientPartyId,
+                             workTypeEnumId:timeEntry.workTypeEnumId, emplPositionClassId:timeEntry.emplPositionClassId]"/>
         </actions>
     </service>
 

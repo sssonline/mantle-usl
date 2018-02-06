@@ -445,7 +445,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- Gather uninvoiced time entries -->
             <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList" for-update="true">
                 <econdition field-name="partyId" from="employment.fromPartyId"/>
-                <econdition field-name="clientPartyId" from="employment.toPartyId"/>
+                <econdition field-name="vendorPartyId" from="employment.toPartyId"/>
                 <econdition field-name="invoiceId" operator="is-null"/>
                 <econdition field-name="vendorInvoiceId" operator="is-null"/>
                 <!--<econdition field-name="fromDate" operator="greater-equals" from="fromTimestamp"/>-->
@@ -646,7 +646,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- Gather uninvoiced time entries -->
                 <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList" for-update="true">
                     <econdition field-name="partyId" from="employment.fromPartyId"/>
-                    <econdition field-name="clientPartyId" from="employment.toPartyId"/>
+                    <econdition field-name="vendorPartyId" from="employment.toPartyId"/>
                     <econdition field-name="invoiceId" operator="is-null"/>
                     <econdition field-name="vendorInvoiceId" operator="is-null"/>
                     <!--<econdition field-name="fromDate" operator="greater-equals" from="fromTimestamp"/>-->

@@ -1081,14 +1081,11 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="rateAmount" type="BigDecimal"/>
         </out-parameters>
         <actions>
-            <service-call name="mantle.work.TimeServices.find#RateAmount"
-                          in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate,
-                                   ratePurposeEnumId:ratePurposeEnumId,rateTypeEnumId:rateTypeEnumId,
-                                   rateCurrencyUomId:rateCurrencyUomId,timePeriodUomId:timePeriodUomId,
-                                   workEffortId:timeEntry.workEffortId, partyId:timeEntry.partyId,
-                                   employerPartyId:timeEntry.clientPartyId, workTypeEnumId:timeEntry.workTypeEnumId,
-                                   emplPositionClassId:timeEntry.emplPositionClassId]"
-                          out-map="context"/>
+            <service-call name="mantle.work.TimeServices.find#RateAmount" out-map="context"
+                    in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate, ratePurposeEnumId:ratePurposeEnumId,
+                        rateTypeEnumId:rateTypeEnumId, rateCurrencyUomId:rateCurrencyUomId,timePeriodUomId:timePeriodUomId,
+                        workEffortId:timeEntry.workEffortId, partyId:timeEntry.partyId, employerPartyId:timeEntry.vendorPartyId,
+                        workTypeEnumId:timeEntry.workTypeEnumId, emplPositionClassId:timeEntry.emplPositionClassId]"/>
         </actions>
     </service>
 

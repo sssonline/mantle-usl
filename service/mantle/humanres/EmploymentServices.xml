@@ -437,7 +437,7 @@ along with this software (see the LICENSE.md file). If not, see
                         <econdition field-name="fromDate" operator="less-equals" from="thruTimestamp"/>
                         <select-field field-name="hours"/>
                     </entity-find>
-                    <set field="hoursWorked" from="teSumList ? teSumList[0].hours : 0.0"/>
+                    <set field="hoursWorked" from="teSumList?.first?.hours ?: 0.0"/>
 
                     <!-- subtract hours used so far for accruing this benefit to get hours available for accrual -->
                     <entity-find entity-name="mantle.humanres.employment.EmploymentBenefitAccrualSum" list="hoursUsedSumList">
@@ -520,7 +520,6 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="benefitTypeEnumId" required="true"/>
             <parameter name="partyRelationshipId" required="true"/>
         </in-parameters>
-        <out-parameters></out-parameters>
         <actions>
             <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRel">
                 <field-map field-name="partyRelationshipId"/>

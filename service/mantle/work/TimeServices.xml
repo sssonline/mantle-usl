@@ -1008,6 +1008,9 @@ along with this software (see the LICENSE.md file). If not, see
             
             <!-- If there is a party or employment, find the employment and attempt to define the payGrade and positionClass.
                  If there are any party specific rates, do a maximal match against them. -->
+            <!--<log level="warn" message="partyId: ${partyId} on line 1011 in TimeServices.xml"/>-->
+            <!--<log level="warn" message="partyRelationshipId: ${partyRelationshipId} on line 1012 in TimeServices.xml"/>-->
+            <!--<log level="warn" message="vendorPartyId: ${vendorPartyId} on line 1013 in TimeServices.xml"/>-->
             <if condition="partyId || partyRelationshipId">
                 <!-- find relevant Employment record -->
                 <if condition="partyRelationshipId"><then>
@@ -1029,7 +1032,7 @@ along with this software (see the LICENSE.md file). If not, see
                 </else-if></if>
 
                 <!-- Lookup up the position if it will be used to determine the payGrade or positionClass -->
-                <if condition="(!payGradeId || !emplPositionClassId) &amp;&amp; !employment?.emplPositionId">
+                <if condition="(!payGradeId || !emplPositionClassId) &amp;&amp; employment?.emplPositionId">
                     <entity-find-one entity-name="mantle.humanres.position.EmplPosition" value-field="emplPosition">
                         <field-map field-name="emplPositionId" from="employment.emplPositionId"/></entity-find-one>
                 </if>
@@ -1051,7 +1054,11 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="nonPartyRateAmountToUse" from="findMaximalMatch(nonPartyRaList,
                     [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
             <!--<log level="warn" message="=============== nonPartyRaList=${nonPartyRaList}"/>-->
-
+            <!--<log level="warn" message="workTypeEnumId: ${workTypeEnumId} on line 1054 in TimeServices.xml"/>-->
+            <!--<log level="warn" message="payGradeId: ${payGradeId} on line 1055 in TimeServices.xml"/>-->
+            <!--<log level="warn" message="emplPositionClassId: ${emplPositionClassId} on line 1056 in TimeServices.xml"/>-->
+            <!--<log level="warn" message="nonPartyRateAmountToUse: ${nonPartyRateAmountToUse} on line 1057 in TimeServices.xml"/>-->
+            
             <!-- Take the greater of the matched rates. This allows one to set a base rate for an employee, but allow
                  specific rates to exceed the employee rate.  This does preclude paying less than the employee rate. -->
             <if condition="partyRateAmountToUse"><then>

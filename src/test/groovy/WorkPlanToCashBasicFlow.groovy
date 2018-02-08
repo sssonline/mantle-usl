@@ -30,6 +30,7 @@ class WorkPlanToCashBasicFlow extends Specification {
     @Shared long effectiveTime
     @Shared Timestamp effectiveThruDate
     @Shared String startYear = "2016"
+    @Shared long totalFieldsChecked = 0
 
     def setupSpec() {
         // init the framework, get the ec
@@ -42,6 +43,7 @@ class WorkPlanToCashBasicFlow extends Specification {
 
         ec.entity.tempSetSequencedIdPrimary("mantle.account.invoice.Invoice", 55900, 10)
         ec.entity.tempSetSequencedIdPrimary("mantle.account.invoice.InvoiceItemAssoc", 55900, 10)
+        ec.entity.tempSetSequencedIdPrimary("mantle.humanres.rate.RateAmount", 55900, 10)
         ec.entity.tempSetSequencedIdPrimary("mantle.ledger.transaction.AcctgTrans", 55900, 10)
         ec.entity.tempSetSequencedIdPrimary("mantle.party.Party", 55900, 10)
         ec.entity.tempSetSequencedIdPrimary("mantle.request.Request", 55900, 10)
@@ -53,6 +55,7 @@ class WorkPlanToCashBasicFlow extends Specification {
     def cleanupSpec() {
         ec.entity.tempResetSequencedIdPrimary("mantle.account.invoice.Invoice")
         ec.entity.tempResetSequencedIdPrimary("mantle.account.invoice.InvoiceItemAssoc")
+        ec.entity.tempResetSequencedIdPrimary("mantle.humanres.rate.RateAmount")
         ec.entity.tempResetSequencedIdPrimary("mantle.ledger.transaction.AcctgTrans")
         ec.entity.tempResetSequencedIdPrimary("mantle.party.Party")
         ec.entity.tempResetSequencedIdPrimary("mantle.request.Request")
@@ -489,7 +492,8 @@ class WorkPlanToCashBasicFlow extends Specification {
         ec.service.sync().name("mantle.work.TaskServices.update#Task").parameters([workEffortId:'TEST-001B', statusId:'WeComplete', resolutionEnumId:'WerCompleted']).call()
 
         // NOTE: this has sequenced IDs so is sensitive to run order!
-        List<String> dataCheckErrors = ec.entity.makeDataLoader().xmlText("""<entity-facade-xml>
+        List<String> dataCheckErrors = []
+        long fieldsChecked = ec.entity.makeDataLoader().xmlText("""<entity-facade-xml>
             <mantle.work.effort.WorkEffort workEffortId="TEST-001" resolutionEnumId="WerCompleted" statusId="WeComplete"
                 estimatedWorkTime="10" remainingWorkTime="3" actualWorkTime="6"/>
             <mantle.work.time.TimeEntry timeEntryId="55900" partyId="${workerResult.partyId}" rateTypeEnumId="RatpStandard"
@@ -543,9 +547,11 @@ class WorkPlanToCashBasicFlow extends Specification {
             <moqui.entity.EntityAuditLog auditHistorySeqId="55947" changedEntityName="mantle.work.effort.WorkEffort"
                 changedFieldName="statusId" pkPrimaryValue="TEST-001B" oldValueText="WeInProgress"
                 newValueText="WeComplete" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-        </entity-facade-xml>""").check()
-        logger.info("record TimeEntries and complete Tasks data check results: " + dataCheckErrors)
+        </entity-facade-xml>""").check(dataCheckErrors)
+        totalFieldsChecked += fieldsChecked
+        logger.info("Checked ${fieldsChecked} fields")
+        if (dataCheckErrors) for (String dataCheckError in dataCheckErrors) logger.info(dataCheckError)
+        if (ec.message.hasError()) logger.warn(ec.message.getErrorsString())
 
         then:
         dataCheckErrors.size() == 0

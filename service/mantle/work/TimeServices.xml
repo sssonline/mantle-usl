@@ -823,12 +823,12 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="rateAmount" type="BigDecimal"/>
         </out-parameters>
         <actions>
-            <set field="partyId" from="ratePurposeEnumId == 'RaprVendor' ? timeEntry.partyId : timeEntry.clientPartyId"/>
             <service-call name="mantle.work.TimeServices.find#RateAmount" out-map="context"
                     in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate, ratePurposeEnumId:ratePurposeEnumId,
                         rateTypeEnumId:rateTypeEnumId, rateCurrencyUomId:rateCurrencyUomId, timePeriodUomId:timePeriodUomId,
-                        workEffortId:timeEntry.workEffortId, partyId:partyId, organizationPartyId:timeEntry.organizationPartyId,
-                        workTypeEnumId:timeEntry.workTypeEnumId, emplPositionClassId:timeEntry.emplPositionClassId]"/>
+                        workEffortId:timeEntry.workEffortId, partyId:timeEntry.partyId, clientPartyId:timeEntry.clientPartyId,
+                        organizationPartyId:timeEntry.organizationPartyId, workTypeEnumId:timeEntry.workTypeEnumId,
+                        emplPositionClassId:timeEntry.emplPositionClassId]"/>
         </actions>
     </service>
     <service verb="find" noun="RateAmount">
@@ -851,8 +851,9 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="timePeriodUomId" default-value="TF_hr"/>
             <!-- filter by if any records have these not null -->
             <parameter name="workEffortId"/>
-            <parameter name="partyId"><description>Depending on Purpose either Worker/Vendor (RaprVendor) or Client/Customer (RaprClient)</description></parameter>
-            <parameter name="organizationPartyId"/><!-- employerPartyId -->
+            <parameter name="partyId"><description>The party performing work (worker, may be the vendor or work for the vendor)</description></parameter>
+            <parameter name="organizationPartyId"><description>The organization (employer, etc) who pays the worker and bills the client</description></parameter><!-- employerPartyId -->
+            <parameter name="clientPartyId"><description>The client who pays the internal organization (vendor) via bill through</description></parameter>
             <!-- check for relevant employments -->
             <parameter name="partyRelationshipId"/>
             <!-- must match or null; match as many as possible (to allow for nulls) with this priority if more than one match with same number of fields -->
@@ -877,8 +878,10 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- get all possible rates in one query, then do maximal match -->
             <entity-find entity-name="mantle.humanres.rate.RateAmount" list="rateAmountList">
                 <date-filter valid-date="fromDate ?: ec.user.nowTimestamp"/>
+                <!-- NOTE: no ignore-if-empty for the 3 party IDs, if no value they must be null on the RateAmount -->
                 <econdition field-name="partyId" or-null="true"/>
                 <econdition field-name="organizationPartyId" or-null="true"/>
+                <econdition field-name="clientPartyId" or-null="true"/>
                 <econditions combine="or">
                     <econdition field-name="workEffortId" from="taskWorkEffort?.workEffortId" ignore-if-empty="true"/>
                     <econdition field-name="workEffortId" from="taskWorkEffort?.rootWorkEffortId" ignore-if-empty="true"/>
@@ -954,6 +957,13 @@ along with this software (see the LICENSE.md file). If not, see
                         [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
                 </if>
             </if>
+            <if condition="clientPartyId">
+                <set field="clientRaList" from="rateAmountList.findAll({ it.clientPartyId == clientPartyId })"/>
+                <if condition="clientRaList">
+                    <set field="clientRateAmountToUse" from="findMaximalMatch(clientRaList,
+                        [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
+                </if>
+            </if>
 
             <!-- Do a maximal match on the rates that do not have a partyId. -->
             <set field="nonPartyRaList" from="rateAmountList.findAll({it.partyId == null })"/>
@@ -967,18 +977,19 @@ along with this software (see the LICENSE.md file). If not, see
             
             <!-- Take the greater of the matched rates. This allows one to set a base rate for an employee, but allow
                  specific rates to exceed the employee rate.  This does preclude paying less than the employee rate. -->
-            <if condition="(nonPartyRateAmountToUse?.rateAmount ?: 0.0) &gt; (partyRateAmountToUse?.rateAmount ?: 0.0)"><then>
-                <if condition="(orgRateAmountToUse?.rateAmount ?: 0.0) &gt; (nonPartyRateAmountToUse?.rateAmount ?: 0.0)"><then>
-                    <set field="rateAmountId" from="orgRateAmountToUse.rateAmountId"/>
-                    <set field="rateAmount" from="orgRateAmountToUse.rateAmount"/>
-                </then><else>
-                    <set field="rateAmountId" from="nonPartyRateAmountToUse.rateAmountId"/>
-                    <set field="rateAmount" from="nonPartyRateAmountToUse.rateAmount"/>
-                </else></if>
-            </then><else>
-                <set field="rateAmountId" from="partyRateAmountToUse?.rateAmountId"/>
-                <set field="rateAmount" from="partyRateAmountToUse?.rateAmount"/>
-            </else></if>
+            <script><![CDATA[
+                Map rateAmountById = [:]
+                if (nonPartyRateAmountToUse?.rateAmountId) rateAmountById.put(nonPartyRateAmountToUse.rateAmountId, nonPartyRateAmountToUse.rateAmount ?: 0.0)
+                if (partyRateAmountToUse?.rateAmountId) rateAmountById.put(partyRateAmountToUse.rateAmountId, partyRateAmountToUse.rateAmount ?: 0.0)
+                if (orgRateAmountToUse?.rateAmountId) rateAmountById.put(orgRateAmountToUse.rateAmountId, orgRateAmountToUse.rateAmount ?: 0.0)
+                if (clientRateAmountToUse?.rateAmountId) rateAmountById.put(clientRateAmountToUse.rateAmountId, clientRateAmountToUse.rateAmount ?: 0.0)
+                rateAmountId = null
+                rateAmount = null
+                for (entry in rateAmountById.entrySet()) {
+                    if (rateAmount == null) { rateAmountId = entry.key; rateAmount = entry.value }
+                    else if (entry.value > rateAmount) { rateAmountId = entry.key; rateAmount = entry.value }
+                }
+            ]]></script>
 
             <!-- <if condition="rateAmount == null"><log level="error" message="No rate found ratePurposeEnumId ${ratePurposeEnumId} partyId ${partyId} workTypeEnumId ${workTypeEnumId}"/></if> -->
         </actions>

@@ -177,7 +177,7 @@ along with this software (see the LICENSE.md file). If not, see
                 </else></if>
             </if>
             <if condition="!clientPartyId &amp;&amp; facilityId">
-                <!-- set vendorPartyId to facility Customer -->
+                <!-- set clientPartyId to facility Customer -->
                 <entity-find entity-name="mantle.facility.FacilityParty" list="customerList">
                     <date-filter valid-date="fromDate"/><econdition field-name="facilityId"/>
                     <econdition field-name="roleTypeId" operator="in" value="Customer,CustomerBillTo"/>
@@ -191,15 +191,15 @@ along with this software (see the LICENSE.md file). If not, see
                 </else></if>
             </if>
 
-            <!-- if vendorPartyId not set find from workEffortId or facilityId -->
-            <if condition="!vendorPartyId &amp;&amp; workEffortId">
+            <!-- if organizationPartyId not set find from workEffortId or facilityId -->
+            <if condition="!organizationPartyId &amp;&amp; workEffortId">
                 <!-- see if there is a Vendor associated with the WorkEffort (task or project) -->
                 <entity-find entity-name="mantle.work.effort.WorkEffortParty" list="billFromList">
                     <date-filter valid-date="fromDate"/><econdition field-name="workEffortId"/>
-                    <econdition field-name="roleTypeId" operator="in" value="Vendor,VendorBillFrom"/>
+                    <econdition field-name="roleTypeId" operator="in" value="OrgInternal,Vendor,VendorBillFrom"/>
                 </entity-find>
                 <if condition="billFromList"><then>
-                    <set field="vendorPartyId" from="billFromList[0].partyId"/>
+                    <set field="organizationPartyId" from="billFromList[0].partyId"/>
                 </then><else>
                     <!-- see if there is a Vendor associated with the root (project) -->
                     <entity-find-one entity-name="mantle.work.effort.WorkEffort" value-field="workEffort"/>
@@ -207,22 +207,22 @@ along with this software (see the LICENSE.md file). If not, see
                         <entity-find entity-name="mantle.work.effort.WorkEffortParty" list="rootBillFromList">
                             <date-filter valid-date="fromDate"/>
                             <econdition field-name="workEffortId" from="workEffort.rootWorkEffortId"/>
-                            <econdition field-name="roleTypeId" operator="in" value="Vendor,VendorBillFrom"/>
+                            <econdition field-name="roleTypeId" operator="in" value="OrgInternal,Vendor,VendorBillFrom"/>
                         </entity-find>
-                        <if condition="rootBillFromList"><set field="vendorPartyId" from="rootBillFromList[0].partyId"/></if>
+                        <if condition="rootBillFromList"><set field="organizationPartyId" from="rootBillFromList[0].partyId"/></if>
                     </if>
                 </else></if>
             </if>
-            <if condition="!vendorPartyId &amp;&amp; facilityId">
-                <!-- set vendorPartyId to facility Manager or Vendor -->
-                <entity-find entity-name="mantle.facility.FacilityParty" list="vendorList">
+            <if condition="!organizationPartyId &amp;&amp; facilityId">
+                <!-- set organizationPartyId to facility Manager or Vendor -->
+                <entity-find entity-name="mantle.facility.FacilityParty" list="managerList">
                     <date-filter valid-date="fromDate"/><econdition field-name="facilityId"/>
-                    <econdition field-name="roleTypeId" operator="in" value="Manager,Vendor,VendorBillFrom"/>
+                    <econdition field-name="roleTypeId" operator="in" value="Manager,OrgInternal"/>
                 </entity-find>
-                <if condition="vendorList"><then>
-                    <set field="vendorPartyId" from="vendorList[0].partyId"/>
+                <if condition="managerList"><then>
+                    <set field="organizationPartyId" from="managerList[0].partyId"/>
                 </then><else>
-                    <!-- set vendorPartyId to facility owner -->
+                    <!-- set organizationPartyId to facility owner -->
                     <entity-find-one entity-name="mantle.facility.Facility" value-field="facility"/>
                     <set field="clientPartyId" from="facility?.ownerPartyId"/>
                 </else></if>
@@ -950,11 +950,10 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="timePeriodUomId" default-value="TF_hr"/>
             <!-- filter by if any records have these not null -->
             <parameter name="workEffortId"/>
-            <parameter name="partyId"/>
+            <parameter name="partyId"><description>Depending on Purpose either Worker/Vendor (RaprVendor) or Client/Customer (RaprClient)</description></parameter>
+            <parameter name="organizationPartyId"/><!-- employerPartyId -->
             <!-- check for relevant employments -->
             <parameter name="partyRelationshipId"/>
-            <parameter name="vendorPartyId"/> <!-- employerPartyId -->
-            <parameter name="clientPartyId"/> <!-- customerPartyId -->
             <!-- must match or null; match as many as possible (to allow for nulls) with this priority if more than one match with same number of fields -->
             <parameter name="workTypeEnumId"/>
             <parameter name="payGradeId"/>
@@ -967,7 +966,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- TODO: Do we need a concept of a vendor/client party on RateAmount? -->
             <!-- TODO: If so and the rate purpose is RaprVendor, we don't care about the clientPartyId -->
-            <!-- TODO: If so and the rate purpose is RaprClient, do we care about the vendorPartyId to get the payGrade and positionClass? -->
+            <!-- TODO: If so and the rate purpose is RaprClient, do we care about the organizationPartyId to get the payGrade and positionClass? -->
 
             <if condition="workEffortId">
                 <entity-find-one entity-name="mantle.work.effort.WorkEffort" value-field="taskWorkEffort">
@@ -977,7 +976,8 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- get all possible rates in one query, then do maximal match -->
             <entity-find entity-name="mantle.humanres.rate.RateAmount" list="rateAmountList">
                 <date-filter valid-date="fromDate ?: ec.user.nowTimestamp"/>
-                <econdition field-name="partyId" from="partyId" or-null="true"/>
+                <econdition field-name="partyId" or-null="true"/>
+                <econdition field-name="organizationPartyId" or-null="true"/>
                 <econditions combine="or">
                     <econdition field-name="workEffortId" from="taskWorkEffort?.workEffortId" ignore-if-empty="true"/>
                     <econdition field-name="workEffortId" from="taskWorkEffort?.rootWorkEffortId" ignore-if-empty="true"/>
@@ -1010,26 +1010,24 @@ along with this software (see the LICENSE.md file). If not, see
                  If there are any party specific rates, do a maximal match against them. -->
             <!--<log level="warn" message="partyId: ${partyId} on line 1011 in TimeServices.xml"/>-->
             <!--<log level="warn" message="partyRelationshipId: ${partyRelationshipId} on line 1012 in TimeServices.xml"/>-->
-            <!--<log level="warn" message="vendorPartyId: ${vendorPartyId} on line 1013 in TimeServices.xml"/>-->
+            <!--<log level="warn" message="organizationPartyId: ${organizationPartyId} on line 1013 in TimeServices.xml"/>-->
             <if condition="partyId || partyRelationshipId">
                 <!-- find relevant Employment record -->
-                <if condition="partyRelationshipId"><then>
-                    <entity-find entity-name="mantle.humanres.employment.EmploymentAndRelationship" list="employmentList">
-                        <date-filter valid-date="thruDate"/>
-                        <econdition field-name="partyRelationshipId"/>
-                        <econdition field-name="fromPartyId" from="partyId" ignore-if-empty="true"/>
-                        <econdition field-name="toPartyId" from="vendorPartyId" ignore-if-empty="true"/>
-                    </entity-find>
-                    <set field="employment" from="employmentList ? employmentList[0] : null"/>
-                    <set field="partyId" from="partyId ?: employment?.fromPartyId ?: null"/> <!-- Need party from employment if not set -->
-                </then><else-if condition="partyId &amp;&amp; vendorPartyId">
+                <if condition="partyRelationshipId">
+                    <entity-find-one entity-name="mantle.humanres.employment.EmploymentAndRelationship" value-field="employment">
+                        <field-map field-name="partyRelationshipId"/></entity-find-one>
+                    <!-- Get party from employment if not set -->
+                    <set field="partyId" from="partyId ?: employment?.fromPartyId ?: null"/>
+                    <set field="organizationPartyId" from="organizationPartyId ?: employment?.toPartyId ?: null"/>
+                </if>
+                <if condition="employment == null &amp;&amp; ratePurposeEnumId == 'RaprVendor' &amp;&amp; partyId &amp;&amp; organizationPartyId">
                     <entity-find entity-name="mantle.humanres.employment.EmploymentAndRelationship" list="employmentList">
                         <date-filter valid-date="thruDate"/>
                         <econdition field-name="fromPartyId" from="partyId"/>
-                        <econdition field-name="toPartyId" from="vendorPartyId"/>
+                        <econdition field-name="toPartyId" from="organizationPartyId"/>
                     </entity-find>
                     <set field="employment" from="employmentList ? employmentList[0] : null"/>
-                </else-if></if>
+                </if>
 
                 <!-- Lookup up the position if it will be used to determine the payGrade or positionClass -->
                 <if condition="(!payGradeId || !emplPositionClassId) &amp;&amp; employment?.emplPositionId">
@@ -1044,10 +1042,17 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="partyRaList">
                     <set field="partyRateAmountToUse" from="findMaximalMatch(partyRaList,
                         [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
-
                 </if>
             </if>
             <!--<log level="warn" message="=============== partyRaList=${partyRaList}"/>-->
+
+            <if condition="organizationPartyId">
+                <set field="orgRaList" from="rateAmountList.findAll({ it.organizationPartyId == organizationPartyId })"/>
+                <if condition="orgRaList">
+                    <set field="orgRateAmountToUse" from="findMaximalMatch(orgRaList,
+                        [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
+                </if>
+            </if>
 
             <!-- Do a maximal match on the rates that do not have a partyId. -->
             <set field="nonPartyRaList" from="rateAmountList.findAll({it.partyId == null })"/>
@@ -1061,20 +1066,20 @@ along with this software (see the LICENSE.md file). If not, see
             
             <!-- Take the greater of the matched rates. This allows one to set a base rate for an employee, but allow
                  specific rates to exceed the employee rate.  This does preclude paying less than the employee rate. -->
-            <if condition="partyRateAmountToUse"><then>
-                <if condition="nonPartyRateAmountToUse &amp;&amp;
-                               (nonPartyRateAmountToUse.rateAmount &gt; partyRateAmountToUse.rateAmount)"><then>
+            <if condition="(nonPartyRateAmountToUse?.rateAmount ?: 0.0) &gt; (partyRateAmountToUse?.rateAmount ?: 0.0)"><then>
+                <if condition="(orgRateAmountToUse?.rateAmount ?: 0.0) &gt; (nonPartyRateAmountToUse?.rateAmount ?: 0.0)"><then>
+                    <set field="rateAmountId" from="orgRateAmountToUse.rateAmountId"/>
+                    <set field="rateAmount" from="orgRateAmountToUse.rateAmount"/>
+                </then><else>
                     <set field="rateAmountId" from="nonPartyRateAmountToUse.rateAmountId"/>
                     <set field="rateAmount" from="nonPartyRateAmountToUse.rateAmount"/>
-                </then><else>
-                    <set field="rateAmountId" from="partyRateAmountToUse.rateAmountId"/>
-                    <set field="rateAmount" from="partyRateAmountToUse.rateAmount"/>
                 </else></if>
             </then><else>
-                <set field="rateAmountId" from="nonPartyRateAmountToUse?.rateAmountId"/>
-                <set field="rateAmount" from="nonPartyRateAmountToUse?.rateAmount"/>
+                <set field="rateAmountId" from="partyRateAmountToUse?.rateAmountId"/>
+                <set field="rateAmount" from="partyRateAmountToUse?.rateAmount"/>
             </else></if>
 
+            <!-- <if condition="rateAmount == null"><log level="error" message="No rate found ratePurposeEnumId ${ratePurposeEnumId} partyId ${partyId} workTypeEnumId ${workTypeEnumId}"/></if> -->
         </actions>
     </service>
 
@@ -1094,13 +1099,12 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="rateAmount" type="BigDecimal"/>
         </out-parameters>
         <actions>
+            <set field="partyId" from="ratePurposeEnumId == 'RaprVendor' ? timeEntry.partyId : timeEntry.clientPartyId"/>
             <service-call name="mantle.work.TimeServices.find#RateAmount" out-map="context"
-                    in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate,
-                             ratePurposeEnumId:ratePurposeEnumId, rateTypeEnumId:rateTypeEnumId,
-                             rateCurrencyUomId:rateCurrencyUomId,timePeriodUomId:timePeriodUomId,
-                             workEffortId:timeEntry.workEffortId, partyId:timeEntry.partyId,
-                             vendorPartyId:timeEntry.vendorPartyId, clientPartyId:timeEntry.clientPartyId,
-                             workTypeEnumId:timeEntry.workTypeEnumId, emplPositionClassId:timeEntry.emplPositionClassId]"/>
+                    in-map="[fromDate:timeEntry.fromDate, thruDate:timeEntry.thruDate, ratePurposeEnumId:ratePurposeEnumId,
+                        rateTypeEnumId:rateTypeEnumId, rateCurrencyUomId:rateCurrencyUomId, timePeriodUomId:timePeriodUomId,
+                        workEffortId:timeEntry.workEffortId, partyId:partyId, organizationPartyId:timeEntry.organizationPartyId,
+                        workTypeEnumId:timeEntry.workTypeEnumId, emplPositionClassId:timeEntry.emplPositionClassId]"/>
         </actions>
     </service>
 

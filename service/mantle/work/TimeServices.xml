@@ -755,7 +755,7 @@ along with this software (see the LICENSE.md file). If not, see
             </then><else>
                 <set field="rateAmountId" from="timeEntry.rateAmountId"/>
                 <set field="rateAmount" from="timeEntry.'mantle.humanres.rate.RateAmount'?.rateAmount"/>
-                <if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.clientHourRate" from="rateAmount"/></if>
+                <!--<if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.clientHourRate" from="rateAmount"/></if>-->
             </else></if>
             <if condition="!timeEntry.vendorRateAmountId &amp;&amp; timeEntry.rateTypeEnumId"><then>
                 <service-call name="mantle.work.TimeServices.find#TimeEntryRateAmount" out-map="vendorRate"
@@ -770,7 +770,7 @@ along with this software (see the LICENSE.md file). If not, see
             </then><else>
                 <set field="vendorRateAmountId" from="timeEntry.vendorRateAmountId"/>
                 <set field="vendorRateAmount" from="timeEntry.'Vendor#mantle.humanres.rate.RateAmount'?.rateAmount"/>
-                <if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.vendorHourRate" from="vendorRateAmount"/></if>
+                <!--<if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.vendorHourRate" from="vendorRateAmount"/></if>-->
             </else></if>
 
             <if condition="!timeEntry.pieceRateAmountId &amp;&amp; timeEntry.pieceRateTypeEnumId"><then>
@@ -786,7 +786,7 @@ along with this software (see the LICENSE.md file). If not, see
             </then><else>
                 <set field="pieceRateAmountId" from="timeEntry.pieceRateAmountId"/>
                 <set field="pieceRateAmount" from="timeEntry.'Piece#mantle.humanres.rate.RateAmount'?.rateAmount"/>
-                <if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.clientPieceRate" from="pieceRateAmount"/></if>
+                <!--<if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.clientPieceRate" from="pieceRateAmount"/></if>-->
             </else></if>
             <if condition="!timeEntry.vendorPieceRateAmountId &amp;&amp; timeEntry.pieceRateTypeEnumId"><then>
                 <service-call name="mantle.work.TimeServices.find#TimeEntryRateAmount" out-map="vendorPieceRate"
@@ -801,7 +801,7 @@ along with this software (see the LICENSE.md file). If not, see
             </then><else>
                 <set field="vendorPieceRateAmountId" from="timeEntry.vendorPieceRateAmountId"/>
                 <set field="vendorPieceRateAmount" from="timeEntry.'VendorPiece#mantle.humanres.rate.RateAmount'?.rateAmount"/>
-                <if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.vendorPieceRate" from="vendorPieceRateAmount"/></if>
+                <!--<if condition="timeEntry.hasModifiedRates != 'Y'"><set field="timeEntry.vendorPieceRate" from="vendorPieceRateAmount"/></if>-->
             </else></if>
 
             <entity-update value-field="timeEntry"/>

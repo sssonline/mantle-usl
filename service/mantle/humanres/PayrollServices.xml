@@ -215,6 +215,10 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistory" list="payHistoryList">
                 <econdition field-name="timePeriodId"/></entity-find>
             <iterate list="payHistoryList" entry="payHistory">
+                <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentPayTimeDetail">
+                    <econdition field-name="partyRelationshipId" from="payHistory.partyRelationshipId"/>
+                    <econdition field-name="payDate" from="payHistory.payDate"/>
+                </entity-delete-by-condition>
                 <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentPayDetail">
                     <econdition field-name="partyRelationshipId" from="payHistory.partyRelationshipId"/>
                     <econdition field-name="payDate" from="payHistory.payDate"/>

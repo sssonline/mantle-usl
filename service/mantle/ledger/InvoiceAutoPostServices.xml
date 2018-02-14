@@ -91,7 +91,8 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- skip adjustment items, handle later -->
                 <if condition="invoiceItem.isAdjustment == 'Y'"><continue/></if>
                 <!-- calc and check item total -->
-                <set field="itemTotal" from="((invoiceItem.quantity != null ? invoiceItem.quantity : 1.0) * (invoiceItem.amount ?: 0.0)).setScale(2, BigDecimal.ROUND_HALF_UP)"/>
+                <!-- If the per invoice item scale is adjusted, updated in InvoiceServices.xml as well-->
+                <set field="itemTotal" from="((invoiceItem.quantity != null ? invoiceItem.quantity : 1.0) * (invoiceItem.amount ?: 0.0)).setScale(3, BigDecimal.ROUND_HALF_UP)"/>
                 <if condition="itemTotal == 0.0"><continue/></if>
                 <set field="invoiceTotal" from="invoiceTotal + itemTotal"/>
 

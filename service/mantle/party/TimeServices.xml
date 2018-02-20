@@ -378,6 +378,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <description>Meant to be used in an exclusive expression (first ms of next period, use less than)</description></parameter>
             <parameter name="thruTimestampLate" type="Timestamp">
                 <description>Late in the day (20:00) on the last day of the period, use as the Timestamp on automatic end of period records</description></parameter>
+            <parameter name="estimatedSettleTimestamp" type="Timestamp"/>
         </out-parameters>
         <actions>
             <if condition="timePeriod == null">
@@ -395,6 +396,9 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="thruTimestamp" from="ec.l10n.parseTimestamp(timePeriod.thruDate.toString() + ' 23:59:59.999', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
             <set field="thruTimestampExclusive" from="ec.l10n.parseTimestamp((timePeriod.thruDate + 1).toString() + ' 00:00:00.000', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
             <set field="thruTimestampLate" from="ec.l10n.parseTimestamp(timePeriod.thruDate.toString() + ' 20:00:00.000', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
+            <if condition="timePeriod.estimatedSettleDate">
+                <set field="estimatedSettleTimestamp" from="ec.l10n.parseTimestamp(timePeriod.estimatedSettleDate.toString() + ' 12:00:00.000', 'yyyy-MM-dd HH:mm:ss.SSS', null, TimeZone.getDefault())"/>
+            </if>
 
             <!-- Determine how many days are in the time period-->
             <script>

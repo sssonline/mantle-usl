@@ -65,7 +65,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PID"/>
     </view-entity>
 
-    <view-entity entity-name="EmploymentPayTimeEntryDetail" package="mantle.humanres.employment">
+    <view-entity entity-name="EmploymentPayTimeAndDetail" package="mantle.humanres.employment">
         <member-entity entity-alias="EPTD" entity-name="mantle.humanres.employment.EmploymentPayTimeDetail"/>
         <member-entity entity-alias="TENT" entity-name="mantle.work.time.TimeEntry" join-from-alias="EPTD">
             <key-map field-name="timeEntryId"/>
@@ -75,10 +75,27 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="timeEntryId"/>
             <exclude field="itemTypeEnumId"/>
             <exclude field="hours"/>
+            <exclude field="rateAmountId"/>
+            <exclude field="vendorRateAmountId"/>
+            <exclude field="clientPartyId"/>
+            <exclude field="clientHourRate"/>
             <exclude field="vendorHourRate"/>
-            <exclude field="pieceCount"/>
+            <exclude field="pieceRateAmountId"/>
+            <exclude field="vendorPieceRateAmountId"/>
+            <exclude field="clientPieceRate"/>
             <exclude field="vendorPieceRate"/>
+            <exclude field="invoiceId"/>
+            <exclude field="invoiceItemSeqId"/>
+            <exclude field="vendorInvoiceId"/>
+            <exclude field="vendorInvoiceItemSeqId"/>
         </alias-all>
+        <!-- Rename the fields so they are from the perspective of the employer. -->
+        <alias name="rateAmountId" field="vendorRateAmountId" entity-alias="TENT"/>
+        <alias name="pieceRateAmountId" field="vendorPieceRateAmountId" entity-alias="TENT"/>
+        <alias name="hourRate" field="vendorHourRate" entity-alias="TENT"/>
+        <alias name="pieceRate" field="vendorPieceRate" entity-alias="TENT"/>
+        <alias name="invoiceId" field="vendorInvoiceId" entity-alias="TENT"/>
+        <alias name="invoiceItemSeqId" field="vendorInvoiceItemSeqId" entity-alias="TENT"/>
     </view-entity>
 
     <view-entity entity-name="EmploymentSalaryFromDetail" package="mantle.humanres.employment">

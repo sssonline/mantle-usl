@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -235,6 +235,20 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="timePeriodId"/></entity-find>
             <set field="invoiceCount" from="0"/>
             <iterate list="invoiceList" entry="invoice">
+                <!-- cancel if not already cancelled, clean up references on related records (including TimeEntry, though those cleaned up above) -->
+                <service-call name="mantle.account.InvoiceServices.cancel#Invoice" in-map="[invoiceId:invoice.invoiceId]"/>
+
+                <!-- to clean up unwanted invoices (like in a payroll trial run or mistaken run) delete instead of just cancelling -->
+                <!-- NOTE: could also delete AcctgTrans, after unposting, unless something manually done with a payroll invoice shouldn't be needed -->
+                <entity-delete-by-condition entity-name="mantle.account.payment.PaymentApplication">
+                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
+                <entity-delete-by-condition entity-name="mantle.account.invoice.InvoiceItemDetail">
+                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
+                <entity-delete-by-condition entity-name="mantle.account.invoice.InvoiceItem">
+                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
+                <entity-delete-by-condition entity-name="mantle.account.invoice.Invoice">
+                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
+
                 <!-- clear out all non-modified rate amounts on TimeEntry records -->
                 <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList">
                     <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-find>
@@ -260,20 +274,6 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="timeEntry.invoiceId" from="null"/>
                     <entity-update value-field="timeEntry"/>
                 </iterate>
-
-                <!-- cancel if not already cancelled, clean up references on related records (including TimeEntry, though those cleaned up above) -->
-                <service-call name="mantle.account.InvoiceServices.cancel#Invoice" in-map="[invoiceId:invoice.invoiceId]"/>
-
-                <!-- to clean up unwanted invoices (like in a payroll trial run or mistaken run) delete instead of just cancelling -->
-                <!-- NOTE: could also delete AcctgTrans, after unposting, unless something manually done with a payroll invoice shouldn't be needed -->
-                <entity-delete-by-condition entity-name="mantle.account.payment.PaymentApplication">
-                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
-                <entity-delete-by-condition entity-name="mantle.account.invoice.InvoiceItemDetail">
-                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
-                <entity-delete-by-condition entity-name="mantle.account.invoice.InvoiceItem">
-                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
-                <entity-delete-by-condition entity-name="mantle.account.invoice.Invoice">
-                    <econdition field-name="invoiceId" from="invoice.invoiceId"/></entity-delete-by-condition>
 
                 <set field="invoiceCount" from="invoiceCount + 1"/>
             </iterate>
@@ -801,7 +801,7 @@ along with this software (see the LICENSE.md file). If not, see
             </iterate>
 
             <!-- calculate adjustments and run other calculations by phase, including those with no phase after the other taxable/deductible phase -->
-            <set field="phaseEnumIdList" from="['PrphNdBonus', 'PrphWages', 'PrphMakeupPay', 'PrphOvertime', 
+            <set field="phaseEnumIdList" from="['PrphNdBonus', 'PrphWages', 'PrphMakeupPay', 'PrphOvertime',
                                                 'PrphPaidTimeOff', 'PrphAddlComp', 'PrphPretaxDeductions', null,
                                                 'PrphTax', 'PrphDeductions', 'PrphGarnish', 'PrphQualExpense',
                                                 'PrphOtherAdjustment']"/>
@@ -819,7 +819,7 @@ along with this software (see the LICENSE.md file). If not, see
                               out-map="rcInfo" out-map-add-to-existing="false"/>
                 <script>timeEntryRiskClassInfoList.add(rcInfo)</script>
             </iterate>
-            
+
             <set field="calcAdjParameters" from="[
                     partyRelationshipId:partyRelationshipId, employment:employment, employee:employee,
                     timePeriod:timePeriod, timeEntryList:timeEntryList,

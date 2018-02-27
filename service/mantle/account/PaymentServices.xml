@@ -221,7 +221,13 @@ along with this software (see the LICENSE.md file). If not, see
     <!-- ============================================ -->
 
     <service verb="assign" noun="BankAccountCheckNumber">
-        <in-parameters><parameter name="paymentId" required="true"/></in-parameters>
+        <in-parameters>
+            <parameter name="paymentId" required="true"/>
+            <parameter name="numOfPrevPages" default-value="1" type="BigInteger"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="numOfPrevPages"/>
+        </out-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment" for-update="true"/>
             <if condition="!payment?.paymentMethodId">
@@ -233,7 +239,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="!bankAccount">
                 <return message="Payment Method [${payment.paymentMethodId}] (for Payment [${paymentId}]) is not a bank account, not assigning check number"/></if>
 
-            <set field="checkNumber" from="bankAccount.lastCheckNumber + 1"/>
+            <set field="checkNumber" from="bankAccount.lastCheckNumber + numOfPrevPages"/>
 
             <!-- make sure no BankAccountCheck record exists -->
             <entity-find-one entity-name="mantle.account.method.BankAccountCheck" value-field="bankAccountCheck">
@@ -255,6 +261,21 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- create BankAccountCheck record -->
             <service-call name="create#mantle.account.method.BankAccountCheck"
                     in-map="[paymentMethodId:paymentMethodId, checkNumber:checkNumber, paymentId:paymentId]"/>
+
+            <!-- get the num of pages this payment will take so we know what check number to start with for the next one -->
+            <if condition="payment.forInvoiceId">
+                <entity-find entity-name="mantle.humanres.employment.EmploymentPayDetail" list="employmentPayDetailList">
+                    <econdition field-name="invoiceId" from="payment.forInvoiceId"/>
+                    <econdition field-name="isEmployerPaid" value="N" or-null="true"/>
+                </entity-find>
+            </if>
+
+            <if condition="payment.forInvoiceId">
+                <entity-find entity-name="mantle.humanres.employment.EmploymentPayTimeAndDetail" list="employmentPayTimeAndDetailList">
+                    <econdition field-name="invoiceId" from="payment.forInvoiceId"/>
+                </entity-find>
+            </if>
+            <set field="numOfPrevPages" from="((employmentPayDetailList.size() + employmentPayTimeAndDetailList.size())/30.0).setScale(0, BigDecimal.ROUND_CEILING)"/>
         </actions>
     </service>
     <service verb="set" noun="PaymentDate">

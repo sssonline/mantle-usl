@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -264,18 +264,18 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- get the num of pages this payment will take so we know what check number to start with for the next one -->
             <if condition="payment.forInvoiceId">
-                <entity-find entity-name="mantle.humanres.employment.EmploymentPayDetail" list="employmentPayDetailList">
+                <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjDetail" list="employmentPayHistoryAdjDetailList">
                     <econdition field-name="invoiceId" from="payment.forInvoiceId"/>
                     <econdition field-name="isEmployerPaid" value="N" or-null="true"/>
                 </entity-find>
             </if>
 
             <if condition="payment.forInvoiceId">
-                <entity-find entity-name="mantle.humanres.employment.EmploymentPayTimeAndDetail" list="employmentPayTimeAndDetailList">
+                <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryTimeDetail" list="employmentPayHistoryTimeDetailList">
                     <econdition field-name="invoiceId" from="payment.forInvoiceId"/>
                 </entity-find>
             </if>
-            <set field="numOfPrevPages" from="((employmentPayDetailList.size() + employmentPayTimeAndDetailList.size())/30.0).setScale(0, BigDecimal.ROUND_CEILING)"/>
+            <set field="numOfPrevPages" from="((employmentPayHistoryAdjDetailList.size() + employmentPayHistoryTimeDetailList.size())/30.0).setScale(0, BigDecimal.ROUND_CEILING)"/>
         </actions>
     </service>
     <service verb="set" noun="PaymentDate">
@@ -800,7 +800,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="paymentApplicationIdByPaymentId" from="[:]"/>
             <service-call name="mantle.account.InvoiceServices.get#InvoiceTotal" out-map="invTotal"
                     in-map="[invoiceId:invoiceId]"/>
-            
+
             <!-- try payments by part first, then payments for entire order -->
             <entity-find entity-name="mantle.account.payment.Payment" list="partPaymentList">
                 <econdition field-name="orderId"/><econdition field-name="orderPartSeqId"/></entity-find>
@@ -1362,7 +1362,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="paymentGatewayResponse" from="pgrList?.getAt(0)"/>
         </actions>
     </service>
-    
+
     <service verb="capture" noun="InvoicePayments">
         <description>DEPRECATED by direct call to capture#SinglePayment in apply#OrderPaymentsToInvoice. Was called by SECA rule.</description>
         <in-parameters><parameter name="invoiceId" required="true"/></in-parameters>

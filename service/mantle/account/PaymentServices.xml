@@ -275,7 +275,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <econdition field-name="invoiceId" from="payment.forInvoiceId"/>
                 </entity-find>
             </if>
-            <set field="numOfPrevPages" from="((employmentPayHistoryAdjDetailList.size() + employmentPayHistoryTimeDetailList.size())/30.0).setScale(0, BigDecimal.ROUND_CEILING)"/>
+            <set field="numOfPrevPages" from="(((employmentPayHistoryAdjDetailList?.size()?:0.0) + (employmentPayHistoryTimeDetailList?.size()?:0.0))/30.0).setScale(0, BigDecimal.ROUND_CEILING)"/>
         </actions>
     </service>
     <service verb="set" noun="PaymentDate">

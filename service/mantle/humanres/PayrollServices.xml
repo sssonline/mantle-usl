@@ -390,8 +390,10 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="statusId" value="PmntAuthorized"/>
                 <order-by field-name="paymentId"/>
             </entity-find>
+            <set field="numOfPrevPages" value="1"/>
             <iterate list="paymentList" entry="payment">
-                <service-call name="mantle.account.PaymentServices.assign#BankAccountCheckNumber" in-map="[paymentId:payment.paymentId]"/>
+                <service-call name="mantle.account.PaymentServices.assign#BankAccountCheckNumber" in-map="[paymentId:payment.paymentId, numOfPrevPages:numOfPrevPages]" out-map="context"/>
+                <set field="numOfPrevPages" from="numOfPrevPages"/>
             </iterate>
         </actions>
     </service>

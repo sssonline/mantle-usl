@@ -211,17 +211,15 @@ along with this software (see the LICENSE.md file). If not, see
             </entity-find-count>
             <if condition="approvedCount &gt; 0"><return error="true" message="Found ${approvedCount} invoices in Approved or later status, cannot re-open period"/></if>
 
-            <!-- delete all EmploymentPayHistory and EmploymentPayDetail records -->
+            <!-- delete all EmploymentPayHistory and EmploymentPay*Detail records -->
             <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistory" list="payHistoryList">
                 <econdition field-name="timePeriodId"/></entity-find>
             <iterate list="payHistoryList" entry="payHistory">
                 <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentPayTimeDetail">
-                    <econdition field-name="partyRelationshipId" from="payHistory.partyRelationshipId"/>
-                    <econdition field-name="payDate" from="payHistory.payDate"/>
+                    <econdition field-name="employmentPayHistoryId" from="payHistory.employmentPayHistoryId"/>
                 </entity-delete-by-condition>
-                <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentPayDetail">
-                    <econdition field-name="partyRelationshipId" from="payHistory.partyRelationshipId"/>
-                    <econdition field-name="payDate" from="payHistory.payDate"/>
+                <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentPayAdjDetail">
+                    <econdition field-name="employmentPayHistoryId" from="payHistory.employmentPayHistoryId"/>
                 </entity-delete-by-condition>
                 <entity-delete value-field="payHistory"/>
             </iterate>
@@ -532,18 +530,21 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="netPayAmount != totalOut.invoiceTotal">
                 <return error="true" message="For employment [${partyRelationshipId}] invoice total [${totalOut.invoiceTotal}] did not match net pay [${netPayAmount}]"/></if>
 
-            <!-- create EmploymentPayHistory and EmploymentPayDetail records -->
+            <!-- create EmploymentPayHistory and EmploymentPay*Detail records -->
             <service-call name="create#mantle.humanres.employment.EmploymentPayHistory"
                     in-map="[partyRelationshipId:partyRelationshipId, payDate:payDate, timePeriodId:timePeriodId,
                         invoiceId:invoiceId, internalPayroll:'Y', payAmount:payAmount, taxablePayAmount:taxablePayAmount,
                         socialTaxablePayAmount:socialTaxablePayAmount, medicalTaxablePayAmount:medicalTaxablePayAmount,
                         netPayAmount:netPayAmount, disposablePayAmount:disposablePayAmount, taxableYtdIncome:taxableYtdIncome,
                         socialTaxableYtdIncome:socialTaxableYtdIncome, medicalTaxableYtdIncome:medicalTaxableYtdIncome,
-                        currencyUomId:currencyUomId]"/>
+                        currencyUomId:currencyUomId]" out-map="ephOut"/>
             <iterate list="adjustmentList" entry="adjustment">
                 <!-- add records for all adjustments, including employer paid (this is the only detail record we have of employer paid) -->
-                <service-call name="create#mantle.humanres.employment.EmploymentPayDetail"
-                        in-map="[partyRelationshipId:partyRelationshipId, payDate:payDate,
+                <!-- TODO: Should the employer paid details be listed separately anymore or just inferred to be
+                           the inverse (sign) of the payroll adjustment?  This would require adding the payeeInvoiceId,
+                           but that is now present on EmploymentPayAdjDetail when it was not originally. -->
+                <service-call name="create#mantle.humanres.employment.EmploymentPayAdjDetail"
+                        in-map="[employmentPayHistoryId:ephOut.employmentPayHistoryId,
                             payrollAdjustmentId:adjustment.payrollAdjustmentId, adjCalcServiceId:adjustment.adjCalcServiceId,
                             itemTypeEnumId:adjustment.itemTypeEnumId, quantity:adjustment.quantity, amount:adjustment.amount,
                             isEmployerPaid:adjustment.isEmployerPaid, taxAuthorityId:adjustment.taxAuthorityId,

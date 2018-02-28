@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -148,18 +148,21 @@ along with this software (see the LICENSE.md file). If not, see
 
             <set field="hasAnyPay" from="taxablePayAmount &gt; 0 || socialTaxablePayAmount &gt; 0 || medicalTaxablePayAmount &gt; 0"/>
 
-            <entity-find entity-name="mantle.humanres.employment.EmploymentPayDetail" list="payDetailList">
+            <!-- TODO: Does this account for the addition of payeePartyId and the newer notion where the
+                       payeePartyId exists on the EmploymentPayAdjDetail and the payee invoice amount
+                       will be the inverse (sign) of the amount from the employee? -->
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjDetail" list="payAdjDetailList">
                 <econdition field-name="partyRelationshipId"/>
                 <econdition field-name="payDate" operator="greater-equals" from="timePeriod.fromDate"/>
                 <econdition field-name="payDate" operator="less-equals" from="timePeriod.thruDate"/>
                 <econdition field-name="isEmployerPaid" operator="not-equals" value="Y" or-null="true"/>
             </entity-find>
             <set field="wageAndTaxInfoByTaxAuthorityId" from="[:]"/>
-            <iterate list="payDetailList" entry="payDetail">
-                <if condition="!payDetail.taxAuthorityId"><continue/></if>
-                <set field="taxAuthorityId" from="payDetail.taxAuthorityId"/>
+            <iterate list="payAdjDetailList" entry="payAdjDetail">
+                <if condition="!payAdjDetail.taxAuthorityId"><continue/></if>
+                <set field="taxAuthorityId" from="payAdjDetail.taxAuthorityId"/>
                 <entity-find-one entity-name="mantle.humanres.employment.PayrollAdjustment" value-field="payrollAdjustment">
-                    <field-map field-name="payrollAdjustmentId" from="payDetail.payrollAdjustmentId"/></entity-find-one>
+                    <field-map field-name="payrollAdjustmentId" from="payAdjDetail.payrollAdjustmentId"/></entity-find-one>
 
                 <set field="wageAndTaxInfo" from="wageAndTaxInfoByTaxAuthorityId.get(taxAuthorityId)"/>
                 <if condition="!wageAndTaxInfo">
@@ -171,14 +174,16 @@ along with this software (see the LICENSE.md file). If not, see
                 </if>
                 <script>
                     if (payrollAdjustment.isTax == 'Y') {
-                        addToBigDecimalInMap('incomeTaxWithheldAmount', -payDetail.amount, wageAndTaxInfo)
+                        addToBigDecimalInMap('incomeTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)
                     } else if (payrollAdjustment.isSocialTax == 'Y') {
-                        addToBigDecimalInMap('socialTaxWithheldAmount', -payDetail.amount, wageAndTaxInfo)
+                        addToBigDecimalInMap('socialTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)
                     } else if (payrollAdjustment.isMedicalTax == 'Y') {
-                        addToBigDecimalInMap('medicalTaxWithheldAmount', -payDetail.amount, wageAndTaxInfo)
+                        addToBigDecimalInMap('medicalTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)
                     }
                 </script>
             </iterate>
+
+            <!-- TODO: This does not document EmploymentPayHistoryTimeDetail -->
 
             <set field="federalTaxAuthorityIdList" from="[]"/>
             <set field="stateTaxAuthorityIdList" from="[]"/>
@@ -1450,7 +1455,7 @@ along with this software (see the LICENSE.md file). If not, see
                                 rsRecord.append(""?.toUpperCase()?.padRight(2, ' ')?.take(2))
 
                                 // Reporting Period (197-202, 6)
-                                // Enter the last month and four-digit year for the calendar quarter for which this report applies; 
+                                // Enter the last month and four-digit year for the calendar quarter for which this report applies;
                                 // e.g., “032016” for January through March of 2016.
                                 // Applies to unemployment reporting.
                                 // TODO: Reporting Period

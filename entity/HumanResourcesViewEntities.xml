@@ -65,12 +65,31 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PID"/>
     </view-entity>
 
-    <view-entity entity-name="EmploymentPayTimeAndDetail" package="mantle.humanres.employment">
-        <member-entity entity-alias="EPTD" entity-name="mantle.humanres.employment.EmploymentPayTimeDetail"/>
-        <member-entity entity-alias="TENT" entity-name="mantle.work.time.TimeEntry" join-from-alias="EPTD">
+    <view-entity entity-name="EmploymentPayHistoryAdjDetail" package="mantle.humanres.employment">
+        <member-entity entity-alias="EMPH" entity-name="mantle.humanres.employment.EmploymentPayHistory"/>
+        <member-entity entity-alias="EMPAD" entity-name="mantle.humanres.employment.EmploymentPayAdjDetail"
+                       join-from-alias="EMPH">
+            <key-map field-name="employmentPayHistoryId"/>
+        </member-entity>
+        <alias-all entity-alias="EMPH"/>
+        <alias-all entity-alias="EMPAD">
+            <exclude field="employmentPayHistoryId"/>
+        </alias-all>
+    </view-entity>
+
+    <view-entity entity-name="EmploymentPayHistoryTimeDetail" package="mantle.humanres.employment">
+        <member-entity entity-alias="EMPH" entity-name="mantle.humanres.employment.EmploymentPayHistory"/>
+        <member-entity entity-alias="EMPTD" entity-name="mantle.humanres.employment.EmploymentPayTimeDetail"
+                       join-from-alias="EMPH">
+            <key-map field-name="employmentPayHistoryId"/>
+        </member-entity>
+        <member-entity entity-alias="TENT" entity-name="mantle.work.time.TimeEntry" join-from-alias="EMPTD">
             <key-map field-name="timeEntryId"/>
         </member-entity>
-        <alias-all entity-alias="EPTD"/>
+        <alias-all entity-alias="EMPH"/>
+        <alias-all entity-alias="EMPTD">
+            <exclude field="employmentPayHistoryId"/>
+        </alias-all>
         <alias-all entity-alias="TENT">
             <exclude field="timeEntryId"/>
             <exclude field="itemTypeEnumId"/>
@@ -78,11 +97,11 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="rateAmountId"/>
             <exclude field="vendorRateAmountId"/>
             <exclude field="clientPartyId"/>
-            <exclude field="clientHourRate"/>
+            <exclude field="hourRate"/>
             <exclude field="vendorHourRate"/>
             <exclude field="pieceRateAmountId"/>
             <exclude field="vendorPieceRateAmountId"/>
-            <exclude field="clientPieceRate"/>
+            <exclude field="pieceRate"/>
             <exclude field="vendorPieceRate"/>
             <exclude field="invoiceId"/>
             <exclude field="invoiceItemSeqId"/>
@@ -92,9 +111,9 @@ along with this software (see the LICENSE.md file). If not, see
         <!-- Rename the fields so they are from the perspective of the employer. -->
         <alias name="rateAmountId" field="vendorRateAmountId" entity-alias="TENT"/>
         <alias name="pieceRateAmountId" field="vendorPieceRateAmountId" entity-alias="TENT"/>
-        <alias name="hourRate" field="vendorHourRate" entity-alias="TENT"/>
-        <alias name="pieceRate" field="vendorPieceRate" entity-alias="TENT"/>
-        <alias name="invoiceId" field="vendorInvoiceId" entity-alias="TENT"/>
+        <!--<alias name="hourRate" field="vendorHourRate" entity-alias="TENT"/>-->
+        <!--<alias name="pieceRate" field="vendorPieceRate" entity-alias="TENT"/>-->
+        <!--<alias name="invoiceId" field="invoiceId" entity-alias="EMPH"/>-->
         <alias name="invoiceItemSeqId" field="vendorInvoiceItemSeqId" entity-alias="TENT"/>
     </view-entity>
 

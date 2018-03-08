@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -225,7 +225,24 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PSET"/>
         <alias-all entity-alias="PSTR"/>
     </view-entity>
-    
+
+    <view-entity entity-name="PartyIdentAndPartyDetail" package="mantle.party">
+        <member-entity entity-alias="PID" entity-name="mantle.party.PartyIdentification"/>
+        <member-entity entity-alias="ENUM" entity-name="moqui.basic.Enumeration" join-from-alias="PID">
+            <key-map field-name="partyIdTypeEnumId"/></member-entity>
+        <member-entity entity-alias="PTY" entity-name="mantle.party.Party" join-from-alias="PID">
+            <key-map field-name="partyId"/>
+        </member-entity>
+        <member-entity entity-alias="PER" entity-name="mantle.party.Person" join-from-alias="PTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <member-entity entity-alias="ORG" entity-name="mantle.party.Organization" join-from-alias="PTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <alias-all entity-alias="PID"/>
+        <alias-all entity-alias="ENUM"/>
+        <alias-all entity-alias="PTY"/>
+        <alias-all entity-alias="PER"/>
+        <alias-all entity-alias="ORG"/>
+    </view-entity>
     <view-entity entity-name="PartyIdentAndEnumGroup" package="mantle.party">
         <member-entity entity-alias="PID" entity-name="mantle.party.PartyIdentification"/>
         <member-entity entity-alias="ENUM" entity-name="moqui.basic.Enumeration" join-from-alias="PID">
@@ -258,7 +275,7 @@ along with this software (see the LICENSE.md file). If not, see
 
     <view-entity entity-name="CommunicationEventAndPurpose" package="mantle.party.communication">
         <member-entity entity-alias="CEV" entity-name="mantle.party.communication.CommunicationEvent"/>
-        <member-entity entity-alias="CEVP" entity-name="mantle.party.communication.CommunicationEventPurpose" 
+        <member-entity entity-alias="CEVP" entity-name="mantle.party.communication.CommunicationEventPurpose"
                 join-from-alias="CEV" join-optional="true">
             <key-map field-name="communicationEventId"/></member-entity>
         <alias-all entity-alias="CEV"/>

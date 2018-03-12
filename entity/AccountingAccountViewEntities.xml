@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -362,23 +362,59 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="appliedDate" entity-alias="PAPP"/>
         <alias name="amountApplied" entity-alias="PAPP" function="sum"/>
         <alias name="fromPseudoId" entity-alias="FPTY" field="pseudoId"/>
-        <alias name="fromName" function="concat_ws" type="text-medium"><complex-alias operator=",">
-            <complex-alias expression="' '"/>
-            <complex-alias-field entity-alias="FORG" field="organizationName"/>
-            <complex-alias-field entity-alias="FPER" field="firstName"/>
-            <complex-alias-field entity-alias="FPER" field="lastName"/>
-        </complex-alias></alias>
+        <!--<alias name="fromName" function="concat_ws" type="text-medium"><complex-alias operator=",">-->
+            <!--<complex-alias expression="' '"/>-->
+            <!--<complex-alias-field entity-alias="FORG" field="organizationName"/>-->
+            <!--<complex-alias-field entity-alias="FPER" field="firstName"/>-->
+            <!--<complex-alias-field entity-alias="FPER" field="lastName"/>-->
+        <!--</complex-alias></alias>-->
+        <alias name="fromName" type="text-medium">
+            <!-- concat_ws is not available across all databases -->
+            <complex-alias operator="||">
+                <complex-alias function="COALESCE">
+                    <complex-alias-field entity-alias="FORG" field="organizationName"/>
+                    <complex-alias expression="''"/>
+                </complex-alias>
+                <complex-alias function="COALESCE">
+                    <complex-alias-field entity-alias="FPER" field="firstName"/>
+                    <complex-alias expression="''"/>
+                </complex-alias>
+                <complex-alias expression="case when FPER.FIRST_NAME IS NOT NULL and FPER.LAST_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias function="COALESCE">
+                    <complex-alias-field entity-alias="FPER" field="lastName"/>
+                    <complex-alias expression="''"/>
+                </complex-alias>
+            </complex-alias>
+        </alias>
         <alias name="fromOrganizationName" entity-alias="FORG" field="organizationName"/>
         <alias name="fromFirstName" entity-alias="FPER" field="firstName"/>
         <alias name="fromLastName" entity-alias="FPER" field="lastName"/>
         <alias name="fromRoleTypeId" entity-alias="FPRL" field="roleTypeId"/>
         <alias name="toPseudoId" entity-alias="TPTY" field="pseudoId"/>
-        <alias name="toName" function="concat_ws" type="text-medium"><complex-alias operator=",">
-            <complex-alias expression="' '"/>
-            <complex-alias-field entity-alias="TORG" field="organizationName"/>
-            <complex-alias-field entity-alias="TPER" field="firstName"/>
-            <complex-alias-field entity-alias="TPER" field="lastName"/>
-        </complex-alias></alias>
+        <!--<alias name="toName" function="concat_ws" type="text-medium"><complex-alias operator=",">-->
+            <!--<complex-alias expression="' '"/>-->
+            <!--<complex-alias-field entity-alias="TORG" field="organizationName"/>-->
+            <!--<complex-alias-field entity-alias="TPER" field="firstName"/>-->
+            <!--<complex-alias-field entity-alias="TPER" field="lastName"/>-->
+        <!--</complex-alias></alias>-->
+        <alias name="toName" type="text-medium">
+            <!-- concat_ws is not available across all databases -->
+            <complex-alias operator="||">
+                <complex-alias function="COALESCE">
+                    <complex-alias-field entity-alias="TORG" field="organizationName"/>
+                    <complex-alias expression="''"/>
+                </complex-alias>
+                <complex-alias function="COALESCE">
+                    <complex-alias-field entity-alias="TPER" field="firstName"/>
+                    <complex-alias expression="''"/>
+                </complex-alias>
+                <complex-alias expression="case when TPER.FIRST_NAME IS NOT NULL and TPER.LAST_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias function="COALESCE">
+                    <complex-alias-field entity-alias="TPER" field="lastName"/>
+                    <complex-alias expression="''"/>
+                </complex-alias>
+            </complex-alias>
+        </alias>
         <alias name="toOrganizationName" entity-alias="TORG" field="organizationName"/>
         <alias name="toFirstName" entity-alias="TPER" field="firstName"/>
         <alias name="toLastName" entity-alias="TPER" field="lastName"/>

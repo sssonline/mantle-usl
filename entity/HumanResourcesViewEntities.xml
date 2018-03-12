@@ -74,7 +74,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <complex-alias-field entity-alias="PER" field="firstName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="case when PER.FIRST_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias expression="case when PER.FIRST_NAME IS NOT NULL and PER.LAST_NAME IS NOT NULL then ' ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="lastName"/>
                     <complex-alias expression="''"/>
@@ -92,17 +92,17 @@ along with this software (see the LICENSE.md file). If not, see
                     <complex-alias-field entity-alias="PER" field="firstName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="case when PER.FIRST_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias expression="case when PER.FIRST_NAME IS NOT NULL and PER.MIDDLE_NAME IS NOT NULL then ' ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="middleName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="case when PER.MIDDLE_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias expression="case when PER.MIDDLE_NAME IS NOT NULL and PER.LAST_NAME IS NOT NULL then ' ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="lastName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="case when PER.LAST_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias expression="case when PER.LAST_NAME IS NOT NULL and PER.SUFFIX IS NOT NULL then ' ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="suffix"/>
                     <complex-alias expression="''"/>
@@ -120,17 +120,17 @@ along with this software (see the LICENSE.md file). If not, see
                     <complex-alias-field entity-alias="PER" field="lastName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="', '"/>
+                <complex-alias expression="case when PER.LAST_NAME IS NOT NULL and PER.FIRST_NAME IS NOT NULL then ', ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="firstName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="case when PER.FIRST_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias expression="case when PER.FIRST_NAME IS NOT NULL and PER.MIDDLE_NAME IS NOT NULL then ' ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="middleName"/>
                     <complex-alias expression="''"/>
                 </complex-alias>
-                <complex-alias expression="case when PER.MIDDLE_NAME IS NOT NULL then ' ' else '' end"/>
+                <complex-alias expression="case when PER.MIDDLE_NAME IS NOT NULL and PER.SUFFIX IS NOT NULL then ' ' else '' end"/>
                 <complex-alias function="COALESCE">
                     <complex-alias-field entity-alias="PER" field="suffix"/>
                     <complex-alias expression="''"/>

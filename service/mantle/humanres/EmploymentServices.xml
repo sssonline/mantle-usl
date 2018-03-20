@@ -382,7 +382,19 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="!benefitList.find({ it.benefitTypeEnumId == posBenefit.benefitTypeEnumId })">
                     <!-- accrualStartDate from accrualStartDays, availableDate from availableDays-->
                     <set field="accrualStartDateTime" from="startDateTime.plusDays(posBenefit.accrualStartDays ?: 0)"/>
-                    <set field="availableDateTime" from="startDateTime.plusDays(posBenefit.availableDays?: 0)"/>
+
+                    <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList">
+                        <econdition field-name="partyId" from="partyRelationship.fromPartyId"/>
+                        <econdition field-name="organizationPartyId" from="partyRelationship.toPartyId"/>
+                        <order-by field-name="-thruDate"/>
+                    </entity-find>
+
+                    <if condition="posBenefit.availableFromEnumId == 'SdtLastDayWorked' &amp;&amp; timeEntryList"><then>
+                        <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(timeEntryList[0].thruDate.toInstant(), java.time.ZoneId.systemDefault())"/>
+                        <set field="availableDateTime" from="startDateTime.plusDays(posBenefit.availableDays?: 0)"/>
+                    </then><else>
+                        <set field="availableDateTime" from="startDateTime.plusDays(posBenefit.availableDays?: 0)"/>
+                    </else></if>
                     <service-call name="create#mantle.humanres.employment.EmploymentBenefit" in-map="[
                             partyRelationshipId:partyRelationshipId, benefitTypeEnumId:posBenefit.benefitTypeEnumId,
                             accrualStartDate:new java.sql.Date(accrualStartDateTime.toInstant().toEpochMilli()),

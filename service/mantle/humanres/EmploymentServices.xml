@@ -371,7 +371,13 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find-one entity-name="mantle.humanres.employment.Employment" value-field="employment"/>
             <!-- <set field="position" from="employment.position"/> -->
             <if condition="partyRelationship.fromDate == null">
-                <return message="No start date set for employee ${partyRelationship.fromPartyId}, not accruing benefits"/></if>
+                <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList">
+                    <econdition field-name="partyId" from="partyRelationship.fromPartyId"/>
+                    <econdition field-name="organizationPartyId" from="partyRelationship.toPartyId"/>
+                    <order-by field-name="thruDate"/>
+                </entity-find>
+                <service-call name="update#mantle.party.PartyRelationship" in-map="[partyRelationshipId:partyRelationshipId, fromDate:timeEntryList[0].fromDate]" out-map="partyRelationship"/>
+            </if>
             <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(partyRelationship.fromDate.toInstant(), java.time.ZoneId.systemDefault())"/>
 
             <!-- make sure there is a EmploymentBenefit record for each EmplPositionBenefit -->
@@ -379,19 +385,14 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find entity-name="mantle.humanres.position.EmplPositionBenefit" list="positionBenefitList">
                 <econdition field-name="emplPositionId" from="employment.emplPositionId"/></entity-find>
             <iterate list="positionBenefitList" entry="posBenefit">
-                <if condition="!benefitList.find({ it.benefitTypeEnumId == posBenefit.benefitTypeEnumId })">
+                <if condition="!benefitList.find({ it.benefitTypeEnumId == posBenefit.benefitTypeEnumId })"><then>
                     <!-- accrualStartDate from accrualStartDays, availableDate from availableAfterDays-->
                     <set field="accrualStartDateTime" from="startDateTime.plusDays(posBenefit.accrualStartDays ?: 0)"/>
-
-                    <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList">
-                        <econdition field-name="partyId" from="partyRelationship.fromPartyId"/>
-                        <econdition field-name="organizationPartyId" from="partyRelationship.toPartyId"/>
-                        <order-by field-name="-thruDate"/>
-                    </entity-find>
-
-                    <if condition="posBenefit.availableAfterDaysEnumId == 'EpbAvailAfterDaysOfInactivity' &amp;&amp; timeEntryList"><then>
-                        <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(timeEntryList[0].thruDate.toInstant(), java.time.ZoneId.systemDefault())"/>
-                        <set field="availableDateTime" from="startDateTime.plusDays(posBenefit.availableAfterDays?: 0)"/>
+                    <if condition="posBenefit.availableAfterDaysEnumId == 'EpbAvailAfterDaysOfInactivity'"><then>
+                        <service-call name="mantle.humanres.EmploymentServices.check#DaysOfInactivity"
+                                      in-map="[partyId:partyRelationship.fromPartyId, organizationPartyId:partyRelationship.toPartyId,
+                                               timePeriodId:timePeriodId, availableAfterDays:posBenefit.availableAfterDays, startDateTime:startDateTime]"
+                                      out-map="context"/>
                     </then><else>
                         <set field="availableDateTime" from="startDateTime.plusDays(posBenefit.availableAfterDays?: 0)"/>
                     </else></if>
@@ -400,7 +401,19 @@ along with this software (see the LICENSE.md file). If not, see
                             accrualStartDate:new java.sql.Date(accrualStartDateTime.toInstant().toEpochMilli()),
                             availableDate:new java.sql.Date(availableDateTime.toInstant().toEpochMilli()),
                             employerPaidPercent:posBenefit.employerPaidPercent]"/>
-                </if>
+                </then><else>
+                    <!-- Check and see if the position benefit has activity dependant conditions and if so check the activity of current employee and adjust the employment benefit availability accordingly -->
+                    <if condition="posBenefit.availableAfterDaysEnumId == 'EpbAvailAfterDaysOfInactivity'">
+                        <set field="emplBenefit" from="benefitList.find({ it.benefitTypeEnumId == posBenefit.benefitTypeEnumId })"/>
+                        <service-call name="mantle.humanres.EmploymentServices.check#DaysOfInactivity"
+                                      in-map="[partyId:partyRelationship.fromPartyId, organizationPartyId:partyRelationship.toPartyId,
+                                               timePeriodId:timePeriodId, availableAfterDays:posBenefit.availableAfterDays, availableDate: emplBenefit.availableDate]"
+                                      out-map="context"/>
+                        <service-call name="update#mantle.humanres.employment.EmploymentBenefit" in-map="[
+                                    partyRelationshipId:partyRelationshipId, benefitTypeEnumId:emplBenefit.benefitTypeEnumId,
+                                    availableDate:new java.sql.Date(availableDateTime.toInstant().toEpochMilli())]"/>
+                    </if>
+                </else></if>
             </iterate>
             <!-- get fresh locked EmploymentBenefit records -->
             <entity-find entity-name="mantle.humanres.employment.EmploymentBenefit" list="benefitList" for-update="true">
@@ -590,6 +603,61 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="accruedHours" from="-1 * accruedHours"/>
 
             <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="context + [timeEntryId:timeEntry.timeEntryId]"/>
+        </actions>
+    </service>
+
+    <service verb="check" noun="DaysOfInactivity">
+        <in-parameters>
+            <parameter name="partyId"/>
+            <parameter name="organizationPartyId"/>
+            <parameter name="timePeriodId"/>
+            <parameter name="availableAfterDays" type="Integer"/>
+            <parameter name="availableDate"/>
+            <parameter name="startDateTime"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="availableDateTime"/>
+        </out-parameters>
+        <actions>
+            <service-call name="mantle.party.TimeServices.get#TimePeriodInfo" in-map="[timePeriodId:timePeriodId]" out-map="timePeriodInfo"/>
+            <entity-find entity-name="mantle.work.time.TimeEntry" list="periodTimeEntryList">
+                <econdition field-name="partyId"/>
+                <econdition field-name="organizationPartyId"/>
+                <econdition field-name="fromDate" operator="greater-equals" from="timePeriodInfo.fromTimestamp"/>
+                <econdition field-name="fromDate" operator="less-equals" from="timePeriodInfo.thruTimestamp"/>
+                <order-by field-name="fromDate"/>
+            </entity-find>
+            <set field="initialDate" from="periodTimeEntryList.size() &lt; 1 ? timePeriodInfo.fromTimestamp : periodTimeEntryList[0].fromDate "/>
+            <set field="xDaysAgo" from="java.time.ZonedDateTime.ofInstant(initialDate.toInstant(), java.time.ZoneId.systemDefault())"/>
+            <set field="xDaysAgo" from="java.sql.Timestamp.from(xDaysAgo.minusDays(availableAfterDays).toInstant())"/>
+            <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList1">
+                <econdition field-name="partyId"/>
+                <econdition field-name="organizationPartyId"/>
+                <econdition field-name="fromDate" operator="less" from="initialDate"/>
+                <econdition field-name="fromDate" operator="greater-equals" from="xDaysAgo"/>
+                <order-by field-name="fromDate"/>
+            </entity-find>
+            <if condition="timeEntryList1.size() &lt; 1">
+                <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(initialDate.toInstant(), java.time.ZoneId.systemDefault())"/>
+                <set field="availableDateTime" from="startDateTime.plusDays(availableAfterDays?: 0)"/>
+            <else>
+                <set field="startingDay" from="xDaysAgo"/>
+                <set field="xDaysAgo" from="java.time.ZonedDateTime.ofInstant(startingDay.toInstant(), java.time.ZoneId.systemDefault())"/>
+                <set field="xDaysAgo" from="java.sql.Timestamp.from(xDaysAgo.minusDays(availableAfterDays).toInstant())"/>
+                <entity-find entity-name="mantle.work.time.TimeEntry" list="timeEntryList2">
+                    <econdition field-name="partyId"/>
+                    <econdition field-name="organizationPartyId"/>
+                    <econdition field-name="fromDate" operator="less" from="startingDay"/>
+                    <econdition field-name="fromDate" operator="greater-equals" from="xDaysAgo"/>
+                    <order-by field-name="fromDate"/>
+                </entity-find>
+                <if condition="timeEntryList2.size() &lt; 1">
+                    <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(timeEntryList1[0].fromDate.toInstant(), java.time.ZoneId.systemDefault())"/>
+                    <set field="availableDateTime" from="startDateTime.plusDays(availableAfterDays?: 0)"/>
+                <else>
+                    <set field="availableDateTime" from="availableDate ? java.time.ZonedDateTime.ofInstant(availableDate.toInstant(), java.time.ZoneId.systemDefault()): startDateTime"/>
+                </else></if>
+            </else></if>
         </actions>
     </service>
 </services>

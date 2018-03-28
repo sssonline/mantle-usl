@@ -136,7 +136,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <service-call name="create#mantle.account.invoice.InvoiceItem"
                             in-map="[invoiceId:taxInvoiceId, itemTypeEnumId:payrollAdjustment.itemTypeEnumId,
                                 amount:totalAmount, quantity:1, description:payrollAdjustment.description,
-                                taxAuthorityId:taxAuthorityId, payrollAdjustmentId:payrollAdjustmentId]"/>
+                                taxAuthorityId:taxAuthorityId, finAccountId:payrollAdjustment.finAccountId,
+                                payrollAdjustmentId:payrollAdjustmentId]"/>
                 </iterate>
                 <iterate list="amountByTypeDescription" entry="totalAmount" key="typeDescription">
                     <!-- create one InvoiceItem record for each distinct type and description -->
@@ -186,7 +187,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <service-call name="create#mantle.account.invoice.InvoiceItem"
                             in-map="[invoiceId:payeeInvoiceId, itemTypeEnumId:payeeAdjustment.itemTypeEnumId,
                                 amount:-payeeAdjustment.amount, quantity:payeeAdjustment.quantity, description:description,
-                                payrollAdjustmentId:payeeAdjustment.payrollAdjustmentId]"/>
+                                finAccountId:payrollAdjustment.finAccountId, payrollAdjustmentId:payeeAdjustment.payrollAdjustmentId]"/>
                 </iterate>
             </iterate>
 
@@ -500,9 +501,9 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- create Invoice if one does not exist already -->
             <if condition="!invoiceId">
                 <service-call name="create#mantle.account.invoice.Invoice" out-map="context"
-                              in-map="[invoiceTypeEnumId:'InvoicePayroll', fromPartyId:employment.fromPartyId, toPartyId:employment.toPartyId,
-                        statusId:'InvoiceReceived', invoiceDate:payDate, currencyUomId:currencyUomId,
-                        partyRelationshipId:partyRelationshipId, timePeriodId:timePeriodId]"/>
+                        in-map="[invoiceTypeEnumId:'InvoicePayroll', fromPartyId:employment.fromPartyId, toPartyId:employment.toPartyId,
+                            statusId:'InvoiceReceived', invoiceDate:payDate, currencyUomId:currencyUomId,
+                            partyRelationshipId:partyRelationshipId, timePeriodId:timePeriodId]"/>
             </if>
 
             <!-- create InvoiceItem for payAmount -->
@@ -520,7 +521,8 @@ along with this software (see the LICENSE.md file). If not, see
                             in-map="[invoiceId:invoiceId, itemTypeEnumId:adjustment.itemTypeEnumId,
                                 overrideGlAccountId:adjustment.overrideGlAccountId, description:adjustment.description,
                                 amount:adjustment.amount, quantity:adjustment.quantity, quantityUomId:adjustment.quantityUomId,
-                                taxAuthorityId:adjustment.taxAuthorityId, payrollAdjustmentId:adjustment.payrollAdjustmentId]"/>
+                                taxAuthorityId:adjustment.taxAuthorityId, finAccountId:adjustment.finAccountId,
+                                payrollAdjustmentId:adjustment.payrollAdjustmentId]"/>
                 </if>
                 <set field="adjTotal" from="adjustment.quantity * adjustment.amount"/>
                 <!-- add the amount for the adjustment, negated here so we get a positive total -->
@@ -1007,6 +1009,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="allowanceDeductionAmount" type="BigDecimal"/>
             <parameter name="allowanceExemptionAmount" type="BigDecimal"/>
             <parameter name="taxAuthorityId"/>
+            <parameter name="finAccountId"/>
             <!-- payee specific -->
             <parameter name="payeePartyId"/>
             <parameter name="payeeDueDays" type="Long"/>
@@ -1039,6 +1042,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="itemTypeEnumId" from="payrollAdjustment.itemTypeEnumId"/>
             <set field="description" from="payrollAdjustment.description"/>
             <set field="taxAuthorityId" from="payrollAdjustment.taxAuthorityId"/>
+            <set field="finAccountId" from="payrollAdjustment.finAccountId"/>
             <set field="payeePartyId" from="payrollAdjustment.payeePartyId"/>
             <set field="payeeDueDays" from="payrollAdjustment.payeeDueDays"/>
             <set field="payeeReference" from="payrollAdjustment.payeeReference"/>

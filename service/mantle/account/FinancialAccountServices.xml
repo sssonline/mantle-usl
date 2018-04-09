@@ -526,6 +526,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="paymentInstrumentEnumId" default-value="PiCompanyCheck"/>
             <parameter name="reasonEnumId" default-value="FatrDisbursement"/>
             <parameter name="paymentMethodId"/>
+            <parameter name="effectiveDate" type="Timestamp"/>
             <parameter name="withdrawNow" type="Boolean" default="true"/>
         </in-parameters>
         <out-parameters>
@@ -540,7 +541,7 @@ along with this software (see the LICENSE.md file). If not, see
                     in-map="[paymentTypeEnumId:'PtFinancialAccount', statusId:'PmntPromised', comments:comments,
                         fromPartyId:financialAccount.organizationPartyId, toPartyId:financialAccount.ownerPartyId,
                         amount:amount, amountUomId:financialAccount.currencyUomId, finAccountId:finAccountId,
-                        paymentInstrumentEnumId:paymentInstrumentEnumId, paymentMethodId:paymentMethodId]"/>
+                        paymentInstrumentEnumId:paymentInstrumentEnumId, paymentMethodId:paymentMethodId, effectiveDate:effectiveDate]"/>
 
             <if condition="withdrawNow">
                 <!-- withdraw from FinancialAccount -->
@@ -565,6 +566,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="paymentInstrumentEnumId" required="true"/>
             <parameter name="reasonEnumId" default-value="FatrReplenish"/>
             <parameter name="paymentMethodId"/>
+            <parameter name="effectiveDate" type="Timestamp"/>
             <parameter name="depositNow" type="Boolean" default="true"/>
         </in-parameters>
         <out-parameters>
@@ -579,7 +581,7 @@ along with this software (see the LICENSE.md file). If not, see
                     in-map="[paymentTypeEnumId:'PtFinancialAccount', statusId:'PmntPromised', comments:comments,
                         fromPartyId:financialAccount.ownerPartyId, toPartyId:financialAccount.organizationPartyId,
                         amount:amount, amountUomId:financialAccount.currencyUomId, finAccountId:finAccountId,
-                        paymentInstrumentEnumId:paymentInstrumentEnumId, paymentMethodId:paymentMethodId]"/>
+                        paymentInstrumentEnumId:paymentInstrumentEnumId, paymentMethodId:paymentMethodId, effectiveDate:effectiveDate]"/>
 
             <if condition="depositNow">
                 <!-- deposit to FinancialAccount -->

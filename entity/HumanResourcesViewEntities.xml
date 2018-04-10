@@ -120,7 +120,7 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="hours"/>
             <exclude field="rateAmountId"/>
             <exclude field="vendorRateAmountId"/>
-            <exclude field="clientPartyId"/>
+            <!--<exclude field="clientPartyId"/>-->
             <exclude field="hourRate"/>
             <exclude field="vendorHourRate"/>
             <exclude field="pieceRateAmountId"/>

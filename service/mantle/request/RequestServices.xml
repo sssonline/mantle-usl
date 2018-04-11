@@ -88,7 +88,10 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="visitId" from="ec.user.visitId"/>
 
             <if condition="!customerPartyId">
-                <if condition="!firstName || !lastName || !emailAddress"><return error="true" message="Please enter your first and last names"/></if>
+                <if condition="!firstName || !lastName || !emailAddress">
+                    <message public="true" type="warning">Please enter your first name, last name, and email address</message>
+                    <return error="true" message="Name or email missing"/>
+                </if>
                 <set field="firstName" from="firstName.trim()"/>
 
                 <!-- search for existing party by email address -->
@@ -136,14 +139,26 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="emailContactMechId" from="existingEmailList ? existingEmailList[0].contactMechId : null"/>
                 </else></if>
             </if>
-            <if condition="!emailContactMechId"><return error="true" message="Please enter your email address"/></if>
+            <if condition="!emailContactMechId">
+                <message public="true" type="warning">Please enter your email address</message>
+                <return error="true" message="Email record missing"/>
+            </if>
 
             <service-call name="create#mantle.request.Request" out-map="context" in-map="context"/>
             <service-call name="create#mantle.request.RequestParty"
                     in-map="[requestId:requestId, partyId:filedByPartyId, roleTypeId:'Reporter', fromDate:ec.user.nowTimestamp]"/>
             <service-call name="create#mantle.request.RequestParty"
                     in-map="[requestId:requestId, partyId:customerPartyId, roleTypeId:'Customer', fromDate:ec.user.nowTimestamp]"/>
-            <message>Thank you, we have received your request. Your request number is ${requestId}</message>
+
+            <message public="true" type="success">Thank you, we have received your request. Your request number is ${requestId}</message>
+        </actions>
+    </service>
+    <service verb="create" noun="ContactRequestReCaptcha">
+        <implements service="mantle.request.RequestServices.create#ContactRequest"/>
+        <in-parameters><parameter name="reCaptchaToken"/></in-parameters>
+        <actions>
+            <service-call name="org.moqui.impl.GoogleServices.verify#ReCaptcha" in-map="[reCaptchaToken:reCaptchaToken]"/>
+            <service-call name="mantle.request.RequestServices.create#ContactRequest" in-map="context" out-map="context"/>
         </actions>
     </service>
 

@@ -470,20 +470,25 @@ class WorkPlanToCashBasicFlow extends Specification {
         // plain hours, nothing else
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
                 .parameters([workEffortId:'TEST-001', partyId:workerResult.partyId, rateTypeEnumId:'RatpStandard', remainingWorkTime:3,
-                             hours:6, fromDate:null, thruDate:null, breakHours:null, comments:comments]).call()
+                             hours:6, fromDate:null, thruDate:null, breakHours:null,
+                             workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH', comments:comments]).call()
         // hours and break, no from/thru dates (determined automatically, thru based on now and from based on hours+break)
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
                 .parameters([workEffortId:'TEST-001A', partyId:workerResult.partyId, rateTypeEnumId:'RatpStandard', remainingWorkTime:1,
-                             hours:1.5, fromDate:null, thruDate:null, breakHours:0.5, comments:"Hours and break test, no from/thru dates"]).call()
+                             hours:1.5, fromDate:null, thruDate:null, breakHours:0.5,
+                             workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH',
+                             comments:"Hours and break test, no from/thru dates"]).call()
         // break and from/thru dates, hours determined automatically
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
                 .parameters([workEffortId:'TEST-001B', partyId:workerResult.partyId, rateTypeEnumId:'RatpStandard', remainingWorkTime:0.5,
                              hours:null, fromDate:"${startYear}-11-03 12:00:00", thruDate:"${startYear}-11-03 15:00:00", breakHours:1,
+                             workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH',
                              comments:"Break and from/thru dates test, hours calculated"]).call()
         // no charge time entry, test invoicing time with no amount and make sure hour quantity makes it through
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
                 .parameters([workEffortId:'TEST-001B', partyId:workerResult.partyId, rateTypeEnumId:'RatpNoCharge', remainingWorkTime:0.5,
                              hours:4, fromDate:null, thruDate:null, breakHours:1,
+                             workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH',
                              comments:"No charge for this one because we like you"]).call()
 
         // complete tasks

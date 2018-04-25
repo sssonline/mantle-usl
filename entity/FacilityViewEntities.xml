@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -115,6 +115,39 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PER" name="lastName"/>
         <alias entity-alias="PER" name="suffix"/>
         <alias entity-alias="ORG" name="organizationName"/>
+    </view-entity>
+
+    <view-entity entity-name="FacilityOwnerAndFacilityPartyDetail" package="mantle.facility">
+        <member-entity entity-alias="FAC" entity-name="mantle.facility.Facility"/>
+        <member-entity entity-alias="OPTY" entity-name="mantle.party.Party" join-from-alias="FAC" join-optional="true">
+            <key-map field-name="ownerPartyId" related="partyId"/></member-entity>
+        <member-entity entity-alias="OPER" entity-name="mantle.party.Person" join-from-alias="FAC" join-optional="true">
+            <key-map field-name="ownerPartyId" related="partyId"/></member-entity>
+        <member-entity entity-alias="OORG" entity-name="mantle.party.Organization" join-from-alias="FAC" join-optional="true">
+            <key-map field-name="ownerPartyId" related="partyId"/></member-entity>
+        <member-entity entity-alias="FPTY" entity-name="mantle.facility.FacilityParty" join-from-alias="FAC" join-optional="true">
+            <key-map field-name="facilityId"/></member-entity>
+        <member-entity entity-alias="FPPTY" entity-name="mantle.party.Party" join-from-alias="FPTY">
+            <key-map field-name="partyId"/></member-entity>
+        <member-entity entity-alias="FPTRL" entity-name="mantle.party.PartyRole" join-from-alias="FPPTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <member-entity entity-alias="FER" entity-name="mantle.party.Person" join-from-alias="FPPTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <member-entity entity-alias="FORG" entity-name="mantle.party.Organization" join-from-alias="FPPTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <alias-all entity-alias="FAC"/>
+        <alias-all entity-alias="OPTY" prefix="owner"><exclude field="ownerPartyId"/></alias-all>
+        <alias-all entity-alias="OPER" prefix="owner"/>
+        <alias-all entity-alias="OORG" prefix="owner"/>
+        <alias-all entity-alias="FPTY" prefix="facilityParty">
+            <exclude field="partyId"/>
+            <exclude field="facilityId"/>
+        </alias-all>
+        <alias-all entity-alias="FPPTY" prefix="facilityParty"></alias-all>
+        <alias-all entity-alias="FPTRL" prefix="facilityParty"><exclude field="partyId"/><exclude field="roleTypeId"/></alias-all>
+        <alias-all entity-alias="FER" prefix="facilityParty"/>
+        <alias-all entity-alias="FORG" prefix="facilityParty"/>
+
     </view-entity>
 
     <view-entity entity-name="FacilityPrinterDetail" package="mantle.facility">

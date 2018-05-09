@@ -97,6 +97,62 @@ along with this software (see the LICENSE.md file). If not, see
     <!-- ============================= -->
     <!-- Services for Product Features -->
 
+    <service verb="create" noun="ProductFeature">
+        <in-parameters>
+            <auto-parameters entity-name="mantle.product.feature.ProductFeature" include="nonpk"/>
+            <parameter name="productFeatureTypeEnumId" required="true"/>
+            <parameter name="description" required="true"/>
+            <parameter name="productId"><description>If specified apply to product after create</description></parameter>
+            <parameter name="applTypeEnumId" default-value="PfatStandard"/>
+            <parameter name="fromDate" type="Timestamp" default="ec.user.nowTimestamp"/>
+        </in-parameters>
+        <out-parameters><parameter name="productFeatureId"/></out-parameters>
+        <actions>
+            <set field="description" from="description.trim()"/>
+            <entity-find entity-name="mantle.product.feature.ProductFeature" list="existingList">
+                <econdition field-name="productFeatureTypeEnumId"/>
+                <econdition field-name="description" ignore-case="true"/>
+            </entity-find>
+            <if condition="existingList"><then>
+                <entity-find-one entity-name="moqui.basic.Enumeration" value-field="typeEnum">
+                    <field-map field-name="enumId" from="productFeatureTypeEnumId"/></entity-find-one>
+                <message type="warning">Feature ${existingList[0].description} of type ${typeEnum?.description ?: productFeatureTypeEnumId} already exists</message>
+                <set field="productFeatureId" from="existingList[0].productFeatureId"/>
+            </then><else>
+                <service-call name="create#mantle.product.feature.ProductFeature" in-map="context" out-map="context"/>
+            </else></if>
+
+            <if condition="productId">
+                <service-call name="mantle.product.ProductServices.apply#ProductFeatures"
+                        in-map="[productId:productId, productFeatureIdList:[productFeatureId], applTypeEnumId:applTypeEnumId, fromDate:fromDate]"/>
+            </if>
+        </actions>
+    </service>
+
+    <service verb="apply" noun="ProductFeatures">
+        <in-parameters>
+            <parameter name="productId" required="true"/>
+            <parameter name="applTypeEnumId" default-value="PfatStandard"/>
+            <parameter name="productFeatureIdList" type="List"><parameter name="productFeatureId"/></parameter>
+            <parameter name="fromDate" type="Timestamp" default="ec.user.nowTimestamp"/>
+        </in-parameters>
+        <actions>
+            <iterate list="productFeatureIdList" entry="productFeatureId">
+                <entity-find entity-name="mantle.product.feature.ProductFeatureAppl" list="existingAppls">
+                    <date-filter/><econdition field-name="productId"/>
+                    <econdition field-name="productFeatureId"/>
+                    <econdition field-name="applTypeEnumId"/>
+                </entity-find>
+                <if condition="existingAppls"><then>
+                    <entity-find-one entity-name="mantle.product.feature.ProductFeature" value-field="productFeature"/>
+                    <message type="warning">Feature ${ec.resource.expand('ProductFeatureNameTemplate','',productFeature)} already applied</message>
+                </then><else>
+                    <service-call name="create#mantle.product.feature.ProductFeatureAppl" in-map="context"/>
+                </else></if>
+            </iterate>
+        </actions>
+    </service>
+
     <service verb="find" noun="ProductFeatures">
         <description>Finds all product features (optionally limited by appl type) for a product and any feature groups
             associated with a category that the product is a member of. The result is a List of entity values for

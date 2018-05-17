@@ -68,8 +68,9 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="AST" entity-name="mantle.product.asset.Asset" join-from-alias="WEAA">
             <key-map field-name="assetId"/></member-entity>
         <alias-all entity-alias="WEAA"/>
-        <alias-all entity-alias="AST"><exclude field="statusId"/><exclude field="comments"/></alias-all>
+        <alias-all entity-alias="AST"><exclude field="statusId"/><exclude field="comments"/><exclude field="facilityId"/></alias-all>
         <alias name="assetStatusId" entity-alias="AST" field="statusId"/>
+        <alias name="assetFacilityId" entity-alias="AST" field="facilityId"/>
         <relationship type="one-nofk" title="WorkEffortAssetAssign" related="moqui.basic.StatusItem"/>
     </view-entity>
 
@@ -123,13 +124,16 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="FAC" entity-name="mantle.facility.Facility" join-from-alias="WEFF">
             <key-map field-name="facilityId"/></member-entity>
         <member-entity entity-alias="PTY" entity-name="mantle.party.Party" join-from-alias="FAC">
-            <key-map field-name="ownerPartyId"/></member-entity>
+            <key-map field-name="ownerPartyId" related="partyId"/></member-entity>
         <member-entity entity-alias="ORG" entity-name="mantle.party.Organization" join-from-alias="PTY" join-optional="true">
             <key-map field-name="partyId"/></member-entity>
         <member-entity entity-alias="PER" entity-name="mantle.party.Person" join-from-alias="PTY" join-optional="true">
             <key-map field-name="partyId"/></member-entity>
-        <alias-all entity-alias="WEFF"/>
+        <alias-all entity-alias="WEFF">
+            <exclude field="ownerPartyId"/>
+        </alias-all>
         <alias-all entity-alias="FAC">
+            <exclude field="ownerPartyId"/>
             <exclude field="description"/>
             <exclude field="statusId"/>
         </alias-all>
@@ -138,6 +142,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="ORG" prefix="owner"/>
         <alias name="facilityDescription" field="description" entity-alias="FAC"/>
         <alias name="facilityStatusId" field="statusId" entity-alias="FAC"/>
+        <alias name="workEffortOwnerPartyId" field="ownerPartyId" entity-alias="WEFF"/>
     </view-entity>
 
     <view-entity entity-name="WorkEffortFacilityAndOwnerDetail" package="mantle.work.effort">
@@ -328,17 +333,17 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="WEFFFAC" entity-name="mantle.facility.Facility" join-from-alias="WEFF">
             <key-map field-name="facilityId"/></member-entity>
         <member-entity entity-alias="WEFFPTY" entity-name="mantle.party.Party" join-from-alias="WEFFFAC">
-            <key-map field-name="ownerPartyId"/></member-entity>
+            <key-map field-name="ownerPartyId" related="partyId"/></member-entity>
         <member-entity entity-alias="WEFFORG" entity-name="mantle.party.Organization" join-from-alias="WEFFPTY" join-optional="true">
             <key-map field-name="partyId"/></member-entity>
         <member-entity entity-alias="WEFFPER" entity-name="mantle.party.Person" join-from-alias="WEFFPTY" join-optional="true">
             <key-map field-name="partyId"/></member-entity>
         <member-entity entity-alias="WEFA" entity-name="mantle.work.effort.WorkEffortFacility" join-from-alias="WEFF" join-optional="true">
             <key-map field-name="workEffortId"/></member-entity>
-        <member-entity entity-alias="WEFAFAC" entity-name="mantle.facility.Facility" join-from-alias="WEFA">
+        <member-entity entity-alias="WEFAFAC" entity-name="mantle.facility.Facility" join-from-alias="WEFA" join-optional="true">
             <key-map field-name="facilityId"/></member-entity>
-        <member-entity entity-alias="WEFAPTY" entity-name="mantle.party.Party" join-from-alias="WEFAFAC">
-            <key-map field-name="ownerPartyId"/></member-entity>
+        <member-entity entity-alias="WEFAPTY" entity-name="mantle.party.Party" join-from-alias="WEFAFAC" join-optional="true">
+            <key-map field-name="ownerPartyId" related="partyId"/></member-entity>
         <member-entity entity-alias="WEFAORG" entity-name="mantle.party.Organization" join-from-alias="WEFAPTY" join-optional="true">
             <key-map field-name="partyId"/></member-entity>
         <member-entity entity-alias="WEFAPER" entity-name="mantle.party.Person" join-from-alias="WEFAPTY" join-optional="true">

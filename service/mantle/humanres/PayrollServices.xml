@@ -1390,6 +1390,23 @@ along with this software (see the LICENSE.md file). If not, see
             <auto-parameters entity-name="mantle.humanres.employment.PayrollAdjustmentAndDetail"/>
         </in-parameters>
         <actions>
+            <entity-find-one entity-name="mantle.humanres.employment.EmploymentPayAdjDetail" value-field="empPayAdjDetail">
+                <field-map field-name="payrollAdjustmentId"/>
+            </entity-find-one>
+            <entity-find-one entity-name="mantle.account.invoice.InvoiceItem" value-field="invoiceItem">
+                <field-map field-name="payrollAdjustmentId"/>
+            </entity-find-one>
+            <if condition="empPayAdjDetail">
+                <message error="true" type="danger">
+                    Can not delete this adjustment, it is currently being referenced by one or more Employment Pay Adjustment Detail
+                </message>
+            </if>
+            <if condition="invoiceItem">
+                <message error="true" type="danger">
+                    Can not delete this adjustment, it is currently being referenced by one or more Invoice Items
+                </message>
+            </if>
+            <check-errors/>
             <service-call name="delete#mantle.humanres.employment.PayrollAdjustmentDetail" in-map="context"/>
             <service-call name="delete#mantle.humanres.employment.PayrollAdjustment" in-map="context"/>
         </actions>

@@ -252,6 +252,48 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="ORG"/>
         <alias-all entity-alias="PID"/>
     </view-entity>
+    <view-entity entity-name="EmploymentFromAndPayrollBatchDetail" package="mantle.humanres.employment">
+        <member-entity entity-alias="EMPL" entity-name="mantle.humanres.employment.Employment"/>
+        <member-entity entity-alias="PREL" entity-name="mantle.party.PartyRelationship" join-from-alias="EMPL">
+            <key-map field-name="partyRelationshipId"/></member-entity>
+        <member-entity entity-alias="EPOS" entity-name="mantle.humanres.position.EmplPosition" join-from-alias="EMPL">
+            <key-map field-name="emplPositionId"/></member-entity>
+        <member-entity entity-alias="PTY" entity-name="mantle.party.Party" join-from-alias="PREL">
+            <key-map field-name="fromPartyId" related="partyId"/></member-entity>
+        <member-entity entity-alias="PER" entity-name="mantle.party.Person" join-from-alias="PTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <member-entity entity-alias="ORG" entity-name="mantle.party.Organization" join-from-alias="PTY" join-optional="true">
+            <key-map field-name="partyId"/></member-entity>
+        <member-entity entity-alias="PID" entity-name="mantle.party.PartyIdentification" join-from-alias="PTY" join-optional="true">
+            <key-map field-name="partyId"/>
+            <entity-condition>
+                <econdition field-name="partyIdTypeEnumId" value="PtidSsn"/>
+            </entity-condition>
+        </member-entity>
+        <member-entity entity-alias="PBD" entity-name="mantle.humanres.employment.PayrollBatchDetail" join-from-alias="EMPL" join-optional="true">
+            <key-map field-name="partyRelationshipId"/></member-entity>
+        <member-entity entity-alias="PB" entity-name="mantle.humanres.employment.PayrollBatch" join-from-alias="PBD" join-optional="true">
+            <key-map field-name="payrollBatchId"/></member-entity>
+        <alias-all entity-alias="PB"/>
+        <alias-all entity-alias="PBD"><exclude field="partyRelationshipId"/><exclude field="payrollBatchId"/></alias-all>
+        <alias-all entity-alias="EMPL"></alias-all>
+        <alias-all entity-alias="PREL"><exclude field="partyRelationshipId"/></alias-all>
+        <alias-all entity-alias="EPOS" prefix="position"/>
+        <alias-all entity-alias="PTY"><exclude field="comments"/></alias-all>
+        <alias-all entity-alias="PER"/>
+        <alias-all entity-alias="ORG"/>
+        <alias-all entity-alias="PID"/>
+    </view-entity>
+    <view-entity entity-name="PayrollBatchAndEmploymentBenefitAccrual" package="mantle.humanres.employment">
+        <member-entity entity-alias="PB" entity-name="mantle.humanres.employment.PayrollBatch"/>
+        <member-entity entity-alias="PBD" entity-name="mantle.humanres.employment.PayrollBatchDetail" join-from-alias="PB">
+            <key-map field-name="payrollBatchId"/></member-entity>
+        <member-entity entity-alias="EBA" entity-name="mantle.humanres.employment.EmploymentBenefitAccrual" join-from-alias="PBD">
+            <key-map field-name="partyRelationshipId"/></member-entity>
+        <alias-all entity-alias="PB"/>
+        <alias-all entity-alias="PBD"/>
+        <alias-all entity-alias="EBA"/>
+    </view-entity>
     <view-entity entity-name="PayrollBatchAndEmploymentToDetail" package="mantle.humanres.employment">
         <member-entity entity-alias="PB" entity-name="mantle.humanres.employment.PayrollBatch"/>
         <member-entity entity-alias="PBD" entity-name="mantle.humanres.employment.PayrollBatchDetail" join-from-alias="PB">

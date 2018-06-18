@@ -291,8 +291,12 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="EBA" entity-name="mantle.humanres.employment.EmploymentBenefitAccrual" join-from-alias="PBD">
             <key-map field-name="partyRelationshipId"/></member-entity>
         <alias-all entity-alias="PB"/>
-        <alias-all entity-alias="PBD"/>
-        <alias-all entity-alias="EBA"/>
+        <alias-all entity-alias="PBD">
+            <exclude field="timePeriodId"/>
+        </alias-all>
+        <alias-all entity-alias="EBA">
+            <exclude field="timePeriodId"/>
+        </alias-all>
     </view-entity>
     <view-entity entity-name="PayrollBatchAndEmploymentToDetail" package="mantle.humanres.employment">
         <member-entity entity-alias="PB" entity-name="mantle.humanres.employment.PayrollBatch"/>

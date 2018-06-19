@@ -377,7 +377,7 @@ along with this software (see the LICENSE.md file). If not, see
             <iterate list="partyList" entry="party">
                 <!-- see if party is now disabled, may have been merged into another party -->
                 <script>party.refresh()</script>
-                <if condition="party.mergedToPartyId || party.disabled == 'Y'"><continue/></if>
+                <if condition="party?.mergedToPartyId || party?.disabled == 'Y'"><continue/></if>
                 <service-call name="mantle.party.DuplicateServices.find#PartyDuplicates" in-map="[partyId:party.partyId]"
                         out-map="dupOut" out-map-add-to-existing="false"/>
                 <if condition="dupOut?.matchingInfoByPartyId">
@@ -406,7 +406,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="fromParty == null"><return message="Cannot merge, From Party ${fromPartyId} not found"/></if>
 
             <if condition="toParty.disabled == 'Y'"><return message="To Party ${toPartyId} is disabled, not merging into it"/></if>
-            <if condition="fromParty.mergedToPartyId"><return message="From Party ${fromPartyId} already merged to Party ${fromParty.mergedToPartyId}"/></if>
+            <if condition="fromParty?.mergedToPartyId"><return message="From Party ${fromPartyId} already merged to Party ${fromParty?.mergedToPartyId}"/></if>
 
             <log level="info" message="Merging Party ${fromPartyId} to Party ${toPartyId}"/>
             <!-- disable from Party and set mergedToPartyId -->

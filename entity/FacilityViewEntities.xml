@@ -170,6 +170,13 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="facilityDescription" entity-alias="FAC" field="description"/>
         <alias name="facilityGeoPointId" entity-alias="FAC" field="geoPointId"/>
     </view-entity>
+    <view-entity entity-name="ProductFacilityLocationDetail" package="mantle.facility">
+        <member-entity entity-alias="PFL" entity-name="mantle.facility.ProductFacilityLocation"/>
+        <member-entity entity-alias="FLOC" entity-name="mantle.facility.FacilityLocation" join-from-alias="PFL">
+            <key-map field-name="facilityId"/><key-map field-name="locationSeqId"/></member-entity>
+        <alias-all entity-alias="PFL"/>
+        <alias-all entity-alias="FLOC"/>
+    </view-entity>
 
     <view-entity entity-name="FacilityContactMechInfo" package="mantle.facility">
         <member-entity entity-alias="FCM" entity-name="mantle.facility.FacilityContactMech"/>
@@ -222,10 +229,13 @@ along with this software (see the LICENSE.md file). If not, see
         <member-relationship entity-alias="SMEN" join-from-alias="OPRT" relationship="shipmentMethod" join-optional="true"/>
         <member-relationship entity-alias="OITM" join-from-alias="OPRT" relationship="items"/>
         <member-relationship entity-alias="ASR" join-from-alias="OITM" relationship="reservations"/>
+        <member-relationship entity-alias="AST" join-from-alias="ASR" relationship="asset"/>
+        <member-relationship entity-alias="FLOC" join-from-alias="AST" relationship="location" join-optional="true"/>
         <alias name="facilityId" entity-alias="OPRT"/>
         <alias name="shipmentMethodEnumId" entity-alias="OPRT"/>
         <alias name="shipmentMethodSequenceNum" entity-alias="SMEN" field="sequenceNum"/>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
+        <alias name="locationTypeEnumId" entity-alias="FLOC"/>
         <alias name="quantity" entity-alias="ASR" function="sum"/>
         <alias name="quantityNotAvailable" entity-alias="ASR" function="sum"/>
         <alias name="quantityNotIssued" entity-alias="ASR" function="sum"/>

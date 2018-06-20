@@ -475,6 +475,36 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="ASR"/>
         <alias-all entity-alias="AST"><exclude field="productId"/></alias-all>
     </view-entity>
+    <view-entity entity-name="AssetAndReservationSummary" package="mantle.product.issuance">
+        <member-entity entity-alias="ASR" entity-name="mantle.product.issuance.AssetReservation"/>
+        <member-entity entity-alias="AST" entity-name="mantle.product.asset.Asset" join-from-alias="ASR">
+            <key-map field-name="assetId"/></member-entity>
+        <member-entity entity-alias="FLOC" entity-name="mantle.facility.FacilityLocation" join-from-alias="AST" join-optional="true">
+            <key-map field-name="facilityId"/><key-map field-name="locationSeqId"/></member-entity>
+        <member-entity entity-alias="OITM" entity-name="mantle.order.OrderItem" join-from-alias="ASR" join-optional="true">
+            <key-map field-name="orderId"/><key-map field-name="orderItemSeqId"/></member-entity>
+        <member-entity entity-alias="SIS" entity-name="mantle.shipment.ShipmentItemSource" join-from-alias="ASR" join-optional="true">
+            <key-map field-name="orderId"/><key-map field-name="orderItemSeqId"/></member-entity>
+        <alias-all entity-alias="ASR"><exclude field="productId"/><exclude field="quantity"/>
+            <exclude field="quantityNotAvailable"/><exclude field="quantityNotIssued"/></alias-all>
+        <alias-all entity-alias="AST"><exclude field="availableToPromiseTotal"/><exclude field="quantityOnHandTotal"/></alias-all>
+        <alias name="locationTypeEnumId" entity-alias="FLOC"/>
+        <alias name="orderPartSeqId" entity-alias="OITM"/>
+        <alias name="shipmentId" entity-alias="SIS"/>
+        <alias name="quantity" entity-alias="ASR" function="sum"/>
+        <alias name="quantityNotAvailable" entity-alias="ASR" function="sum"/>
+        <alias name="quantityNotIssued" entity-alias="ASR" function="sum"/>
+        <alias name="availableToPromiseTotal" entity-alias="AST" function="sum"/>
+        <alias name="quantityOnHandTotal" entity-alias="AST" function="sum"/>
+    </view-entity>
+    <view-entity entity-name="AssetReservationSummary" package="mantle.product.issuance">
+        <member-entity entity-alias="ASR" entity-name="mantle.product.issuance.AssetReservation"/>
+        <alias-all entity-alias="ASR"><exclude field="quantity"/><exclude field="quantityNotAvailable"/>
+            <exclude field="quantityNotIssued"/></alias-all>
+        <alias name="quantity" entity-alias="ASR" function="sum"/>
+        <alias name="quantityNotAvailable" entity-alias="ASR" function="sum"/>
+        <alias name="quantityNotIssued" entity-alias="ASR" function="sum"/>
+    </view-entity>
     <view-entity entity-name="AssetIssuanceLotSummary" package="mantle.product.issuance">
         <description>Find AssetIssuance with Lot and Shipment fields available for constraints/etc, such as finding lot dates on
             most recent shipment for a customer.</description>

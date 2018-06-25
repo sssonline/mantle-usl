@@ -101,22 +101,19 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="payrollPhaseDescription" field="description" entity-alias="ITEM"/>
     </view-entity>
 
-    <view-entity entity-name="EmploymentPayHistoryAdjOvrDetail" package="mantle.humanres.employment">
-        <member-entity entity-alias="EMPH" entity-name="mantle.humanres.employment.EmploymentPayHistory"/>
-        <member-entity entity-alias="EMPAD" entity-name="mantle.humanres.employment.EmploymentPayAdjDetail"
-                       join-from-alias="EMPH">
-            <key-map field-name="employmentPayHistoryId"/>
-        </member-entity>
+    <view-entity entity-name="EmploymentAdjOvrDetail" package="mantle.humanres.employment">
+        <member-entity entity-alias="EMPAD" entity-name="mantle.humanres.employment.PayrollAdjustment"/>
         <member-entity entity-alias="ITEM" entity-name="moqui.basic.Enumeration" join-from-alias="EMPAD">
             <key-map field-name="payrollPhaseEnumId" related="enumId"/></member-entity>
         <member-entity entity-alias="PBAO" entity-name="mantle.humanres.employment.PayrollBatchAdjustmentOverride"
                        join-from-alias="EMPAD">
-            <key-map field-name="payrollAdjustmentId"/></member-entity>
-        <alias-all entity-alias="EMPH"/>
-        <alias-all entity-alias="EMPAD">
-            <exclude field="employmentPayHistoryId"/>
+            <key-map field-name="payrollAdjustmentId" related="payrollBatchAdjOvrId"/></member-entity>
+        <alias-all entity-alias="EMPAD"/>
+        <alias-all entity-alias="PBAO">
+            <exclude field="payrollAdjustmentId"/>
         </alias-all>
         <alias name="payrollBatchAdjOvrId" entity-alias="PBAO"/>
+        <alias name="overriddenPayrollAdjustmentId" field="payrollAdjustmentId" entity-alias="PBAO"/>
         <alias name="payrollPhaseSequenceNum" field="sequenceNum" entity-alias="ITEM"/>
         <alias name="payrollPhaseDescription" field="description" entity-alias="ITEM"/>
     </view-entity>

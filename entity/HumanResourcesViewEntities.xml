@@ -112,7 +112,6 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PBAO">
             <exclude field="payrollAdjustmentId"/>
         </alias-all>
-        <alias name="payrollBatchAdjOvrId" entity-alias="PBAO"/>
         <alias name="overriddenPayrollAdjustmentId" field="payrollAdjustmentId" entity-alias="PBAO"/>
         <alias name="payrollPhaseSequenceNum" field="sequenceNum" entity-alias="ITEM"/>
         <alias name="payrollPhaseDescription" field="description" entity-alias="ITEM"/>

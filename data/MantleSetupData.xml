@@ -76,6 +76,8 @@ along with this software (see the LICENSE.md file). If not, see
             linkTemplate=""/>
     <moqui.service.job.ServiceJob jobName="ProcessTimePeriodPay" description="Process Pay for Payroll Period"
             serviceName="mantle.humanres.PayrollServices.process#TimePeriodPay" topic="ProcessTimePeriodPay"/>
+    <moqui.service.job.ServiceJob jobName="ReopenPayrollPeriod" description="Reopen Payroll Period"
+                                  serviceName="mantle.humanres.PayrollServices.reopen#PayrollPeriod" topic="ReopenPayrollPeriod"/>
 
     <!-- Service Job: Check All Parties for Duplicates (paused by default; cron for every night at 2:00 am) -->
     <moqui.service.job.ServiceJob jobName="check_AllPartyDuplicates" description="Check All Parties for Duplicates"

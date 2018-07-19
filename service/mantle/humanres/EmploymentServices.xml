@@ -477,13 +477,13 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="workHoursUsed" from="hoursUsedSumList?.first?.workHoursUsed ?: 0.0"/>
                     <set field="hoursAvailableForAccrual" from="hoursWorked - workHoursUsed"/>
 
-                    <log level="warn" message="pos ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId} start ${accrualStartTimestamp} block ${accrualHourBlock} hours avail ${hoursAvailableForAccrual}"/>
+                    <!--<log level="warn" message="pos ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId} start ${accrualStartTimestamp} block ${accrualHourBlock} hours avail ${hoursAvailableForAccrual}"/>-->
                     <if condition="hoursAvailableForAccrual &gt;= accrualHourBlock">
                         <!-- calculate accrual based on blocks of hours available -->
                         <set field="hourBlocks" from="(hoursAvailableForAccrual as BigDecimal).divide(accrualHourBlock, 0, BigDecimal.ROUND_DOWN).intValue()"/>
                         <set field="hoursUsedNow" from="hourBlocks * accrualHourBlock"/>
                         <set field="hoursToAccrue" from="hourBlocks * accrualHours"/>
-                        <log level="warn" message="pos ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId} blocks ${hourBlocks} hours used ${hoursUsedNow} hours accrue ${hoursToAccrue}"/>
+                        <!--<log level="warn" message="pos ${partyRelationshipId} benefit ${benefit.benefitTypeEnumId} blocks ${hourBlocks} hours used ${hoursUsedNow} hours accrue ${hoursToAccrue}"/>-->
 
                         <service-call name="create#mantle.humanres.employment.EmploymentBenefitAccrual" in-map="[
                                 partyRelationshipId:partyRelationshipId, benefitTypeEnumId:benefit.benefitTypeEnumId,

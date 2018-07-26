@@ -314,6 +314,7 @@ along with this software (see the LICENSE.md file). If not, see
     <service verb="create" noun="PeriodPayments">
         <in-parameters>
             <parameter name="timePeriodId" required="true"/>
+            <parameter name="payrollBatchId"/>
             <parameter name="effectiveDate" type="Timestamp" required="true"/>
             <parameter name="statusId" default-value="PmntAuthorized"/>
             <parameter name="paymentInstrumentEnumId" default-value="PiCompanyCheck"/>
@@ -337,6 +338,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <entity-find entity-name="mantle.account.invoice.Invoice" list="invoiceList" for-update="true">
                 <econdition field-name="timePeriodId"/>
+                <econdition field-name="payrollBatchId" ignore-if-empty="true"/>
                 <econdition field-name="invoiceTypeEnumId" value="InvoicePayroll"/>
                 <econdition field-name="statusId" value="InvoiceApproved"/>
             </entity-find>

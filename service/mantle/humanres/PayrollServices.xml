@@ -320,7 +320,11 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="paymentInstrumentEnumId" default-value="PiCompanyCheck"/>
             <parameter name="paymentMethodId"/>
         </in-parameters>
+        <out-parameters>
+            <parameter name="paymentIdList" type="List"/>
+        </out-parameters>
         <actions>
+            <set field="paymentIdList" from="[]"/>
             <!-- find the PmpPayroll purpose PaymentMethod -->
             <if condition="!paymentMethodId">
                 <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
@@ -371,6 +375,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="mantle.account.PaymentServices.create#InvoicePayment" out-map="paymentOut"
                     in-map="context + [invoiceId:invoice.invoiceId, partyRelationshipId:invoice.partyRelationshipId,
                         paymentInstrumentEnumId:toUseInstrumentEnumId]"/>
+                <if condition="paymentOut"><script>paymentIdList.add(paymentOut.paymentId)</script></if>
             </iterate>
         </actions>
     </service>

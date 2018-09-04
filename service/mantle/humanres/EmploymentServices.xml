@@ -364,7 +364,7 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="partyRelationshipId" required="true"/>
             <parameter name="timePeriodId" required="true"/>
-            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.thruDate</description></parameter>
+            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.estimatedSettleDate?:TimePeriod.thruDate</description></parameter>
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.party.PartyRelationship" value-field="partyRelationship" for-update="true"/>
@@ -424,7 +424,8 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="partyRelationshipId"/></entity-find>
 
             <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
-            <if condition="payDate == null"><set field="payDate" from="timePeriod.thruDate"/></if>
+            <if condition="payDate == null"><set field="payDate" from="timePeriod.timePeriod.estimatedSettleDate?:thruDate"/></if>
+            <!-- TODO: This should use of get#TimePeriodInfo instead of calculating inline, possibly allowing it to be passed in as well. -->
             <set field="fromDateTime" from="java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(timePeriod.fromDate.time), java.time.ZoneId.systemDefault())"/>
             <set field="thruDateTime" from="java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(timePeriod.thruDate.time), java.time.ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59)"/>
             <set field="thruTimestamp" from="new Timestamp(thruDateTime.toInstant().toEpochMilli())"/>
@@ -623,6 +624,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="availableDateTime"/>
         </out-parameters>
         <actions>
+            <!-- TODO: Efficiency-wise, this is likely to exist in the calling service already. -->
             <service-call name="mantle.party.TimeServices.get#TimePeriodInfo" in-map="[timePeriodId:timePeriodId]" out-map="timePeriodInfo"/>
             <entity-find entity-name="mantle.work.time.TimeEntry" list="periodTimeEntryList">
                 <econdition field-name="partyId"/>

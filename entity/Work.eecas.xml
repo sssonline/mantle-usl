@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -15,15 +15,21 @@ along with this software (see the LICENSE.md file). If not, see
 <eecas xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-eca-2.1.xsd">
     <eeca entity="mantle.work.time.TimeEntry" on-create="true" on-update="true" on-delete="true" get-entire-entity="true">
         <condition><expression>workEffortId</expression></condition>
-        <actions><service-call name="mantle.work.TaskServices.update#TaskFromTime" in-map="context"/></actions>
+        <actions>
+            <service-call name="mantle.work.TaskServices.update#TaskFromTime" in-map="context"/>
+        </actions>
     </eeca>
 
     <eeca entity="mantle.work.effort.WorkEffort" on-create="true" on-update="true" on-delete="true" get-entire-entity="true">
         <condition><expression>rootWorkEffortId != null &amp;&amp; workEffortTypeEnumId == 'WetTask'</expression></condition>
-        <actions><service-call name="mantle.work.TaskServices.update#ProjectTimeFromTask" in-map="context"/></actions>
+        <actions>
+            <service-call name="mantle.work.TaskServices.update#ProjectTimeFromTask" in-map="context"/>
+        </actions>
     </eeca>
     <eeca entity="mantle.work.effort.WorkEffort" on-create="true" on-update="true" on-delete="false" run-before="true" get-entire-entity="true">
         <condition><expression>workEffortTypeEnumId == 'WetTask'</expression></condition>
-        <actions><service-call name="mantle.work.TaskServices.set#TaskDefaults" in-map="context"/></actions>
+        <actions>
+            <service-call name="mantle.work.TaskServices.set#TaskDefaults" in-map="context"/>
+        </actions>
     </eeca>
 </eecas>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -909,7 +909,7 @@ along with this software (see the LICENSE.md file). If not, see
                 </else-if></if>
             </if>
             <set field="workTypeEnumId" from="workTypeEnumId ?: taskWorkEffort?.workTypeEnumId"/>
-            
+
             <!-- If there is a party or employment, find the employment and attempt to define the payGrade and positionClass.
                  If there are any party specific rates, do a maximal match against them. -->
             <!--<log level="warn" message="partyId: ${partyId} on line 1011 in TimeServices.xml"/>-->
@@ -974,7 +974,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!--<log level="warn" message="payGradeId: ${payGradeId} on line 1055 in TimeServices.xml"/>-->
             <!--<log level="warn" message="emplPositionClassId: ${emplPositionClassId} on line 1056 in TimeServices.xml"/>-->
             <!--<log level="warn" message="nonPartyRateAmountToUse: ${nonPartyRateAmountToUse} on line 1057 in TimeServices.xml"/>-->
-            
+
             <!-- Take the greater of the matched rates. This allows one to set a base rate for an employee, but allow
                  specific rates to exceed the employee rate.  This does preclude paying less than the employee rate. -->
             <script><![CDATA[
@@ -1016,11 +1016,16 @@ along with this software (see the LICENSE.md file). If not, see
 
             <if condition="timeEntry.facilityId"><then>
                 <set field="facilityId" from="timeEntry.facilityId"/>
-                <set field="facility" from="timeEntry.facility"/>
             </then><else-if condition="timeEntry.workEffortId">
                 <set field="facilityId"/>
-                <set field="facility" from="timeEntry.workEffort.facility"/>
             </else-if></if>
+
+            <!-- For efficiency, use a cached lookup on the facility. -->
+            <if condition="facilityId">
+                <entity-find-one entity-name="mantle.facility.Facility" value-field="facility" cache="true">
+                    <field-map field-name="facilityId"/>
+                </entity-find-one>
+            </if>
         </actions>
     </service>
 

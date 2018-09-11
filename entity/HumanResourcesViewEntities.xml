@@ -107,7 +107,9 @@ along with this software (see the LICENSE.md file). If not, see
             <key-map field-name="payrollPhaseEnumId" related="enumId"/></member-entity>
         <member-entity entity-alias="PBAO" entity-name="mantle.humanres.employment.PayrollBatchAdjustmentOverride"
                        join-from-alias="EMPAD">
-            <key-map field-name="payrollAdjustmentId" related="payrollBatchAdjOvrId"/></member-entity>
+            <key-map field-name="payrollAdjustmentId" related="payrollBatchAdjOvrId"/>
+            <key-map field-name="partyRelationshipId"/>
+        </member-entity>
         <alias-all entity-alias="EMPAD"/>
         <alias-all entity-alias="PBAO">
             <exclude field="payrollAdjustmentId"/>

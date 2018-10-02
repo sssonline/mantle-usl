@@ -24,7 +24,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="relationshipTypeEnumId" default-value="PrtEmployee"/>
             <parameter name="toRoleTypeId" default-value="OrgEmployer"/>
             <parameter name="fromDate" default="ec.user.nowTimestamp"/>
-            <parameter name="parentRelationshipId"/>
+            <parameter name="parentEmploymentId"/>
         </in-parameters>
         <out-parameters><parameter name="partyRelationshipId"/></out-parameters>
         <actions>

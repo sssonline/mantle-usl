@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -110,6 +110,7 @@ along with this software (see the LICENSE.md file). If not, see
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.financial.FinancialAccount" value-field="financialAccount"/>
+            <if condition="availableBalance == null"><set field="availableBalance" from="financialAccount.availableBalance"/></if>
             <!-- if needed adjust availableBalance -->
             <if condition="negativeBalanceLimit != financialAccount.negativeBalanceLimit">
                 <set field="availableBalance" from="availableBalance + (negativeBalanceLimit - financialAccount.negativeBalanceLimit)"/></if>

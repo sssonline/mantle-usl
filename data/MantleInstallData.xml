@@ -16,6 +16,9 @@ along with this software (see the LICENSE.md file). If not, see
     <!-- User Group Preference for mantle content root, used in various services; these may be modified after install or for custom installs -->
     <moqui.security.UserGroupPreference userGroupId="ALL_USERS" preferenceKey="mantle.content.root"
             preferenceValue="dbresource://mantle/content"/>
+    <moqui.security.UserGroupPreference userGroupId="ALL_USERS" preferenceKey="mantle.content.large.root"
+            preferenceValue="dbresource://mantle/content"/>
+
     <moqui.resource.DbResource resourceId="MANTLE" filename="mantle" isFile="N"/>
     <moqui.resource.DbResource resourceId="MANTLE_CONTENT" filename="content" isFile="N" parentResourceId="MANTLE"/>
     <moqui.resource.DbResource resourceId="MCNT_ASSET" filename="asset" isFile="N" parentResourceId="MANTLE_CONTENT"/>
@@ -76,20 +79,29 @@ along with this software (see the LICENSE.md file). If not, see
                 filterMap="[_join:'or', _list:[[toPartyId:activeOrgId], [relationshipTypeEnumId:(activeOrgId ? 'PrtEmployee' : null), _comp:'!=']]]"/>
         -->
         <filters entityFilterId="MANTLE_ACTIVE_ORG_9" entityName="mantle.party.Party" joinOr="Y"
-                 filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],
-                                    [_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>
+                 <!--filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],-->
+                                    <!--[_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>-->
+        <!--<filters entityFilterId="MANTLE_ACTIVE_ORG_A" entityName="mantle.product.Product"-->
+                 <!--filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],-->
+                                    <!--[_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>-->
+        <!--<filters entityFilterId="MANTLE_ACTIVE_ORG_B" entityName="mantle.product.category.ProductCategory"-->
+                 <!--filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],-->
+                                    <!--[_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>-->
+        <!--<filters entityFilterId="MANTLE_ACTIVE_ORG_C" entityName="mantle.product.feature.ProductFeature"-->
+                 <!--filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],-->
+                                    <!--[_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>-->
+        <!--<filters entityFilterId="MANTLE_ACTIVE_ORG_D" entityName="mantle.product.store.ProductStore"-->
+                 <!--filterMap="[_list:[[organizationPartyId:activeOrgId?[activeOrgId,'_NA_']:null],-->
+                                    <!--[_join:'or', organizationPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>-->
+                filterMap="[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null]"/>
         <filters entityFilterId="MANTLE_ACTIVE_ORG_A" entityName="mantle.product.Product"
-                 filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],
-                                    [_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>
+                filterMap="[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null]"/>
         <filters entityFilterId="MANTLE_ACTIVE_ORG_B" entityName="mantle.product.category.ProductCategory"
-                 filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],
-                                    [_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>
+                filterMap="[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null]"/>
         <filters entityFilterId="MANTLE_ACTIVE_ORG_C" entityName="mantle.product.feature.ProductFeature"
-                 filterMap="[_list:[[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null],
-                                    [_join:'or', ownerPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>
+                filterMap="[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null]"/>
         <filters entityFilterId="MANTLE_ACTIVE_ORG_D" entityName="mantle.product.store.ProductStore"
-                 filterMap="[_list:[[organizationPartyId:activeOrgId?[activeOrgId,'_NA_']:null],
-                                    [_join:'or', organizationPartyId:activeOrgId?'':null, _comp:'is-null']]]"/>
+                filterMap="[organizationPartyId:activeOrgId?[activeOrgId,'_NA_']:null]"/>
         <!-- allow these for 3rd party facilities regardless of active org:
         <filters entityFilterId="MANTLE_ACTIVE_ORG_F" entityName="mantle.facility.Facility"
                 filterMap="[ownerPartyId:activeOrgId?[activeOrgId,'_NA_']:null]"/> -->

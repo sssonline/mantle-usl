@@ -632,8 +632,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <econdition field-name="roleTypeId" value="OrgInternal"/></entity-find-count>
                 <set field="isFromPartyOrgInternal" from="fromOrgInternalCount &gt; 0"/>
 
-                <set field="organizationPartyId" from="isFromPartyOrgInternal ? fromPartyId : toPartyId"/>
-                <set field="otherPartyId" from="isFromPartyOrgInternal ? toPartyId : fromPartyId"/>
+                <set field="organizationPartyId" from="isFromPartyOrgInternal ? invoice.fromPartyId : invoice.toPartyId"/>
+                <set field="otherPartyId" from="isFromPartyOrgInternal ? invoice.toPartyId : invoice.fromPartyId"/>
 
                 <!-- get agreed on settlement term if none specified -->
                 <!-- find an AgreementTerm with a settlementTermId -->
@@ -896,7 +896,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="shipmentId" required="true"/>
             <parameter name="statusId"><description>If specified after create set to this statusId (always created
                 initially in InvoiceInProcess, so there must be a transition to specified status).</description></parameter>
-            <parameter name="invoiceDate" type="Timestamp"><description>Defaults to Shipment packedDate, estimatedShipDate, or now.</description></parameter>
+            <parameter name="invoiceDate" type="Timestamp"><description>Defaults to Shipment packedDate or now.</description></parameter>
 
             <!-- for reuse for purchase orders, represent the differences between sales and purchase order shipments -->
             <parameter name="handleIssuances" type="Boolean" default="true"/>
@@ -909,7 +909,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="shipment == null"><return error="true" message="Shipment not found with ID ${shipmentId}"/></if>
 
             <set field="invoiceIdByOrderPartIdMap" from="[:]"/>
-            <set field="invoiceDate" from="invoiceDate ?: shipment.packedDate ?: shipment.estimatedShipDate ?: ec.user.nowTimestamp"/>
+            <set field="invoiceDate" from="invoiceDate ?: shipment.packedDate ?: ec.user.nowTimestamp"/>
 
             <entity-find entity-name="mantle.shipment.ShipmentItemSource" list="shipmentItemSourceList" for-update="true">
                 <econdition field-name="shipmentId"/>
@@ -1256,7 +1256,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="statusId"><description>If specified after create set to
                 this statusId (always created initially in InvoiceInProcess, so there must be a transition to specified
                 status).</description></parameter>
-            <parameter name="invoiceDate" type="Timestamp"><description>Defaults to Shipment packedDate, estimatedShipDate, or now.</description></parameter>
+            <parameter name="invoiceDate" type="Timestamp"><description>Defaults to Shipment packedDate or now.</description></parameter>
         </in-parameters>
         <out-parameters><parameter name="invoiceIdList" type="List"><parameter name="invoiceId"/></parameter></out-parameters>
         <actions>
@@ -2430,7 +2430,11 @@ along with this software (see the LICENSE.md file). If not, see
         <out-parameters><parameter name="contentLocation"/></out-parameters>
         <actions>
             <set field="filename" from="contentFile.getName()"/>
-            <set field="contentRoot" from="ec.user.getPreference('mantle.content.root') ?: 'dbresource://mantle/content'"/>
+            <if condition="org.moqui.resource.ResourceReference.isTextFilename(filename)"><then>
+                <set field="contentRoot" from="ec.user.getPreference('mantle.content.root') ?: 'dbresource://mantle/content'"/>
+            </then><else>
+                <set field="contentRoot" from="ec.user.getPreference('mantle.content.large.root') ?: 'dbresource://mantle/content'"/>
+            </else></if>
             <set field="contentLocation" value="${contentRoot}/invoice/${invoiceId}/content_${invoiceContentId}/${filename}"/>
 
             <set field="docRr" from="ec.resource.getLocationReference(contentLocation)"/>

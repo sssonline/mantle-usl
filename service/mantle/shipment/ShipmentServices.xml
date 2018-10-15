@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -1787,7 +1787,6 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- start with quantityRemaining = quantity -->
             <set field="quantityRemaining" from="quantity"/>
-
             <!-- first issue based on AssetReservation records if available -->
             <if condition="assetReservation != null"><then>
                 <set field="assetReservationList" from="[assetReservation]"/>
@@ -1801,6 +1800,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <order-by field-name="assetId"/>
                 </entity-find>
             </else-if></if>
+
             <if condition="assetReservationList">
                 <!-- lock each Asset record before proceeding to make sure we can continue -->
                 <set field="resAssetMap" from="[:]"/>
@@ -1819,8 +1819,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <entity-find-one entity-name="mantle.facility.Facility" value-field="facility" cache="true">
                         <field-map field-name="facilityId" from="curAsset?.facilityId"/></entity-find-one>
                     <if condition="facility?.assetAllowIssueOverQoh != 'Y'">
-                        <if condition="quantity &gt; curAsset.quantityOnHandTotal">
-                            <message type="warning">For reservation ${assetReservation.assetReservationId} tried to issue quantity ${quantity} which is greater than quantity on hand ${curAsset.quantityOnHandTotal} for asset ${curAsset.assetId}, skipping</message>
+                        <if condition="assetReservation.quantity &gt; curAsset.quantityOnHandTotal">
+                            <message type="warning">For reservation ${assetReservation.assetReservationId} tried to issue quantity ${assetReservation.quantity} which is greater than quantity on hand ${curAsset.quantityOnHandTotal} for asset ${curAsset.assetId}, skipping</message>
                             <continue/>
                         </if>
                     </if>

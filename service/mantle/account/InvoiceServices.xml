@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-This software is in the public domain under CC0 1.0 Universal plus a 
+This software is in the public domain under CC0 1.0 Universal plus a
 Grant of Patent License.
 
 To the extent possible under law, the author(s) have dedicated all
@@ -1231,7 +1231,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="statusId &amp;&amp; statusId != 'InvoiceInProcess'"><iterate list="invoiceIdByOrderPartIdMap.values()" entry="invoiceId">
                 <service-call name="update#mantle.account.invoice.Invoice" in-map="[invoiceId:invoiceId, statusId:statusId]"/>
             </iterate></if>
-            
+
             <!-- apply order payments to new invoices -->
             <if condition="applyPayments">
                 <iterate list="invoiceIdByOrderPartIdMap.entrySet()" entry="invoiceIdByOrderIdEntry">
@@ -1578,6 +1578,25 @@ along with this software (see the LICENSE.md file). If not, see
             <iterate list="arcList" entry="arc">
                 <set field="arc.invoiceId" from="null"/><set field="arc.invoiceItemSeqId" from="null"/>
                 <entity-update value-field="arc"/>
+            </iterate>
+
+            <!-- clear EmploymentPayHistory and EmploymentPayAdjDetail -->
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjDetail" list="iphadList">
+                <econdition field-name="invoiceId"/>
+                <select-field field-name="employmentPayHistoryId,employmentPayAdjDetailId,invoiceId,invoiceItemSeqId"/>
+            </entity-find>
+            <iterate list="iphadList" entry="iphad">
+                <service-call name="update#mantle.humanres.employment.EmploymentPayAdjDetail"
+                              in-map="[employmentPayAdjDetailId:iphad.employmentPayAdjDetailId, invoiceItemSeqId:null]"/>
+                <service-call name="update#mantle.humanres.employment.EmploymentPayHistory"
+                              in-map="[employmentPayHistoryId:iphad.employmentPayHistoryId, invoiceId:null]"/>
+            </iterate>
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayAdjDetail" list="epadList">
+                <econdition field-name="payeeInvoiceId" from="invoiceId"/>
+            </entity-find>
+            <iterate list="epadList" entry="epad">
+                <set field="epad.payeeInvoiceId" from="null"/><set field="epad.payeeInvoiceItemSeqId" from="null"/>
+                <entity-update value-field="epad"/>
             </iterate>
 
             <!-- clear TimeEntry (by invoiceId, vendorInvoiceId) -->
@@ -2321,7 +2340,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <message type="warning">Not sending past due email for invoice ${invoice.invoiceId}, no Product Store found for email configuration</message>
                 </else></if>
             </iterate>
-            
+
             <!-- send email for each list of invoices for each store -->
             <iterate list="invoicesByStoreId" key="productStoreId" entry="storeInvoiceList">
                 <entity-find-one entity-name="mantle.product.store.ProductStore" value-field="productStore">

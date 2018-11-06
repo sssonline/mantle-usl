@@ -94,6 +94,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="telecomContactMechPurposeId"/>
             <parameter name="emailContactMechId"/>
             <parameter name="emailContactMechPurposeId"/>
+            <parameter name="webUrlContactMechId"/>
+            <parameter name="webUrlContactMechPurposeId"/>
             <parameter name="otherContactMechId"/>
             <parameter name="otherContactMechPurposeId"/>
             <parameter name="defaultToPrimaryPurpose" type="Boolean" default="true"/>
@@ -118,11 +120,15 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="emailContactMechId"/>
             <parameter name="emailContactMechPurposeId"/>
             <parameter name="emailAddress"/>
+            <parameter name="webUrlContactMechId"/>
+            <parameter name="webUrlContactMechPurposeId"/>
+            <parameter name="webUrl"/>
             <parameter name="otherContactMechId"/>
             <parameter name="otherContactMechPurposeId"/>
             <parameter name="otherInfoString"/>
         </out-parameters>
         <actions>
+            <!-- postal address -->
             <if condition="postalContactMechPurposeId &amp;&amp; !postalContactMechId">
                 <entity-find entity-name="mantle.facility.FacilityContactMech" list="postalFcmList">
                     <date-filter/><econdition field-name="facilityId"/>
@@ -148,6 +154,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="postalAddressGeoPoint" from="postalAddress?.geoPoint"/>
             <set field="postalTrustLevelEnum" from="postalContactMech?.trustLevel"/>
 
+            <!-- telecom number -->
             <if condition="telecomContactMechPurposeId &amp;&amp; !telecomContactMechId">
                 <entity-find entity-name="mantle.facility.FacilityContactMech" list="telecomFcmList">
                     <date-filter/><econdition field-name="facilityId"/>
@@ -167,6 +174,7 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find-one entity-name="mantle.party.contact.TelecomNumber" value-field="telecomNumber">
                 <field-map field-name="contactMechId" from="telecomContactMechId"/></entity-find-one>
 
+            <!-- email address -->
             <if condition="emailContactMechPurposeId &amp;&amp; !emailContactMechId">
                 <entity-find entity-name="mantle.facility.FacilityContactMech" list="emailFcmList">
                     <date-filter/><econdition field-name="facilityId"/>
@@ -187,6 +195,28 @@ along with this software (see the LICENSE.md file). If not, see
                 <field-map field-name="contactMechId" from="emailContactMechId"/></entity-find-one>
             <set field="emailAddress" from="emailContactMech?.infoString"/>
 
+            <!-- web contact -->
+            <if condition="webUrlContactMechPurposeId &amp;&amp; !webUrlContactMechId">
+                <entity-find entity-name="mantle.facility.FacilityContactMech" list="webUrlFcmList">
+                    <date-filter/><econdition field-name="facilityId"/>
+                    <econdition field-name="contactMechPurposeId" from="webUrlContactMechPurposeId"/>
+                    <order-by field-name="-fromDate"/>
+                </entity-find>
+                <if condition="defaultToPrimaryPurpose &amp;&amp; !webUrlFcmList">
+                    <entity-find entity-name="mantle.facility.FacilityContactMech" list="webUrlFcmList">
+                        <date-filter/><econdition field-name="facilityId"/>
+                        <econdition field-name="contactMechPurposeId" value="WebUrlPrimary"/>
+                        <order-by field-name="-fromDate"/>
+                    </entity-find>
+                    <if condition="webUrlFcmList"><set field="webUrlContactMechPuproseId" value="WebUrlPrimary"/></if>
+                </if>
+                <set field="webUrlContactMechId" from="webUrlFcmList ? webUrlFcmList[0].contactMechId : null"/>
+            </if>
+            <entity-find-one entity-name="mantle.party.contact.ContactMech" value-field="webUrlContactMech">
+                <field-map field-name="contactMechId" from="webUrlContactMechId"/></entity-find-one>
+            <set field="webUrl" from="webUrlContactMech?.infoString"/>
+
+            <!-- other contact info -->
             <if condition="otherContactMechPurposeId &amp;&amp; !otherContactMechId">
                 <entity-find entity-name="mantle.facility.FacilityContactMech" list="otherFcmList">
                     <date-filter/><econdition field-name="facilityId"/>

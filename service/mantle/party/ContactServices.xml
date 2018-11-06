@@ -25,6 +25,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="faxContactMechPurposeId"/>
             <parameter name="emailContactMechId"/>
             <parameter name="emailContactMechPurposeId"/>
+            <parameter name="webUrlContactMechId"/>
+            <parameter name="webUrlContactMechPurposeId"/>
             <parameter name="otherContactMechId"/>
             <parameter name="otherContactMechPurposeId"/>
             <parameter name="defaultToPrimaryPurpose" type="Boolean" default="true"/>
@@ -53,6 +55,9 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="emailPartyContactMech" type="EntityValue"/>
             <parameter name="emailContactMechPurposeId"/>
             <parameter name="emailAddress"/>
+            <parameter name="webUrlContactMechId"/>
+            <parameter name="webUrlContactMechPurposeId"/>
+            <parameter name="webUrl"/>
             <parameter name="otherContactMechId"/>
             <parameter name="otherContactMech" type="EntityValue"/>
             <parameter name="otherContactMechPurposeId"/>
@@ -190,6 +195,43 @@ along with this software (see the LICENSE.md file). If not, see
                 <set field="emailPartyContactMech" from="emailPcmList ? emailPcmList[0] : null"/>
             </if>
 
+            <!-- web contact -->
+            <if condition="webUrlContactMechPurposeId &amp;&amp; !webUrlContactMechId">
+                <entity-find entity-name="mantle.party.contact.PartyContactMech" list="webUrlPcmList">
+                    <date-filter/><econdition field-name="facilityId"/>
+                    <econdition field-name="contactMechPurposeId" from="webUrlContactMechPurposeId"/>
+                    <order-by field-name="-fromDate"/>
+                </entity-find>
+                <if condition="defaultToPrimaryPurpose &amp;&amp; !webUrlFcmList">
+                    <entity-find entity-name="mantle.party.contact.PartyContactMech" list="webUrlPcmList">
+                        <date-filter/><econdition field-name="facilityId"/>
+                        <econdition field-name="contactMechPurposeId" value="WebUrlPrimary"/>
+                        <order-by field-name="-fromDate"/>
+                    </entity-find>
+                    <if condition="webUrlPcmList"><set field="webUrlContactMechPurposeId" value="WebUrlPrimary"/></if>
+                </if>
+                <set field="webUrlPartyContactMech" from="webUrlPcmList ? webUrlPcmList[0] : null"/>
+                <set field="webUrlContactMechId" from="webUrlPartyContactMech?.contactMechId"/>
+            </if>
+            <entity-find-one entity-name="mantle.party.contact.ContactMech" value-field="webUrlContactMech">
+                <field-map field-name="contactMechId" from="webUrlContactMechId"/></entity-find-one>
+            <set field="webUrl" from="webUrlContactMech?.infoString"/>
+            <if condition="webUrlContactMech == null &amp;&amp; postalAddress?.webUrlContactMechId">
+                <set field="webUrlContactMechId" from="postalAddress.webUrlContactMechId"/>
+                <entity-find-one entity-name="mantle.party.contact.ContactMech" value-field="webUrlContactMech">
+                    <field-map field-name="contactMechId" from="webUrlContactMechId"/></entity-find-one>
+                <set field="webUrl" from="webUrlContactMech?.infoString"/>
+            </if>
+            <if condition="webUrlPartyContactMech == null &amp;&amp; webUrlContactMech != null">
+                <entity-find entity-name="mantle.party.contact.PartyContactMech" list="webUrlPcmList">
+                    <date-filter/><econdition field-name="partyId"/>
+                    <econdition field-name="contactMechId" from="webUrlContactMechId"/>
+                    <econdition field-name="contactMechPurposeId" from="webUrlContactMechPurposeId" ignore-if-empty="true"/>
+                </entity-find>
+                <set field="webUrlPartyContactMech" from="webUrlPcmList ? webUrlPcmList[0] : null"/>
+            </if>
+
+
             <!-- other contact info -->
             <if condition="otherContactMechPurposeId &amp;&amp; !otherContactMechId">
                 <entity-find entity-name="mantle.party.contact.PartyContactMech" list="otherPcmList">
@@ -213,6 +255,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="postalContactMechPurposeId"/>
             <parameter name="telecomContactMechPurposeId"/>
             <parameter name="emailContactMechPurposeId"/>
+            <parameter name="webUrlContactMechPurposeId"/>
             <parameter name="getAll" type="Boolean" default="false"/>
             <parameter name="alsoIncludePrimaryPurpose" type="Boolean" default="true"/>
         </in-parameters>
@@ -249,6 +292,14 @@ along with this software (see the LICENSE.md file). If not, see
                 <parameter name="emailContactMechPurposeId"/>
                 <parameter name="emailContactMechPurpose" type="EntityValue"/>
                 <parameter name="emailAddress"/>
+            </parameter></parameter>
+            <parameter name="webUrlList" type="List"><parameter name="infoMap" type="Map">
+                <parameter name="webUrlContactMechId"/>
+                <parameter name="webUrlContactMech" type="EntityValue"/>
+                <parameter name="webUrlPartyContactMech" type="EntityValue"/>
+                <parameter name="webUrlContactMechPurposeId"/>
+                <parameter name="webUrlContactMechPurpose" type="EntityValue"/>
+                <parameter name="webUrl"/>
             </parameter></parameter>
         </out-parameters>
         <actions>
@@ -372,6 +423,37 @@ along with this software (see the LICENSE.md file). If not, see
                     <script>emailAddressList.add(emailAddressInfo)</script>
                 </iterate>
             </if>
+
+            <if condition="webUrlContactMechPurposeId"><then>
+                <set field="webUrlPurposeList" from="[webUrlContactMechPurposeId]"/>
+                <if condition="alsoIncludePrimaryPurpose &amp;&amp; webUrlContactMechPurposeId != 'WebUrlPrimary'">
+                    <script>webUrlPurposeList.add('WebUrlPrimary')</script></if>
+                <entity-find entity-name="mantle.party.contact.PartyContactMech" list="webUrlPcmList">
+                    <date-filter/><econdition field-name="partyId"/>
+                    <econdition field-name="contactMechPurposeId" operator="in" from="webUrlPurposeList"/>
+                    <order-by field-name="-fromDate"/>
+                </entity-find>
+            </then><else-if condition="getAll">
+                <entity-find entity-name="mantle.party.contact.PartyContactMechInfo" list="webUrlPcmList">
+                    <date-filter/><econdition field-name="partyId"/>
+                    <econdition field-name="contactMechTypeEnumId" value="CmtWebAddress"/>
+                    <order-by field-name="-fromDate"/>
+                </entity-find>
+            </else-if></if>
+            <if condition="webUrlPcmList">
+                <set field="webUrlList" from="[]"/>
+                <iterate list="webUrlPcmList" entry="webUrlPcm">
+                    <set field="webUrlContactMechId" from="webUrlPcm.contactMechId"/>
+                    <entity-find-one entity-name="mantle.party.contact.ContactMech" value-field="webUrlContactMech">
+                        <field-map field-name="contactMechId" from="webUrlContactMechId"/></entity-find-one>
+                    <entity-find-one entity-name="mantle.party.contact.ContactMechPurpose" value-field="webUrlContactMechPurpose">
+                        <field-map field-name="contactMechPurposeId" from="webUrlPcm.contactMechPurposeId"/></entity-find-one>
+                    <set field="webUrlInfo" from="[webUrlContactMechId:webUrlContactMechId, webUrlContactMech:webUrlContactMech,
+                            webUrlContactMechPurposeId:webUrlPcm.contactMechPurposeId, webUrlContactMechPurpose:webUrlContactMechPurpose,
+                            webUrlPartyContactMech:webUrlPcm, webUrl:webUrlContactMech.infoString]"/>
+                    <script>webUrlList.add(webUrlInfo)</script>
+                </iterate>
+            </if>
             <!-- <log level="warn" message="get#PartyContactInfoList finish context=${context.context}"/> -->
         </actions>
     </service>
@@ -458,6 +540,10 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="emailAddress"><text-email/></parameter>
             <parameter name="emailAllowSolicitation"/>
 
+            <parameter name="webUrlContactMechId"/>
+            <parameter name="webUrlContactMechPurposeId"/>
+            <parameter name="webUrl"/>
+
             <parameter name="otherContactMechId"/>
             <parameter name="otherContactMechTypeEnumId"/>
             <parameter name="otherContactMechPurposeId"/>
@@ -508,6 +594,25 @@ along with this software (see the LICENSE.md file). If not, see
                         in-map="context + [contactMechPurposeId:emailContactMechPurposeId, allowSolicitation:emailAllowSolicitation]"/>
             </else-if></if>
             <set field="emailContactMechId" from="emOut?.contactMechId ?: emailContactMechId"/>
+
+            <!-- Web URL -->
+            <if condition="replaceByPurpose &amp;&amp; webUrl &amp;&amp; !webUrlContactMechId &amp;&amp; webUrlContactMechPurposeId">
+                <entity-find entity-name="mantle.party.contact.PartyContactMech" list="existingWebUrlPcmList">
+                    <date-filter/><econdition field-name="partyId"/>
+                    <econdition field-name="contactMechPurposeId" from="webUrlContactMechPurposeId"/>
+                    <order-by field-name="-fromDate"/>
+                </entity-find>
+                <if condition="existingWebUrlPcmList"><set field="webUrlContactMechId" from="existingWebUrlPcmList[0].contactMechId"/></if>
+            </if>
+            <if condition="webUrlContactMechId &amp;&amp; webUrl"><then>
+                <service-call name="mantle.party.ContactServices.update#PartyContactOther" out-map="wuOut"
+                              in-map="[infoString:webUrl, partyId:partyId, contactMechId:webUrlContactMechId,
+                              contactMechPurposeId:webUrlContactMechPurposeId]"/>
+            </then><else-if condition="webUrl">
+                <service-call name="mantle.party.ContactServices.create#WebUrl" out-map="wuOut"
+                              in-map="context + [contactMechPurposeId:webUrlContactMechPurposeId]"/>
+            </else-if></if>
+            <set field="webUrlContactMechId" from="wuOut?.contactMechId ?: webUrlContactMechId"/>
 
             <!-- Other -->
             <if condition="otherInfoString &amp;&amp; !otherContactMechId &amp;&amp; replaceByPurpose">
@@ -980,6 +1085,49 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- get emailAddress from UserAccount -->
                 <entity-find entity-name="UserAccount" list="uaList"><econdition field-name="partyId"/></entity-find>
                 <if condition="uaList"><set field="emailAddress" from="uaList[0].emailAddress"/></if>
+            </else></if>
+        </actions>
+    </service>
+
+    <!-- ========== Web URL Services ========== -->
+
+    <service verb="create" noun="WebUrl">
+        <in-parameters>
+            <parameter name="webUrl" required="true"><text-url/></parameter>
+            <auto-parameters entity-name="mantle.party.contact.PartyContactMech" include="nonpk"/>
+
+            <parameter name="partyId"/>
+            <parameter name="facilityId"/>
+            <parameter name="contactMechPurposeId"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="contactMechId" required="true"/>
+        </out-parameters>
+        <actions>
+            <service-call name="mantle.party.ContactServices.create#ContactMechOther" out-map="context"
+                          in-map="context + [infoString:webUrl, contactMechTypeEnumId:'CmtWebAddress']"/>
+        </actions>
+    </service>
+    <service verb="get" noun="PrimaryWebUrl">
+        <in-parameters>
+            <parameter name="partyId" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="webUrl"/>
+            <parameter name="contactMechId"/>
+        </out-parameters>
+        <actions>
+            <entity-find entity-name="PartyContactMechInfo" list="pcmiList">
+                <date-filter/>
+                <econdition-object field="[partyId:partyId, contactMechPurposeId:'WebUrlPrimary']"/>
+            </entity-find>
+            <if condition="pcmiList"><then>
+                <set field="webUrl" from="pcmiList[0].infoString"/>
+                <set field="contactMechId" from="pcmiList[0].contactMechId"/>
+            </then><else>
+                <!-- get webUrl from UserAccount -->
+                <entity-find entity-name="UserAccount" list="uaList"><econdition field-name="partyId"/></entity-find>
+                <if condition="uaList"><set field="webUrl" from="uaList[0].webUrl"/></if>
             </else></if>
         </actions>
     </service>

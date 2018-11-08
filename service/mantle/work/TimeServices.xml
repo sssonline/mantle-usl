@@ -1070,7 +1070,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="workTypeEnumId" from="timeEntry.workTypeEnumId?:(timeEntry.workEffort?.workTypeEnumId)"/>
 
             <!-- Make sure all rate types have been accounted for in case any need special treatment -->
-            <if condition="rateTypeEnumId in ['RatpVacation', 'RatpHoliday', 'RatpSick', 'RatpPtoOther']"><then>
+            <if condition="rateTypeEnumId in ['RatpFamilyLeave', 'RatpHoliday', 'RatpPtoOther', 'RatpSick', 'RatpVacation']"><then>
                 <!-- TODO: Are there any circumstances where vacation/etc. are subject to workers' comp? -->
                 <return/>
             </then><else-if condition="rateTypeEnumId in ['RatpPaidBreakStd', 'RatpPaidBreakRrp']">

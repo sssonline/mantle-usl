@@ -1151,7 +1151,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <iterate list="timeEntryRiskClassInfoList" entry="timeEntryRiskClassInfo">
                         <if condition="timeEntryRiskClassInfo.riskClassEnumId == payrollAdjustment.riskClassEnumId">
                             <if condition="(rateBasisEnumId == 'PrbsHoursTotal') ||
-                                           !(timeEntry.rateTypeEnumId in ['RatpVacation', 'RatpHoliday', 'RatpSick', 'RatpPtoOther'])">
+                                           !(timeEntry.rateTypeEnumId in ['RatpFamilyLeave', 'RatpHoliday', 'RatpPtoOther', 'RatpSick', 'RatpVacation'])">
                                 <set field="timeEntry" from="timeEntryRiskClassInfo.timeEntry"/>
                                 <!-- Do not include timeEntry.breakHours, those are for non-paid breaks -->
                                 <set field="riskClassMatch" from="true"/>
@@ -1166,7 +1166,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <!--<set field="adjustmentYtdAmount" value="0"/>-->
                     <iterate list="timeEntryList" entry="timeEntry">
                         <if condition="(rateBasisEnumId == 'PrbsHoursTotal') ||
-                                       !(timeEntry.rateTypeEnumId in ['RatpVacation', 'RatpHoliday', 'RatpSick', 'RatpPtoOther'])">
+                                       !(timeEntry.rateTypeEnumId in ['RatpFamilyLeave', 'RatpHoliday', 'RatpPtoOther', 'RatpSick', 'RatpVacation'])">
                             <!-- Do not include timeEntry.breakHours, those are for non-paid breaks -->
                             <set field="adjustmentBasisAmount" from="adjustmentBasisAmount + timeEntry.hours"/>
                         </if>

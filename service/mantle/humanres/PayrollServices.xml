@@ -747,6 +747,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- get the pay amount and employment, emplPosition, timePeriod, fromTimestamp, thruTimestamp -->
             <service-call name="mantle.humanres.PayrollServices.get#EmploymentPayAmount" in-map="context" out-map="context"/>
+            <set field="taxExemptEnumId" from="employment?.taxExemptEnumId?:employee?.taxExemptEnumId?:emplPosition?.taxExemptEnumId?:'EtxResidentRegular'"/>
 
             <if condition="payDate == null"><set field="payDate" from="timePeriod.thruDate"/></if>
             <!-- FUTURE: [OrgTimeZoneMarker] instead of using Java system default TimeZone use one configured for the organization -->
@@ -754,7 +755,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- is this employee's income social and medical taxable? NOTE: special cases here, and not all potential yet handled: -->
             <!-- see https://www.irs.gov/individuals/international-taxpayers/aliens-employed-in-the-u-s-social-security-taxes -->
-            <set field="socialMedicalExempt" from="emplPosition.taxExemptEnumId == 'EtxForeignAg'"/>
+            <set field="socialMedicalExempt" from="taxExemptEnumId == 'EtxForeignAg'"/>
 
             <!-- set initial taxablePayAmount, socialTaxablePayAmount, medicalTaxablePayAmount -->
             <set field="taxablePayAmount" from="payAmount"/>
@@ -1077,9 +1078,11 @@ along with this software (see the LICENSE.md file). If not, see
                     <field-map field-name="emplPositionId" from="employment.emplPositionId"/></entity-find-one>
             </if>
 
+            <set field="taxExemptEnumId" from="employment?.taxExemptEnumId?:employee?.taxExemptEnumId?:emplPosition?.taxExemptEnumId?:'EtxResidentRegular'"/>
+
             <!-- see if the employee is exempt from this adjustment -->
             <entity-find-one entity-name="mantle.humanres.employment.PayrollAdjustmentExempt" value-field="paExempt" cache="true">
-                <field-map field-name="payrollAdjustmentId"/><field-map field-name="taxExemptEnumId" from="emplPosition.taxExemptEnumId"/></entity-find-one>
+                <field-map field-name="payrollAdjustmentId"/><field-map field-name="taxExemptEnumId"/></entity-find-one>
             <if condition="paExempt != null">
                 <return/><!-- adjustmentApplies already set to false so adjustment won't be added by caller -->
             </if>

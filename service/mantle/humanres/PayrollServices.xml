@@ -1450,7 +1450,9 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
 
             <service-call name="delete#mantle.humanres.employment.PayrollAdjustmentDetail" in-map="context"/>
-            <service-call name="delete#mantle.humanres.employment.PayrollAdjustmentApplies" in-map="context"/>
+            <if condition="payrollAdjustmentAppliesId">
+                <service-call name="delete#mantle.humanres.employment.PayrollAdjustmentApplies" in-map="context"/>
+            </if>
             <service-call name="delete#mantle.humanres.employment.PayrollAdjustment" in-map="context"/>
         </actions>
     </service>

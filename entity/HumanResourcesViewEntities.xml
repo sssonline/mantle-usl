@@ -59,7 +59,9 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="partyIdTypeEnumId" value="PtidSsn"/>
             </entity-condition>
         </member-entity>
-        <alias-all entity-alias="EMPL"/>
+        <alias-all entity-alias="EMPL">
+            <exclude field="taxExemptEnumId"/>
+        </alias-all>
         <alias-all entity-alias="PREL"/>
         <alias-all entity-alias="EPOS" prefix="position"/>
         <alias-all entity-alias="EMPE" prefix="employee"/>

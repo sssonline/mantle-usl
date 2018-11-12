@@ -391,18 +391,18 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="TE"/>
         <alias-all entity-alias="FAC"/>
     </view-entity>
-    <view-entity entity-name="TimeEntryRiskClass" package="mantle.humanres.employment">
-        <member-entity entity-alias="TE" entity-name="mantle.work.time.TimeEntry"/>
-        <member-entity entity-alias="FAC" entity-name="mantle.facility.Facility" join-from-alias="TE">
-            <key-map field-name="facilityId"/></member-entity>
-        <member-entity entity-alias="WTRC" entity-name="mantle.humanres.employment.WorkTypeRiskClass" join-from-alias="TE">
-            <key-map field-name="workTypeEnumId"/>
-            <entity-condition><econdition entity-alias="FAC" field-name="stateGeoId" to-field-name="geoId"/></entity-condition>
-        </member-entity>
-        <alias-all entity-alias="TE"/>
-        <alias-all entity-alias="WTRC"><exclude field="geoId"/></alias-all>
-        <alias name="stateGeoId" entity-alias="FAC"/>
-    </view-entity>
+    <!--<view-entity entity-name="TimeEntryRiskClass" package="mantle.humanres.employment">-->
+        <!--<member-entity entity-alias="TE" entity-name="mantle.work.time.TimeEntry"/>-->
+        <!--<member-entity entity-alias="FAC" entity-name="mantle.facility.Facility" join-from-alias="TE">-->
+            <!--<key-map field-name="facilityId"/></member-entity>-->
+        <!--<member-entity entity-alias="WTRC" entity-name="mantle.humanres.employment.WorkTypeRiskClass" join-from-alias="TE">-->
+            <!--<key-map field-name="workTypeEnumId"/>-->
+            <!--<entity-condition><econdition entity-alias="FAC" field-name="stateGeoId" to-field-name="geoId"/></entity-condition>-->
+        <!--</member-entity>-->
+        <!--<alias-all entity-alias="TE"/>-->
+        <!--<alias-all entity-alias="WTRC"><exclude field="geoId"/></alias-all>-->
+        <!--<alias name="stateGeoId" entity-alias="FAC"/>-->
+    <!--</view-entity>-->
 
     <!-- ========================================================= -->
     <!-- mantle.humanres.position -->

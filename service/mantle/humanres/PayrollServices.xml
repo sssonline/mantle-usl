@@ -1430,6 +1430,30 @@ along with this software (see the LICENSE.md file). If not, see
             <service-call name="delete#mantle.humanres.employment.PayrollAdjustment" in-map="context"/>
         </actions>
     </service>
+    <service verb="delete" noun="PayrollAdjustmentAndDetailAndApplies">
+        <in-parameters>
+            <auto-parameters entity-name="mantle.humanres.employment.PayrollAdjustmentAndDetailAndApplies"/>
+        </in-parameters>
+        <actions>
+            <entity-find-one entity-name="mantle.humanres.employment.EmploymentPayAdjDetail" value-field="empPayAdjDetail">
+                <field-map field-name="payrollAdjustmentId"/>
+            </entity-find-one>
+            <if condition="empPayAdjDetail">
+                <return error="true" message="Cannot delete this adjustment, it is referenced by one or more Employment Pay Adjustment Details"/>
+            </if>
+
+            <entity-find-one entity-name="mantle.account.invoice.InvoiceItem" value-field="invoiceItem">
+                <field-map field-name="payrollAdjustmentId"/>
+            </entity-find-one>
+            <if condition="invoiceItem">
+                <return error="true" message="Cannot delete this adjustment, it is referenced by one or more Invoice Items"/>
+            </if>
+
+            <service-call name="delete#mantle.humanres.employment.PayrollAdjustmentDetail" in-map="context"/>
+            <service-call name="delete#mantle.humanres.employment.PayrollAdjustmentApplies" in-map="context"/>
+            <service-call name="delete#mantle.humanres.employment.PayrollAdjustment" in-map="context"/>
+        </actions>
+    </service>
 
     <!-- ========== Payroll Invoice Services ========== -->
 

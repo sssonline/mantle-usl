@@ -222,6 +222,26 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PASS"/>
     </view-entity>
 
+    <view-entity entity-name="PayrollAdjustmentAndDetailAndApplies" package="mantle.humanres.employment">
+        <member-entity entity-alias="PADJ" entity-name="mantle.humanres.employment.PayrollAdjustment"/>
+        <member-entity entity-alias="PADTL" entity-name="mantle.humanres.employment.PayrollAdjustmentDetail" join-from-alias="PADJ">
+            <key-map field-name="payrollAdjustmentId"/></member-entity>
+        <member-entity entity-alias="PAFS" entity-name="mantle.humanres.employment.PayrollAdjustmentFedStts"
+                       join-from-alias="PADJ" join-optional="true">
+            <key-map field-name="payrollAdjustmentId"/></member-entity>
+        <member-entity entity-alias="PASS" entity-name="mantle.humanres.employment.PayrollAdjustmentStateStts"
+                       join-from-alias="PADJ" join-optional="true">
+            <key-map field-name="payrollAdjustmentId"/></member-entity>
+        <member-entity entity-alias="PAPL" entity-name="mantle.humanres.employment.PayrollAdjustmentApplies"
+                       join-from-alias="PADJ" join-optional="true">
+            <key-map field-name="payrollAdjustmentId"/></member-entity>
+        <alias-all entity-alias="PADJ"/>
+        <alias-all entity-alias="PADTL"/>
+        <alias-all entity-alias="PAFS"/>
+        <alias-all entity-alias="PASS"/>
+        <alias-all entity-alias="PAPL"/>
+    </view-entity>
+
     <view-entity entity-name="PayrollAdjustmentAndApplies" package="mantle.humanres.employment">
         <member-entity entity-alias="PADJ" entity-name="mantle.humanres.employment.PayrollAdjustment"/>
         <member-entity entity-alias="PAPL" entity-name="mantle.humanres.employment.PayrollAdjustmentApplies" join-from-alias="PADJ">

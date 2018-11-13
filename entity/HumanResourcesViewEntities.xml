@@ -254,8 +254,13 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="PADJ" entity-name="mantle.humanres.employment.PayrollAdjustment"/>
         <member-entity entity-alias="PAPLT" entity-name="mantle.humanres.employment.PayrollAdjustmentAppliesTo" join-from-alias="PADJ">
             <key-map field-name="payrollAdjustmentId"/></member-entity>
-        <alias-all entity-alias="PADJ"/>
+        <alias-all entity-alias="PADJ">
+            <exclude field="workTypeEnumId"/>
+            <exclude field="facilityId"/>
+        </alias-all>
         <alias-all entity-alias="PAPLT"/>
+        <alias name="adjustmentWorkTypeEnumId" field="workTypeEnumId" entity-alias="PADJ"/>
+        <alias name="adjustmentFacilityId" field="facilityId" entity-alias="PADJ"/>
     </view-entity>
 
     <view-entity entity-name="PayrollBatchAndDetail" package="mantle.humanres.employment">

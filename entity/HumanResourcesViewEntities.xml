@@ -237,9 +237,30 @@ along with this software (see the LICENSE.md file). If not, see
             <key-map field-name="payrollAdjustmentId"/></member-entity>
         <alias-all entity-alias="PADJ"/>
         <alias-all entity-alias="PADTL"/>
-        <alias-all entity-alias="PAFS"/>
-        <alias-all entity-alias="PASS"/>
-        <alias-all entity-alias="PAPL"/>
+        <alias-all entity-alias="PAFS">
+            <exclude field="taxFederalStatusEnumId"/>
+        </alias-all>
+        <alias-all entity-alias="PASS">
+            <exclude field="taxStateStatusEnumId"/>
+        </alias-all>
+        <alias-all entity-alias="PAPL">
+            <exclude field="taxFederalStatusEnumId"/>
+            <exclude field="taxStateStatusEnumId"/>
+        </alias-all>
+        <alias name="taxFederalStatusEnumId" type="id">
+            <complex-alias function="COALESCE">
+                <complex-alias-field entity-alias="PAFS" field="taxFederalStatusEnumId"/>
+                <complex-alias-field entity-alias="PAPL" field="taxFederalStatusEnumId"/>
+                <complex-alias expression="''"/>
+            </complex-alias>
+        </alias>
+        <alias name="taxStateStatusEnumId" type="id">
+            <complex-alias function="COALESCE">
+                <complex-alias-field entity-alias="PASS" field="taxStateStatusEnumId"/>
+                <complex-alias-field entity-alias="PAPL" field="taxStateStatusEnumId"/>
+                <complex-alias expression="''"/>
+            </complex-alias>
+        </alias>
     </view-entity>
 
     <view-entity entity-name="PayrollAdjustmentAndApplies" package="mantle.humanres.employment">

@@ -63,7 +63,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- get all relevant employments -->
             <service-call name="mantle.humanres.PayrollServices.get#TimePeriodEmployments" in-map="context" out-map="context"/>
-            <if condition="!payDate"><set field="payDate" from="timePeriod.thruDate"/></if>
+            <if condition="!payDate"><set field="payDate" from="timePeriod.estimatedSettleDate?:timePeriod.thruDate"/></if>
 
             <!-- process pay for each employment -->
             <set field="invoiceIdByPartyRelationshipId" from="[:]"/>
@@ -442,7 +442,7 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="partyRelationshipId" required="true"/>
             <parameter name="timePeriodId" required="true"/>
-            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.thruDate</description></parameter>
+            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.estimatedSettleDate?:TimePeriod.thruDate</description></parameter>
             <parameter name="invoiceId"/>
         </in-parameters>
         <out-parameters>
@@ -717,7 +717,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="partyRelationshipId"/> <!-- partyRelationshipId or employment is required -->
             <parameter name="employment" type="Map"/>
             <parameter name="timePeriodId" required="true"/>
-            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.thruDate</description></parameter>
+            <parameter name="payDate" type="Date"><description>Defaults to TimePeriod.estimatedSettleDate?:TimePeriod.thruDate</description></parameter>
         </in-parameters>
         <out-parameters>
             <parameter name="payAmount" type="BigDecimal"/>
@@ -749,7 +749,7 @@ along with this software (see the LICENSE.md file). If not, see
             <service-call name="mantle.humanres.PayrollServices.get#EmploymentPayAmount" in-map="context" out-map="context"/>
             <set field="taxExemptEnumId" from="employment?.taxExemptEnumId?:employee?.taxExemptEnumId?:emplPosition?.taxExemptEnumId?:'EtxResidentRegular'"/>
 
-            <if condition="payDate == null"><set field="payDate" from="timePeriod.thruDate"/></if>
+            <if condition="payDate == null"><set field="payDate" from="timePeriod.estimatedSettleDate?:timePeriod.thruDate"/></if>
             <!-- FUTURE: [OrgTimeZoneMarker] instead of using Java system default TimeZone use one configured for the organization -->
             <set field="payTimestamp" from="ec.l10n.parseTimestamp(&quot;${payDate} 12:00:00.000&quot;, '')"/>
 
@@ -790,7 +790,9 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="adjustmentList" from="[]"/>
 
             <entity-find entity-name="mantle.humanres.employment.PayrollAdjustment" list="allPayrollAdjustmentList">
-                <date-filter valid-date="payTimestamp"/>
+                <econdition field-name="fromDate" operator="less-equals" from="payDate" ignore-if-empty="true"/>
+                <econdition field-name="thruDate" operator="greater-equals" from="payDate" ignore-if-empty="true"/>
+                <!--<date-filter valid-date="payDate"/>-->
                 <econdition field-name="organizationPartyId" from="employment.toPartyId" or-null="true"/>
                 <econdition field-name="partyRelationshipId" or-null="true"/>
                 <econdition field-name="timePeriodTypeId" from="timePeriod.timePeriodTypeId" or-null="true"/>
@@ -924,12 +926,18 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- find applicable garnish minimum wage -->
             <entity-find entity-name="mantle.humanres.employment.PayrollGarnishMinWage" list="garnishMinWageList">
-                <date-filter/><econdition field-name="stateOrCountryGeoId" from="homePostalAddress.stateProvinceGeoId"/>
+                <econdition field-name="fromDate" operator="less-equals" from="payDate" ignore-if-empty="true"/>
+                <econdition field-name="thruDate" operator="greater-equals" from="payDate" ignore-if-empty="true"/>
+                <!--<date-filter valid-date="timePeriod.fromDate"/>-->
+                <econdition field-name="stateOrCountryGeoId" from="homePostalAddress.stateProvinceGeoId"/>
                 <econdition field-name="timePeriodTypeId" from="timePeriod.timePeriodTypeId"/>
             </entity-find>
             <if condition="!garnishMinWageList">
                 <entity-find entity-name="mantle.humanres.employment.PayrollGarnishMinWage" list="garnishMinWageList">
-                    <date-filter/><econdition field-name="stateOrCountryGeoId" from="homePostalAddress.countryGeoId"/>
+                    <econdition field-name="fromDate" operator="less-equals" from="payDate" ignore-if-empty="true"/>
+                    <econdition field-name="thruDate" operator="greater-equals" from="payDate" ignore-if-empty="true"/>
+                    <!--<date-filter valid-date="timePeriod.fromDate"/>-->
+                    <econdition field-name="stateOrCountryGeoId" from="homePostalAddress.countryGeoId"/>
                     <econdition field-name="timePeriodTypeId" from="timePeriod.timePeriodTypeId"/>
                 </entity-find>
             </if>
@@ -1228,7 +1236,9 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- Find applicable PayrollStdDeduction, subtract from adjustmentBasisAmount -->
                 <if condition="payrollAdjustment.applyStdDeduction == 'Y'">
                     <entity-find entity-name="mantle.humanres.employment.PayrollStdDeduction" list="stdDeductionList">
-                        <date-filter valid-date="payTimestamp"/>
+                        <econdition field-name="fromDate" operator="less-equals" from="payDate" ignore-if-empty="true"/>
+                        <econdition field-name="thruDate" operator="greater-equals" from="payDate" ignore-if-empty="true"/>
+                        <!--<date-filter valid-date="payTimestamp"/>-->
                         <econdition field-name="taxAuthorityId" from="payrollAdjustment.taxAuthorityId"/>
                         <econdition field-name="timePeriodTypeId"/>
                         <econdition field-name="taxFederalStatusEnumId" from="employee.taxFederalStatusEnumId"
@@ -1249,7 +1259,9 @@ along with this software (see the LICENSE.md file). If not, see
                     subtract from adjustmentBasisAmount -->
                 <if condition="payrollAdjustment.applyAllowanceDeduction == 'Y' &amp;&amp; taxAllowances">
                     <entity-find entity-name="mantle.humanres.employment.PayrollAllowance" list="allowanceList">
-                        <date-filter valid-date="payTimestamp"/>
+                        <econdition field-name="fromDate" operator="less-equals" from="payDate" ignore-if-empty="true"/>
+                        <econdition field-name="thruDate" operator="greater-equals" from="payDate" ignore-if-empty="true"/>
+                        <!--<date-filter valid-date="payTimestamp"/>-->
                         <econdition field-name="taxAuthorityId" from="payrollAdjustment.taxAuthorityId"/>
                         <econdition field-name="timePeriodTypeId"/>
                         <econdition field-name="amountTypeEnumId" value="PaatDeduction"/>
@@ -1297,7 +1309,9 @@ along with this software (see the LICENSE.md file). If not, see
                 subtract from adjustment amount, make sure amount is at least zero -->
             <if condition="payrollAdjustment.applyAllowanceExemption == 'Y' &amp;&amp; taxAllowances">
                 <entity-find entity-name="mantle.humanres.employment.PayrollAllowance" list="allowanceExmList">
-                    <date-filter valid-date="payTimestamp"/>
+                    <econdition field-name="fromDate" operator="less-equals" from="payDate" ignore-if-empty="true"/>
+                    <econdition field-name="thruDate" operator="greater-equals" from="payDate" ignore-if-empty="true"/>
+                    <!--<date-filter valid-date="payTimestamp"/>-->
                     <econdition field-name="taxAuthorityId" from="payrollAdjustment.taxAuthorityId"/>
                     <econdition field-name="timePeriodTypeId"/>
                     <econdition field-name="amountTypeEnumId" value="PaatExemption"/>

@@ -1759,7 +1759,11 @@ along with this software (see the LICENSE.md file). If not, see
                 <select-field field-name="ephAdjAmount"/>
             </entity-find>
 
-            <set field="fedWholdAmount" from="-(fedWholdList[0]?.ephAdjAmount)"/>
+            <if condition="fedWholdList &amp;&amp; fedWholdList[0].ephAdjAmount"><then>
+                <set field="fedWholdAmount" from="-(fedWholdList[0]?.ephAdjAmount)"/>
+            </then><else>
+                <set field="fedWholdAmount" from="0.00"/>
+            </else></if>
 
             <!--<set field="wageAndTaxInfoByTaxAuthorityId" from="[:]"/>-->
             <!--<iterate list="payAdjDetailList" entry="payAdjDetail">-->
@@ -1836,7 +1840,7 @@ along with this software (see the LICENSE.md file). If not, see
             </else></if>
 
             <if condition="!formOut.hasAnyPay">
-                <message>Not creating tax form for employer ${timePeriod.partyId}, has no pay</message>
+                <return error="true" message="Not creating tax form for employer ${timePeriod.partyId}, has no pay"/>
             </if>
 
             <!-- save FormResponse -->

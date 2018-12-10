@@ -1642,4 +1642,460 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
         </actions>
     </service>
+
+    <service verb="get" noun="EmployerInfo">
+        <in-parameters>
+            <parameter name="timePeriodId" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="timePeriod" type="Map"/>
+
+            <parameter name="employerName"/>
+            <parameter name="employerEin"/>
+            <parameter name="employerContactInfo" type="Map"/>
+            <parameter name="employerAddressString"/>
+            <parameter name="employerPhoneString"/>
+        </out-parameters>
+        <actions>
+            <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
+
+            <entity-find-one entity-name="mantle.party.PartyDetail" value-field="employerDetail">
+                <field-map field-name="partyId" from="timePeriod.partyId"/></entity-find-one>
+            <set field="employerName" value="${employerDetail.organizationName?:''}${employerDetail.firstName?:''}${employerDetail.lastName ? ' ' + employerDetail.lastName : ''}"/>
+            <entity-find-one entity-name="mantle.party.PartyIdentification" value-field="employerEinPi">
+                <field-map field-name="partyId" from="timePeriod.partyId"/>
+                <field-map field-name="partyIdTypeEnumId" value="PtidFein"/>
+            </entity-find-one>
+            <set field="employerEin" from="employerEinPi?.idValue"/>
+            <service-call name="mantle.party.ContactServices.get#PartyContactInfo" out-map="employerContactInfo"
+                          in-map="[partyId:timePeriod.partyId, postalContactMechPurposeId:'PostalTax',
+                                telecomContactMechPurposeId:'PhoneTax']"/>
+            <script>employerAddressString = """${employerContactInfo?.postalAddress?.address1 ? employerContactInfo.postalAddress.address1 + (employerContactInfo.postalAddress.unitNumber ? ' #' + employerContactInfo.postalAddress.unitNumber : '') + '\n' : ''}${employerContactInfo?.postalAddress?.address2 ? employerContactInfo.postalAddress.address2 + '\n' : ''}${employerContactInfo?.postalAddress ? (employerContactInfo.postalAddress.city ?: '') + (employerContactInfo.postalAddressStateGeo?.geoCodeAlpha2 ? ', ' + employerContactInfo.postalAddressStateGeo.geoCodeAlpha2 : '') + ' ' + (employerContactInfo.postalAddress.postalCode ?: '') + (employerContactInfo.postalAddress.postalCodeExt ? '-' + employerContactInfo.postalAddress.postalCodeExt : '') + (employerContactInfo.postalAddressCountryGeo?.geoCodeAlpha3 ? ' ' + employerContactInfo.postalAddressCountryGeo.geoCodeAlpha3 : '') : ''}"""</script>
+            <script>employerPhoneString = """${employerContactInfo?.telecomNumber ? (employerContactInfo.telecomNumber.countryCode ? employerContactInfo.telecomNumber.countryCode + '-' : '') + (employerContactInfo.telecomNumber.areaCode ? employerContactInfo.telecomNumber.areaCode + '-' : '') + (employerContactInfo.telecomNumber.contactNumber ?: '') : ''}"""</script>
+        </actions>
+    </service>
+
+    <service verb="get" noun="EmployerTaxInfo">
+        <in-parameters>
+            <parameter name="timePeriodId" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="timePeriod" type="Map"/>
+
+            <parameter name="employerName"/>
+            <parameter name="employerEin"/>
+            <parameter name="employerContactInfo" type="Map"/>
+            <parameter name="employerAddressString"/>
+            <parameter name="employerPhoneString"/>
+
+            <!-- TODO: These are only the federal taxable/social/medical amounts.  They probably should not be separate, but
+                   should be in the wageAndTaxInfoByTaxAuthorityId Map, as these amounts differ for states and possibly localities.
+                   e.g. PA taxes pension plans such as 401k
+                   e.g. NC only taxes income that was made in their state; if you work out of state, it is not taxed. -->
+            <parameter name="totalPayAmount" type="BigDecimal"/>
+            <parameter name="taxablePayAmount" type="BigDecimal"/>
+            <parameter name="socialTaxablePayAmount" type="BigDecimal"/>
+            <parameter name="medicalTaxablePayAmount" type="BigDecimal"/>
+            <parameter name="futaExemptPayAmount" type="BigDecimal"/>
+            <parameter name="totalExcessOf7000" type="BigDecimal"/>
+            <parameter name="hasAnyPay" type="Boolean"/>
+            <parameter name="numOfEmployees" type="Integer"/>
+            <parameter name="fedWholdAmount" type="BigDecimal"/>
+
+            <!--<parameter name="wageAndTaxInfoByTaxAuthorityId" type="Map"> <description>contains Map with: taxAuthority,-->
+                <!--taxAuthorityGeo, incomeTaxWithheldAmount, socialTaxWithheldAmount, medicalTaxWithheldAmount</description></parameter>-->
+
+            <!--<parameter name="federalTaxAuthorityIdList" type="List"/>-->
+            <!--<parameter name="stateTaxAuthorityIdList" type="List"/>-->
+            <!--<parameter name="localTaxAuthorityIdList" type="List"/>-->
+        </out-parameters>
+        <actions>
+            <service-call name="mantle.humanres.PayrollDocumentServices.get#EmployerInfo"
+                          in-map="[timePeriodId:timePeriodId]" out-map="context"/>
+            <log level="warn" message="1715 employerContactInfo: ${employerContactInfo} in PayrollDocumentServices.xml"/>
+
+            <entity-find entity-name="basalt.humanres.employment.EmploymentPayHistoryAndInvoiceDetail" list="payHistoryList">
+                <econdition field-name="toPartyId" from="timePeriod.partyId"/>
+                <econdition field-name="payDate" operator="greater-equals" from="timePeriod.fromDate"/>
+                <econdition field-name="payDate" operator="less-equals" from="timePeriod.thruDate"/>
+                <econdition field-name="internalPayroll" value="Y"/>
+                <select-field field-name="fromPartyId,payAmount,taxablePayAmount,socialTaxablePayAmount,medicalTaxablePayAmount,taxExemptEnumId"/>
+            </entity-find>
+            <set field="totalPayAmount" from="0.0"/>
+            <set field="taxablePayAmount" from="0.0"/>
+            <set field="socialTaxablePayAmount" from="0.0"/>
+            <set field="medicalTaxablePayAmount" from="0.0"/>
+            <set field="futaExemptPayAmount" from="0.0"/>
+            <set field="totalExcessOf7000" from="0.0"/>
+            <set field="employeeList" from="[]"/>
+            <iterate list="payHistoryList" entry="payHistory">
+                <if condition="!employeeList.contains(payHistory.fromPartyId)">
+                    <script>employeeList.add(payHistory)</script>
+                </if>
+                <set field="totalPayAmount" from="totalPayAmount + payHistory.payAmount"/>
+                <set field="taxablePayAmount" from="taxablePayAmount + payHistory.taxablePayAmount"/>
+                <set field="socialTaxablePayAmount" from="socialTaxablePayAmount + payHistory.socialTaxablePayAmount"/>
+                <set field="medicalTaxablePayAmount" from="medicalTaxablePayAmount + payHistory.medicalTaxablePayAmount"/>
+                <if condition="payHistory.taxExemptEnumId != 'EtxResidentRegular'"><then>
+                    <set field="futaExemptPayAmount" from="futaExemptPayAmount + payHistory.payAmount"/>
+                </then><else-if condition="payHistory.payAmount &gt; 7000">
+                    <set field="totalExcessOf7000" from="totalExcessOf7000 + (payHistory.payAmount - 7000)"/>
+                </else-if></if>
+            </iterate>
+
+            <set field="numOfEmployees" from="employeeList.size()"/>
+
+            <set field="hasAnyPay" from="totalPayAmount &gt; 0 || taxablePayAmount &gt; 0 || socialTaxablePayAmount &gt; 0 || medicalTaxablePayAmount &gt; 0"/>
+
+            <!-- TODO: Does this account for the addition of payeePartyId and the newer notion where the
+                       payeePartyId exists on the EmploymentPayAdjDetail and the payee invoice amount
+                       will be the inverse (sign) of the amount from the employee? -->
+            <entity-find entity-name="basalt.humanres.employment.EmploymentPayHistoryAdjAndInvoiceDetail" list="fedWholdList">
+                <econdition field-name="toPartyId" from="timePeriod.partyId"/>
+                <econdition field-name="itemTypeEnumId" value="ItemTaxFederalWhold"/>
+                <econdition field-name="payDate" operator="greater-equals" from="timePeriod.fromDate"/>
+                <econdition field-name="payDate" operator="less-equals" from="timePeriod.thruDate"/>
+                <econdition field-name="isEmployerPaid" operator="not-equals" value="Y" or-null="true"/>
+                <select-field field-name="ephAdjAmount"/>
+            </entity-find>
+
+            <if condition="fedWholdList &amp;&amp; fedWholdList[0].ephAdjAmount"><then>
+                <set field="fedWholdAmount" from="-(fedWholdList[0]?.ephAdjAmount)"/>
+            </then><else>
+                <set field="fedWholdAmount" from="0.00"/>
+            </else></if>
+
+            <!--<set field="wageAndTaxInfoByTaxAuthorityId" from="[:]"/>-->
+            <!--<iterate list="payAdjDetailList" entry="payAdjDetail">-->
+                <!--<if condition="!payAdjDetail.taxAuthorityId"><continue/></if>-->
+                <!--<set field="taxAuthorityId" from="payAdjDetail.taxAuthorityId"/>-->
+                <!--<entity-find-one entity-name="mantle.humanres.employment.PayrollAdjustment" value-field="payrollAdjustment">-->
+                    <!--<field-map field-name="payrollAdjustmentId" from="payAdjDetail.payrollAdjustmentId"/></entity-find-one>-->
+
+                <!--<set field="wageAndTaxInfo" from="wageAndTaxInfoByTaxAuthorityId.get(taxAuthorityId)"/>-->
+                <!--<if condition="!wageAndTaxInfo">-->
+                    <!--<entity-find-one entity-name="mantle.other.tax.TaxAuthority" value-field="taxAuthority"/>-->
+                    <!--<entity-find-one entity-name="moqui.basic.Geo" value-field="taxAuthorityGeo">-->
+                        <!--<field-map field-name="geoId" from="taxAuthority.taxAuthGeoId"/></entity-find-one>-->
+                    <!--<set field="wageAndTaxInfo" from="[taxAuthority:taxAuthority, taxAuthorityGeo:taxAuthorityGeo]"/>-->
+                    <!--<script>wageAndTaxInfoByTaxAuthorityId.put(taxAuthorityId, wageAndTaxInfo)</script>-->
+                <!--</if>-->
+                <!--<script>-->
+                    <!--if (payrollAdjustment.isTax == 'Y') {-->
+                        <!--addToBigDecimalInMap('incomeTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)-->
+                    <!--} else if (payrollAdjustment.isSocialTax == 'Y') {-->
+                        <!--addToBigDecimalInMap('socialTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)-->
+                    <!--} else if (payrollAdjustment.isMedicalTax == 'Y') {-->
+                        <!--addToBigDecimalInMap('medicalTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)-->
+                    <!--}-->
+                <!--</script>-->
+            <!--</iterate>-->
+
+            <!--&lt;!&ndash; TODO: This does not document EmploymentPayHistoryTimeDetail &ndash;&gt;-->
+
+            <!--<set field="federalTaxAuthorityIdList" from="[]"/>-->
+            <!--<set field="stateTaxAuthorityIdList" from="[]"/>-->
+            <!--<set field="localTaxAuthorityIdList" from="[]"/>-->
+            <!--<iterate list="wageAndTaxInfoByTaxAuthorityId" entry="wageAndTaxInfo" key="taxAuthorityId">-->
+                <!--<if condition="wageAndTaxInfo.taxAuthority.taxAuthorityTypeEnumId == 'TatFederal'"><then>-->
+                    <!--<script>federalTaxAuthorityIdList.add(taxAuthorityId)</script>-->
+                <!--</then><else-if condition="wageAndTaxInfo.taxAuthority.taxAuthorityTypeEnumId == 'TatState'">-->
+                    <!--<script>stateTaxAuthorityIdList.add(taxAuthorityId)</script>-->
+                <!--</else-if><else-if condition="wageAndTaxInfo.taxAuthority.taxAuthorityTypeEnumId in ['TatCounty', 'TatCity']">-->
+                    <!--<script>localTaxAuthorityIdList.add(taxAuthorityId)</script>-->
+                <!--</else-if></if>-->
+            <!--</iterate>-->
+        </actions>
+    </service>
+
+    <service verb="create" noun="EmployerTaxForm">
+        <in-parameters>
+            <parameter name="timePeriodId" required="true"/>
+            <parameter name="taxFormId" required="true"/>
+        </in-parameters>
+        <out-parameters></out-parameters>
+        <actions>
+            <!-- lock the TimePeriod, will close later -->
+            <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod" for-update="true"/>
+
+            <!-- TODO: uncomment this, commented for testing only
+            <if condition="ec.user.nowTimestamp.before(timePeriod.thruDate)">
+                <message error="true">Not creating wage and text records or closing period ${ec.resource.expand('TimePeriodNameTemplate','',timePeriod)}, period has not ended (ends on ${timePeriod.thruDate}).</message></if>
+            -->
+
+            <if condition="taxFormId == 'UsaIrs940'"><then>
+                <service-call name="mantle.humanres.PayrollDocumentServices.get#UsaIrs940FormData"
+                              out-map="formOut" out-map-add-to-existing="false"
+                              in-map="[timePeriodId:timePeriodId,formId:taxFormId]"/>
+            </then><else-if condition="taxFormId == 'UsaIrs941'">
+                <service-call name="mantle.humanres.PayrollDocumentServices.get#UsaIrs941FormData"
+                              out-map="formOut" out-map-add-to-existing="false"
+                              in-map="[timePeriodId:timePeriodId,formId:taxFormId]"/>
+            </else-if><else-if condition="taxFormId == 'UsaIrs943'">
+                <service-call name="mantle.humanres.PayrollDocumentServices.get#UsaIrs943FormData"
+                              out-map="formOut" out-map-add-to-existing="false"
+                              in-map="[timePeriodId:timePeriodId,formId:taxFormId]"/>
+            </else-if><else>
+                <message>Not creating tax form for employer ${timePeriod.partyId}, no tax form set</message>
+            </else></if>
+
+            <if condition="!formOut.hasAnyPay">
+                <return error="true" message="Not creating tax form for employer ${timePeriod.partyId}, has no pay"/>
+            </if>
+
+            <!-- save FormResponse -->
+            <service-call name="org.moqui.impl.ScreenServices.create#FormResponse" out-map="responseOut"
+                          out-map-add-to-existing="false" in-map="[formId:formOut.formId, responseMap:formOut.formMap]"/>
+
+            <!-- create TaxStatement record -->
+            <service-call name="create#mantle.other.tax.TaxStatement"
+                          in-map="[timePeriodId:timePeriodId, partyId:timePeriod.partyId,
+                                   taxAuthorityId:'UsaIrs', formId:formOut.formId,
+                                   formResponseId:responseOut.formResponseId]"/>
+        </actions>
+    </service>
+
+    <service verb="get" noun="UsaIrs940FormData">
+        <implements service="mantle.humanres.PayrollDocumentServices.get#EmployerTaxInfo"/>
+        <in-parameters>
+            <parameter name="timePeriodId" required="true"/>
+            <parameter name="formId" default-value="UsaIrs940"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="formId"/>
+            <parameter name="formMap" type="Map">
+                <parameter name="940_ein1"/><parameter name="940_ein2"/><parameter name="940_ein3"/>
+                <parameter name="940_ein4"/><parameter name="940_ein5"/><parameter name="940_ein6"/>
+                <parameter name="940_ein7"/><parameter name="940_ein8"/><parameter name="940_ein9"/>
+                <parameter name="940_name"/><parameter name="940_tradeName"/><parameter name="940_address"/>
+                <parameter name="940_city"/><parameter name="940_state"/><parameter name="940_zipCode"/>
+                <parameter name="940_foreignCountryName"/><parameter name="940_foreignProvinceCounty"/><parameter name="940_foreignPostalCode"/>
+                <parameter name="940_3"/><parameter name="940_3dec"/><parameter name="940_4"/><parameter name="940_4dec"/>
+                <parameter name="940_5"/><parameter name="940_5dec"/><parameter name="940_6"/><parameter name="940_6dec"/>
+                <parameter name="940_7"/><parameter name="940_7dec"/><parameter name="940_8"/><parameter name="940_8dec"/>
+            </parameter>
+        </out-parameters>
+        <actions>
+            <service-call name="mantle.humanres.PayrollDocumentServices.get#EmployerTaxInfo" in-map="context" out-map="context"/>
+            <set field="formMap" from="[:]"/>
+
+            <set field="employerEinList" from="employerEin.split('')"/>
+
+            <set field="formMap.'940_ein1'" from="employerEinList[0]"/>
+            <set field="formMap.'940_ein2'" from="employerEinList[1]"/>
+            <set field="formMap.'940_ein3'" from="employerEinList[3]"/>
+            <set field="formMap.'940_ein4'" from="employerEinList[4]"/>
+            <set field="formMap.'940_ein5'" from="employerEinList[5]"/>
+            <set field="formMap.'940_ein6'" from="employerEinList[6]"/>
+            <set field="formMap.'940_ein7'" from="employerEinList[7]"/>
+            <set field="formMap.'940_ein8'" from="employerEinList[8]"/>
+            <set field="formMap.'940_ein9'" from="employerEinList[9]"/>
+
+            <set field="formMap.'940_name'" from="employerName"/>
+            <set field="formMap.'940_tradeName'" from="employerTradeName ?: ''"/>
+            <set field="formMap.'940_address'" from="employerContactInfo?.postalAddress?.address1 + (employerContactInfo?.postalAddress?.address2 ?: '') + (employerContactInfo?.postalAddress?.unitNumber ?: '')"/>
+            <set field="formMap.'940_city'" from="employerContactInfo?.postalAddress?.city"/>
+            <set field="formMap.'940_state'" from="employerContactInfo?.postalAddressStateGeo?.geoCodeAlpha2"/>
+            <set field="formMap.'940_zipCode'" from="employerContactInfo?.postalAddress?.postalCode"/>
+
+            <set field="formMap.'940_foreignCountryName'" value=""/>
+            <set field="formMap.'940_foreignProvinceCounty'" value=""/>
+            <set field="formMap.'940_foreignPostalCode'" value=""/>
+
+            <set field="totalPayAmountParts" from="totalPayAmount.toString().split('\\.')"/>
+            <set field="futaExemptPayAmountParts" from="futaExemptPayAmount.toString().split('\\.')"/>
+            <set field="totalExcessOf7000Parts" from="totalExcessOf7000.toString().split('\\.')"/>
+            <set field="subtotal" from="futaExemptPayAmount + totalExcessOf7000"/>
+            <set field="subtotalParts" from="subtotal.toString().split('\\.')"/>
+            <set field="totalFutaWages" from="totalPayAmount - subtotal"/>
+            <set field="totalFutaWagesParts" from="totalFutaWages.toString().split('\\.')"/>
+            <set field="futaTaxBeforeAdj" from="totalFutaWages * 0.006"/>
+            <set field="futaTaxBeforeAdjParts" from="ec.l10n.format(futaTaxBeforeAdj, '#,##0.00').split('\\.')"/>
+
+            <set field="formMap.'940_3'" from="totalPayAmountParts[0]"/>
+            <set field="formMap.'940_3dec'" from="totalPayAmountParts[1]"/>
+            <set field="formMap.'940_4'" from="futaExemptPayAmountParts[0]"/>
+            <set field="formMap.'940_4dec'" from="futaExemptPayAmountParts[1]"/>
+            <set field="formMap.'940_5'" from="totalExcessOf7000Parts[0]"/>
+            <set field="formMap.'940_5dec'" from="totalExcessOf7000Parts[1]"/>
+            <set field="formMap.'940_6'" from="subtotalParts[0]"/>
+            <set field="formMap.'940_6dec'" from="subtotalParts[1]"/>
+            <set field="formMap.'940_7'" from="totalFutaWagesParts[0]"/>
+            <set field="formMap.'940_7dec'" from="totalFutaWagesParts[1]"/>
+            <set field="formMap.'940_8'" from="futaTaxBeforeAdjParts[0]"/>
+            <set field="formMap.'940_8dec'" from="futaTaxBeforeAdjParts[1]"/>
+        </actions>
+    </service>
+
+    <service verb="get" noun="UsaIrs941FormData">
+        <implements service="mantle.humanres.PayrollDocumentServices.get#EmployerTaxInfo"/>
+        <in-parameters>
+            <parameter name="timePeriodId" required="true"/>
+            <parameter name="formId" default-value="UsaIrs941"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="formId"/>
+            <parameter name="formMap" type="Map">
+                <parameter name="941_ein1"/><parameter name="941_ein2"/><parameter name="941_ein3"/>
+                <parameter name="941_ein4"/><parameter name="941_ein5"/><parameter name="941_ein6"/>
+                <parameter name="941_ein7"/><parameter name="941_ein8"/><parameter name="941_ein9"/>
+                <parameter name="941_name"/><parameter name="941_tradeName"/><parameter name="941_address"/>
+                <parameter name="941_city"/><parameter name="941_state"/><parameter name="941_zipCode"/>
+                <parameter name="941_foreignCountryName"/><parameter name="941_foreignProvinceCounty"/><parameter name="941_foreignPostalCode"/>
+                <parameter name="941_1"/><parameter name="941_2"/><parameter name="941_2dec"/><parameter name="941_3"/><parameter name="941_3dec"/>
+                <parameter name="941_5a_column1"/><parameter name="941_5a_column1dec"/><parameter name="941_5a_column2"/><parameter name="941_5a_column2dec"/>
+                <parameter name="941_5b_column1"/><parameter name="941_5b_column1dec"/><parameter name="941_5b_column2"/><parameter name="941_5b_column2dec"/>
+                <parameter name="941_5c_column1"/><parameter name="941_5c_column1dec"/><parameter name="941_5c_column2"/><parameter name="941_5c_column2dec"/>
+                <parameter name="941_5d_column1"/><parameter name="941_5d_column1dec"/><parameter name="941_5d_column2"/><parameter name="941_5d_column2dec"/>
+                <parameter name="941_5e"/><parameter name="941_5edec"/><parameter name="941_6"/><parameter name="941_6dec"/>
+                <!--<parameter name="941_7"/><parameter name="941_7dec"/><parameter name="941_8"/><parameter name="941_8dec"/>-->
+                <!--<parameter name="941_9"/><parameter name="941_9dec"/><parameter name="941_10"/><parameter name="941_10dec"/>-->
+            </parameter>
+        </out-parameters>
+        <actions>
+            <service-call name="mantle.humanres.PayrollDocumentServices.get#EmployerTaxInfo" in-map="context" out-map="context"/>
+            <set field="formMap" from="[:]"/>
+
+            <set field="employerEinList" from="employerEin.split('')"/>
+
+            <set field="formMap.'941_ein1'" from="employerEinList[0]"/>
+            <set field="formMap.'941_ein2'" from="employerEinList[1]"/>
+            <set field="formMap.'941_ein3'" from="employerEinList[3]"/>
+            <set field="formMap.'941_ein4'" from="employerEinList[4]"/>
+            <set field="formMap.'941_ein5'" from="employerEinList[5]"/>
+            <set field="formMap.'941_ein6'" from="employerEinList[6]"/>
+            <set field="formMap.'941_ein7'" from="employerEinList[7]"/>
+            <set field="formMap.'941_ein8'" from="employerEinList[8]"/>
+            <set field="formMap.'941_ein9'" from="employerEinList[9]"/>
+
+            <log level="warn" message="1966 employerContactInfo: ${employerContactInfo} in PayrollDocumentServices.xml"/>
+            <set field="formMap.'941_name'" from="employerName"/>
+            <set field="formMap.'941_tradeName'" from="employerTradeName ?: ''"/>
+            <set field="formMap.'941_address'" from="employerContactInfo?.postalAddress?.address1 + (employerContactInfo?.postalAddress?.address2 ?: '') + (employerContactInfo?.postalAddress?.unitNumber ?: '')"/>
+            <set field="formMap.'941_city'" from="employerContactInfo?.postalAddress?.city"/>
+            <set field="formMap.'941_state'" from="employerContactInfo?.postalAddressStateGeo?.geoCodeAlpha2"/>
+            <set field="formMap.'941_zipCode'" from="employerContactInfo?.postalAddress?.postalCode"/>
+
+            <set field="formMap.'941_foreignCountryName'" value=""/>
+            <set field="formMap.'941_foreignProvinceCounty'" value=""/>
+            <set field="formMap.'941_foreignPostalCode'" value=""/>
+
+            <set field="totalPayAmountParts" from="totalPayAmount.toString().split('\\.')"/>
+            <set field="fedWholdAmountParts" from="fedWholdAmount.toString().split('\\.')"/>
+            <set field="socialTaxablePayAmountParts" from="ec.l10n.format(socialTaxablePayAmount, '#,##0.00').toString().split('\\.')"/>
+            <set field="socialTaxAmount" from="socialTaxablePayAmount * 0.124"/>
+            <set field="socialTaxAmountParts" from="ec.l10n.format(socialTaxAmount, '#,##0.00').split('\\.')"/>
+            <set field="medicalTaxablePayAmountParts" from="ec.l10n.format(medicalTaxablePayAmount, '#,##0.00').toString().split('\\.')"/>
+            <set field="medicalTaxAmount" from="medicalTaxablePayAmount * 0.029"/>
+            <set field="medicalTaxAmountParts" from="ec.l10n.format(medicalTaxAmount, '#,##0.00').split('\\.')"/>
+            <set field="additionalMedicalTaxablePayAmountParts" from="ec.l10n.format(medicalTaxablePayAmount, '#,##0.00').toString().split('\\.')"/>
+            <set field="additionalMedicalTaxAmount" from="medicalTaxablePayAmount * 0.009"/>
+            <set field="additionalMedicalTaxAmountParts" from="ec.l10n.format(additionalMedicalTaxAmount, '#,##0.00').split('\\.')"/>
+            <set field="socialAndMedicalSubtotal" from="socialTaxAmount + medicalTaxAmount + additionalMedicalTaxAmount"/>
+            <set field="socialAndMedicalSubtotalParts" from="ec.l10n.format(socialAndMedicalSubtotal, '#,##0.00').toString().split('\\.')"/>
+            <set field="taxesBeforeAdjustments" from="fedWholdAmount + socialAndMedicalSubtotal"/>
+            <set field="taxesBeforeAdjustmentsParts" from="ec.l10n.format(taxesBeforeAdjustments, '#,##0.00').toString().split('\\.')"/>
+            <log level="warn" message="1994 taxesBeforeAdjustmentsParts: ${taxesBeforeAdjustmentsParts} in PayrollDocumentServices.xml"/>
+
+            <set field="formMap.'941_1'" from="numOfEmployees"/>
+            <set field="formMap.'941_2'" from="totalPayAmountParts[0]"/>
+            <set field="formMap.'941_2dec'" from="totalPayAmountParts[1]"/>
+            <set field="formMap.'941_3'" from="fedWholdAmountParts[0]"/>
+            <set field="formMap.'941_3dec'" from="fedWholdAmountParts[1]"/>
+            <set field="formMap.'941_5a_column1'" from="socialTaxablePayAmountParts[0]"/>
+            <set field="formMap.'941_5a_column1dec'" from="socialTaxablePayAmountParts[1]"/>
+            <set field="formMap.'941_5a_column2'" from="socialTaxAmountParts[0]"/>
+            <set field="formMap.'941_5a_column2dec'" from="socialTaxAmountParts[1]"/>
+            <set field="formMap.'941_5b_column1'" value="0"/>
+            <set field="formMap.'941_5b_column1dec'" value="00"/>
+            <set field="formMap.'941_5b_column2'" value="0"/>
+            <set field="formMap.'941_5b_column2dec'" value="00"/>
+            <set field="formMap.'941_5c_column1'" from="medicalTaxablePayAmountParts[0]"/>
+            <set field="formMap.'941_5c_column1dec'" from="medicalTaxablePayAmountParts[1]"/>
+            <set field="formMap.'941_5c_column2'" from="medicalTaxAmountParts[0]"/>
+            <set field="formMap.'941_5c_column2dec'" from="medicalTaxAmountParts[1]"/>
+            <set field="formMap.'941_5d_column1'" from="additionalMedicalTaxablePayAmountParts[0]"/>
+            <set field="formMap.'941_5d_column1dec'" from="additionalMedicalTaxablePayAmountParts[1]"/>
+            <set field="formMap.'941_5d_column2'" from="additionalMedicalTaxAmountParts[0]"/>
+            <set field="formMap.'941_5d_column2dec'" from="additionalMedicalTaxAmountParts[1]"/>
+            <set field="formMap.'941_5e'" from="socialAndMedicalSubtotalParts[0]"/>
+            <set field="formMap.'941_5edec'" from="socialAndMedicalSubtotalParts[1]"/>
+            <set field="formMap.'941_6'" from="taxesBeforeAdjustmentsParts[0]"/>
+            <set field="formMap.'941_6dec'" from="taxesBeforeAdjustmentsParts[1]"/>
+            <!--<set field="formMap.'941_7'" from=""/>-->
+            <!--<set field="formMap.'941_7dec'" from=""/>-->
+            <!--<set field="formMap.'941_8'" from=""/>-->
+            <!--<set field="formMap.'941_8dec'" from=""/>-->
+            <!--<set field="formMap.'941_9'" from=""/>-->
+            <!--<set field="formMap.'941_9dec'" from=""/>-->
+            <!--<set field="formMap.'941_10'" from=""/>-->
+            <!--<set field="formMap.'941_10dec'" from=""/>-->
+        </actions>
+    </service>
+
+    <service verb="get" noun="UsaIrs943FormData">
+        <implements service="mantle.humanres.PayrollDocumentServices.get#EmployerTaxInfo"/>
+        <in-parameters>
+            <parameter name="timePeriodId" required="true"/>
+            <parameter name="formId" default-value="UsaIrs943"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="formId"/>
+            <parameter name="formMap" type="Map">
+                <parameter name="943_ein"/><parameter name="943_name"/><parameter name="943_tradeName"/><parameter name="943_address"/>
+                <parameter name="943_city"/><parameter name="943_state"/><parameter name="943_zipCode"/>
+                <parameter name="943_1"/><parameter name="943_2"/><parameter name="943_2dec"/><parameter name="943_3"/><parameter name="943_3dec"/>
+                <parameter name="943_4"/><parameter name="943_4dec"/><parameter name="943_5"/><parameter name="943_5dec"/>
+                <parameter name="943_6"/><parameter name="943_6dec"/><parameter name="943_7"/><parameter name="943_7dec"/>
+                <parameter name="943_8"/><parameter name="943_8dec"/><parameter name="943_9"/><parameter name="943_9dec"/>
+                <parameter name="943_10"/><parameter name="943_10dec"/>
+            </parameter>
+        </out-parameters>
+        <actions>
+            <service-call name="mantle.humanres.PayrollDocumentServices.get#EmployerTaxInfo" in-map="context" out-map="context"/>
+            <set field="formMap" from="[:]"/>
+
+            <set field="formMap.'943_ein'" from="employerEin"/>
+
+            <set field="formMap.'943_name'" from="employerName"/>
+            <set field="formMap.'943_tradeName'" from="employerTradeName ?: ''"/>
+            <set field="formMap.'943_address'" from="employerContactInfo?.postalAddress?.address1 + (employerContactInfo?.postalAddress?.address2 ?: '') + (employerContactInfo?.postalAddress?.unitNumber ?: '')"/>
+            <set field="formMap.'943_city'" from="employerContactInfo?.postalAddress?.city"/>
+            <set field="formMap.'943_state'" from="employerContactInfo?.postalAddressStateGeo?.geoCodeAlpha2"/>
+            <set field="formMap.'943_zipCode'" from="employerContactInfo?.postalAddress?.postalCode"/>
+
+            <set field="fedWholdAmountParts" from="fedWholdAmount.toString().split('\\.')"/>
+            <set field="socialTaxablePayAmountParts" from="ec.l10n.format(socialTaxablePayAmount, '#,##0.00').toString().split('\\.')"/>
+            <set field="socialTaxAmount" from="socialTaxablePayAmount * 0.124"/>
+            <set field="socialTaxAmountParts" from="ec.l10n.format(socialTaxAmount, '#,##0.00').split('\\.')"/>
+            <set field="medicalTaxablePayAmountParts" from="ec.l10n.format(medicalTaxablePayAmount, '#,##0.00').toString().split('\\.')"/>
+            <set field="medicalTaxAmount" from="medicalTaxablePayAmount * 0.029"/>
+            <set field="medicalTaxAmountParts" from="ec.l10n.format(medicalTaxAmount, '#,##0.00').split('\\.')"/>
+            <set field="additionalMedicalTaxablePayAmountParts" from="ec.l10n.format(medicalTaxablePayAmount, '#,##0.00').toString().split('\\.')"/>
+            <set field="additionalMedicalTaxAmount" from="medicalTaxablePayAmount * 0.009"/>
+            <set field="additionalMedicalTaxAmountParts" from="ec.l10n.format(additionalMedicalTaxAmount, '#,##0.00').split('\\.')"/>
+            <set field="taxesBeforeAdjustments" from="fedWholdAmount + socialTaxAmount + medicalTaxAmount + additionalMedicalTaxAmount"/>
+            <set field="taxesBeforeAdjustmentsParts" from="ec.l10n.format(taxesBeforeAdjustments, '#,##0.00').toString().split('\\.')"/>
+            <log level="warn" message="1994 taxesBeforeAdjustments: ${taxesBeforeAdjustments} in PayrollDocumentServices.xml"/>
+            <log level="warn" message="1994 taxesBeforeAdjustmentsParts: ${taxesBeforeAdjustmentsParts} in PayrollDocumentServices.xml"/>
+
+            <set field="formMap.'943_1'" from="numOfEmployees"/>
+            <set field="formMap.'943_2'" from="socialTaxablePayAmountParts[0]"/>
+            <set field="formMap.'943_2dec'" from="socialTaxablePayAmountParts[1]"/>
+            <set field="formMap.'943_3'" from="socialTaxAmountParts[0]"/>
+            <set field="formMap.'943_3dec'" from="socialTaxAmountParts[1]"/>
+            <set field="formMap.'943_4'" from="medicalTaxablePayAmountParts[0]"/>
+            <set field="formMap.'943_4dec'" from="medicalTaxablePayAmountParts[1]"/>
+            <set field="formMap.'943_5'" from="medicalTaxAmountParts[0]"/>
+            <set field="formMap.'943_5dec'" from="medicalTaxAmountParts[1]"/>
+            <set field="formMap.'943_6'" from="additionalMedicalTaxablePayAmountParts[0]"/>
+            <set field="formMap.'943_6dec'" from="additionalMedicalTaxablePayAmountParts[1]"/>
+            <set field="formMap.'943_7'" from="additionalMedicalTaxAmountParts[0]"/>
+            <set field="formMap.'943_7dec'" from="additionalMedicalTaxAmountParts[1]"/>
+            <set field="formMap.'943_8'" from="fedWholdAmountParts[0]"/>
+            <set field="formMap.'943_8dec'" from="fedWholdAmountParts[1]"/>
+            <set field="formMap.'943_9'" from="taxesBeforeAdjustmentsParts[0]"/>
+            <set field="formMap.'943_9dec'" from="taxesBeforeAdjustmentsParts[1]"/>
+        </actions>
+    </service>
 </services>

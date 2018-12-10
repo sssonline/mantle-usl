@@ -280,4 +280,399 @@ along with this software (see the LICENSE.md file). If not, see
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
     </moqui.screen.form.DbForm>
+
+    <moqui.screen.form.DbForm formId="UsaIrs940" purposeEnumId="DbfpTaxStatement"
+                              description="USA IRS Form 940" printTemplateLocation="" printFontSize="9pt"
+                              printFontFamily="Courier, monospace" printContainerHeight="7.5in" printRepeatCount="1">
+        <moqui.screen.form.DbFormField fieldName="940_ein1" title="EIN First Number" layoutSequenceNum="1"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="2.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein2" title="EIN Second Number" layoutSequenceNum="2"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="2.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein3" title="EIN Third Number" layoutSequenceNum="3"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="3.125in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein4" title="EIN Fourth Number" layoutSequenceNum="4"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="3.5in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein5" title="EIN Fifth Number" layoutSequenceNum="5"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="3.8125in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein6" title="EIN Sixth Number" layoutSequenceNum="6"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="4.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein7" title="EIN Seventh Number" layoutSequenceNum="7"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="4.5625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein8" title="EIN Eighth Number" layoutSequenceNum="8"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="4.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_ein9" title="EIN Ninth Number" layoutSequenceNum="9"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="5.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_name" title="Name" layoutSequenceNum="10"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.3125in" printLeft="2in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="27"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_tradeName" title="Trade Name" layoutSequenceNum="11"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.6875in" printLeft="1.8125in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="30"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_address" title="Address" layoutSequenceNum="12"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2in" printLeft="1.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="35"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_city" title="City" layoutSequenceNum="13"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.5in" printLeft="1.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_state" title="State" layoutSequenceNum="14"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.5in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_zipCode" title="Zip Code" layoutSequenceNum="15"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.5in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_foreignCountryName" title="Foreign Country Name" layoutSequenceNum="16"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3in" printLeft="1.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="15"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_foreignProvinceCounty" title="Foreign Province/County" layoutSequenceNum="17"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3in" printLeft="3in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="13"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_foreignPostalCode" title="Foreign Postal Code" layoutSequenceNum="18"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_3" title="3 Total payments to all employees" layoutSequenceNum="19"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_3dec" title="3 Total payments to all employees decimal section" layoutSequenceNum="20"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_4" title="4 Payments exempt from FUTA tax" layoutSequenceNum="21"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.25in" printLeft="4.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_4dec" title="4 Payments exempt from FUTA tax decimal section" layoutSequenceNum="22"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.25in" printLeft="5.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_5" title="5 Total of payments made to each employee in excess of $7000"
+                                       layoutSequenceNum="23" fieldTypeEnumId="DBFFT_text-line" printTop="6in" printLeft="4.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_5dec" title="5 Total of payments made to each employee in excess of $7000 decimal section"
+                                       layoutSequenceNum="24" fieldTypeEnumId="DBFFT_text-line" printTop="6in" printLeft="5.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_6" title="6 Subtotal" layoutSequenceNum="25"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.25in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_6dec" title="6 Subtotal decimal section" layoutSequenceNum="26"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.25in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_7" title="7 Total taxable FUTA wages" layoutSequenceNum="27"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.59375in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_7dec" title="7 Total taxable FUTA wages decimal section" layoutSequenceNum="28"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.59375in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="940_8" title="8 FUTA tax before adjustments" layoutSequenceNum="29"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.90625in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="940_8dec" title="8 FUTA tax before adjustments decimal section" layoutSequenceNum="30"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.90625in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+    </moqui.screen.form.DbForm>
+
+    <moqui.screen.form.DbForm formId="UsaIrs941" purposeEnumId="DbfpTaxStatement"
+                              description="USA IRS Form 941" printTemplateLocation="" printFontSize="9pt"
+                              printFontFamily="Courier, monospace" printContainerHeight="7.5in" printRepeatCount="1">
+        <moqui.screen.form.DbFormField fieldName="941_ein1" title="EIN First Number" layoutSequenceNum="1"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="2.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein2" title="EIN Second Number" layoutSequenceNum="2"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="2.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein3" title="EIN Third Number" layoutSequenceNum="3"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="3.125in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein4" title="EIN Fourth Number" layoutSequenceNum="4"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="3.5in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein5" title="EIN Fifth Number" layoutSequenceNum="5"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="3.8125in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein6" title="EIN Sixth Number" layoutSequenceNum="6"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="4.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein7" title="EIN Seventh Number" layoutSequenceNum="7"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="4.5625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein8" title="EIN Eighth Number" layoutSequenceNum="8"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="4.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_ein9" title="EIN Ninth Number" layoutSequenceNum="9"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1in" printLeft="5.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="1"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_name" title="Name" layoutSequenceNum="10"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.3125in" printLeft="2in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="27"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_tradeName" title="Trade Name" layoutSequenceNum="11"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.6875in" printLeft="1.8125in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="30"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_address" title="Address" layoutSequenceNum="12"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2in" printLeft="1.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="35"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_city" title="City" layoutSequenceNum="13"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.375in" printLeft="1.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_state" title="State" layoutSequenceNum="14"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.375in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_zipCode" title="Zip Code" layoutSequenceNum="15"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.375in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_foreignCountryName" title="Foreign Country Name" layoutSequenceNum="16"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.875in" printLeft="1.1875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="15"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_foreignProvinceCounty" title="Foreign Province/County" layoutSequenceNum="17"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.875in" printLeft="3in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="13"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_foreignPostalCode" title="Foreign Postal Code" layoutSequenceNum="18"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.875in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_1" title="1 Number of employees paid in this time period" layoutSequenceNum="19"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.8125in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_2" title="2 Wages, tips, and other compensation" layoutSequenceNum="21"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="4.125in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_2dec" title="2 Wages, tips, and other compensation decimal section" layoutSequenceNum="22"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="4.125in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_3" title="3 Federal income tax withheld from wages, tips, and other compensation"
+                                       layoutSequenceNum="23" fieldTypeEnumId="DBFFT_text-line" printTop="4.46875in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_3dec" title="3 Federal income tax withheld from wages, tips, and other compensation decimal section"
+                                       layoutSequenceNum="24" fieldTypeEnumId="DBFFT_text-line" printTop="4.46875in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_5a_column1" title="5a column 1 taxable social security wages" layoutSequenceNum="25"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.21875in" printLeft="3.375in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5a_column1dec" title="5a column 1 taxable social security wages decimal section" layoutSequenceNum="26"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.21875in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5a_column2" title="5a column 2 social security wage tax" layoutSequenceNum="27"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.21875in" printLeft="5.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5a_column2dec" title="5a column 2 social security wage tax decimal section" layoutSequenceNum="28"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.21875in" printLeft="5.90625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+
+        <moqui.screen.form.DbFormField fieldName="941_5b_column1" title="5b column 1 taxable social security tips" layoutSequenceNum="29"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.46875in" printLeft="3.375in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5b_column1dec" title="5b column 1 taxable social security tips decimal section" layoutSequenceNum="30"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.46875in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5b_column2" title="5b column 2 social security tip tax" layoutSequenceNum="31"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.46875in" printLeft="5.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5b_column2dec" title="5b column 2 social security tip tax decimal section" layoutSequenceNum="32"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.46875in" printLeft="5.90625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+
+        <moqui.screen.form.DbFormField fieldName="941_5c_column1" title="5c column 1 taxable medicare wages and tips" layoutSequenceNum="33"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.71875in" printLeft="3.375in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5c_column1dec" title="5c column 1 taxable medicare wages and tips decimal section" layoutSequenceNum="34"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.71875in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5c_column2" title="5c column 2 medicare tax" layoutSequenceNum="35"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.71875in" printLeft="5.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5c_column2dec" title="5c column 2 medicare tax decimal section" layoutSequenceNum="36"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="5.71875in" printLeft="5.90625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_5d_column1" title="5d column 1 taxable additional medicare wages and tips" layoutSequenceNum="37"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.0625in" printLeft="3.375in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5d_column1dec" title="5d column 1 taxable additional medicare wages and tips decimal section" layoutSequenceNum="38"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.0625in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5d_column2" title="5d column 2 additional medicare tax" layoutSequenceNum="39"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.0625in" printLeft="5.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5d_column2dec" title="5d column 2 additional medicare tax decimal section" layoutSequenceNum="40"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.0625in" printLeft="5.90625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="941_5e" title="5e Sum of column2 from 5a, 5b, 5c, and 5d" layoutSequenceNum="41"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.375in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_5edec" title="5e Sum of column2 from 5a, 5b, 5c, and 5d decimal section" layoutSequenceNum="42"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="6.375in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <!--<moqui.screen.form.DbFormField fieldName="941_5f" title="5f Sum of column2 from 5a, 5b, 5c, and 5d" layoutSequenceNum="43"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="6.6875" printLeft="6.875in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>-->
+        <!--<moqui.screen.form.DbFormField fieldName="941_5fdec" title="5f Sum of column2 from 5a, 5b, 5c, and 5d decimal section" layoutSequenceNum="44"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="6.6875" printLeft="7.75in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>-->
+
+        <moqui.screen.form.DbFormField fieldName="941_6" title="6 Total taxes before adjustments" layoutSequenceNum="43"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="7.0625in" printLeft="6.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="941_6dec" title="6 Total taxes before adjustments decimal section" layoutSequenceNum="44"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="7.0625in" printLeft="7.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <!--<moqui.screen.form.DbFormField fieldName="941_7" title="7 current quarter's adjustment for fractions of cents" layoutSequenceNum="45"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="7.3125in" printLeft="6.875in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>-->
+        <!--<moqui.screen.form.DbFormField fieldName="941_7dec" title="7 current quarter's adjustment for fractions of cents decimal section" layoutSequenceNum="46"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="7.3125in" printLeft="7.75in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>-->
+
+        <!--<moqui.screen.form.DbFormField fieldName="941_8" title="8 current quarter's adjustment for sick pay" layoutSequenceNum="47"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="7.625in" printLeft="6.875in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>-->
+        <!--<moqui.screen.form.DbFormField fieldName="941_8dec" title="8 current quarter's adjustment for sick pay decimal section" layoutSequenceNum="48"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="7.625in" printLeft="7.75in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>-->
+
+        <!--<moqui.screen.form.DbFormField fieldName="941_9" title="9 current quarter's adjustments for tips and group-term life insurance" layoutSequenceNum="49"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="7.9375in" printLeft="6.875in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>-->
+        <!--<moqui.screen.form.DbFormField fieldName="941_9dec" title="9 current quarter's adjustments for tips and group-term life insurance decimal section" layoutSequenceNum="50"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="7.9375in" printLeft="7.75in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>-->
+
+        <!--<moqui.screen.form.DbFormField fieldName="941_10" title="10 total taxes after adjustments" layoutSequenceNum="51"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="8.25in" printLeft="6.875in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>-->
+        <!--<moqui.screen.form.DbFormField fieldName="941_10dec" title="10 total taxes after adjustments decimal section" layoutSequenceNum="52"-->
+                                       <!--fieldTypeEnumId="DBFFT_text-line" printTop="8.25in" printLeft="7.75in">-->
+            <!--<moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>-->
+    </moqui.screen.form.DbForm>
+
+    <moqui.screen.form.DbForm formId="UsaIrs943" purposeEnumId="DbfpTaxStatement"
+                              description="USA IRS Form 943" printTemplateLocation="" printFontSize="9pt"
+                              printFontFamily="Courier, monospace" printContainerHeight="7.5in" printRepeatCount="1">
+        <moqui.screen.form.DbFormField fieldName="943_name" title="Name" layoutSequenceNum="1"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.3125in" printLeft="1.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="27"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_ein" title="EIN" layoutSequenceNum="2"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.3125in" printLeft="4.75in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_tradeName" title="Trade Name" layoutSequenceNum="3"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="1.625" printLeft="1.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="30"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_address" title="Address" layoutSequenceNum="4"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2in" printLeft="1.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="35"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_city" title="City" layoutSequenceNum="5"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.3125in" printLeft="1.875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_state" title="State" layoutSequenceNum="6"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.3125in" printLeft="4in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_zipCode" title="Zip Code" layoutSequenceNum="7"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.3125in" printLeft="5in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_1" title="1 Number of agricultural employees in the pay period" layoutSequenceNum="8"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="2.8125in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_2" title="2 Total wages subject to social security tax" layoutSequenceNum="9"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.1875in" printLeft="5.5in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_2dec" title="2 Total wages subject to social security tax decimal section" layoutSequenceNum="10"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.1875in" printLeft="6.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_3" title="3 Social security tax"
+                                       layoutSequenceNum="11" fieldTypeEnumId="DBFFT_text-line" printTop="3.34375in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_3dec" title="3 Social security tax decimal section"
+                                       layoutSequenceNum="12" fieldTypeEnumId="DBFFT_text-line" printTop="3.34375in" printLeft="7.71875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_4" title="4 Total wages subject to Medicare tax" layoutSequenceNum="13"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.5in" printLeft="5.5in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_4dec" title="4 Total wages subject to Medicare tax decimal section" layoutSequenceNum="14"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.5in" printLeft="6.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_5" title="5 Medicare tax"
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="3.6875in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_5dec" title="5 Medicare tax decimal section"
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="3.6875in" printLeft="7.71875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_6" title="6 Total wages subject to Additional Medicare tax" layoutSequenceNum="17"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.8125in" printLeft="5.5in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_6dec" title="6 Total wages subject to Additional Medicare tax decimal section" layoutSequenceNum="18"
+                                       fieldTypeEnumId="DBFFT_text-line" printTop="3.8125in" printLeft="6.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_7" title="7 Additional Medicare tax"
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="4in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_7dec" title="7 Additional Medicare tax decimal section"
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="4in" printLeft="7.71875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_8" title="8 Federal income tax withheld"
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="4.171875in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_8dec" title="8 Federal income tax withheld decimal section"
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="4.171875in" printLeft="7.71875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_9" title="9 Total taxes before adjustments"
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="4.34375in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_9dec" title="9 Total taxes before adjustments decimal section"
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="4.34375in" printLeft="7.71875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_10" title="10 Current year's adjustments"
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="4.5625in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_10dec" title="10 Current year's adjustments decimal section"
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="4.5625in" printLeft="7.6875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+
+        <moqui.screen.form.DbFormField fieldName="943_11" title="11 Total taxes after adjustments"
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="4.6875in" printLeft="7.25in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="943_11dec" title="11 Total taxes after adjustments decimal section"
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="4.6875in" printLeft="7.6875in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
+    </moqui.screen.form.DbForm>
 </entity-facade-xml>

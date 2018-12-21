@@ -755,7 +755,8 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- is this employee's income social and medical taxable? NOTE: special cases here, and not all potential yet handled: -->
             <!-- see https://www.irs.gov/individuals/international-taxpayers/aliens-employed-in-the-u-s-social-security-taxes -->
-            <set field="socialMedicalExempt" from="taxExemptEnumId == 'EtxForeignAg'"/>
+            <!-- see https://www.irs.gov/individuals/international-taxpayers/totalization-agreements -->
+            <set field="socialMedicalExempt" from="taxExemptEnumId in ['EtxForeignAg', 'EtxTotalizationAgreement']"/>
 
             <!-- set initial taxablePayAmount, socialTaxablePayAmount, medicalTaxablePayAmount -->
             <set field="taxablePayAmount" from="payAmount"/>

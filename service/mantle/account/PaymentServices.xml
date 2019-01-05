@@ -580,7 +580,8 @@ along with this software (see the LICENSE.md file). If not, see
 
             <set field="initialStatusId" from="statusId == 'PmntProposed' ? statusId : 'PmntPromised'"/>
             <service-call name="create#mantle.account.payment.Payment" out-map="context"
-                    in-map="context + [fromPartyId:invoice.toPartyId, toPartyId:invoice.fromPartyId, forInvoiceId:invoiceId,
+                    in-map="context + [timePeriodId:invoice.timePeriodId, fromPartyId:invoice.toPartyId,
+                        toPartyId:invoice.fromPartyId, forInvoiceId:invoiceId,
                         statusId:initialStatusId, overrideGlAccountId:paymentOverrideGlAccountId]"/>
 
             <!-- if target status is PmntConfirmed go to PmntDelivered first for GL posting, etc -->

@@ -438,6 +438,72 @@ along with this software (see the LICENSE.md file). If not, see
         </actions>
     </service>
 
+    <service verb="create" noun="PayrollPayments">
+        <in-parameters>
+            <parameter name="ownerPartyId" required="true"/>
+            <parameter name="effectiveDate" type="Timestamp" required="true"/>
+            <parameter name="statusId" default-value="PmntAuthorized"/>
+            <parameter name="paymentInstrumentEnumId" default-value="PiCompanyCheck"/>
+            <parameter name="paymentMethodId"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="paymentIdList" type="List"/>
+        </out-parameters>
+        <actions>
+            <set field="paymentIdList" from="[]"/>
+
+            <if condition="!paymentMethodId">
+                <entity-find entity-name="mantle.account.method.PaymentMethod" list="paymentMethodList">
+                    <date-filter/><econdition field-name="ownerPartyId"/>
+                    <econdition field-name="purposeEnumId" value="PmpPayroll"/>
+                    <!-- constrain by a paymentMethodTypeEnumId corresponding to the paymentInstrumentEnumId? -->
+                    <order-by field-name="-fromDate"/>
+                </entity-find>
+                <if condition="!paymentMethodList"><entity-find entity-name="mantle.account.method.PaymentMethod" list="paymentMethodList">
+                    <date-filter/><econdition field-name="ownerPartyId"/>
+                    <econdition field-name="purposeEnumId" value="PmpGeneral"/><order-by field-name="-fromDate"/></entity-find></if>
+                <if condition="paymentMethodList"><set field="paymentMethodId" from="paymentMethodList[0].paymentMethodId"/></if>
+            </if>
+
+            <entity-find entity-name="mantle.account.invoice.Invoice" list="invoiceList" for-update="true">
+                <econdition field-name="toPartyId" from="ownerPartyId"/>
+                <econdition field-name="invoiceTypeEnumId" value="InvoicePayroll"/>
+                <econdition field-name="statusId" value="InvoiceApproved"/>
+            </entity-find>
+            <iterate list="invoiceList" entry="invoice">
+                <!-- if paymentInstrumentEnumId is PiAch look for employee's BankAccount -->
+                <set field="toPaymentMethodId" from="null"/>
+                <set field="toUseInstrumentEnumId" from="paymentInstrumentEnumId"/>
+                <if condition="paymentInstrumentEnumId == 'PiAch'">
+                    <entity-find entity-name="mantle.account.method.PaymentMethod" list="toPaymentMethodList">
+                        <date-filter/>
+                        <econdition field-name="ownerPartyId"/>
+                        <econdition field-name="purposeEnumId" value="PmpPayroll"/>
+                        <econdition field-name="paymentMethodTypeEnumId" value="PmtBankAccount"/>
+                        <order-by field-name="-fromDate"/>
+                    </entity-find>
+                    <if condition="toPaymentMethodList">
+                        <set field="toPaymentMethodId" from="toPaymentMethodList[0].paymentMethodId"/></if>
+                    <!-- if there is no bank account, fall back to a PiCompanyCheck instrument -->
+                    <if condition="!toPaymentMethodId"><set field="toUseInstrumentEnumId" value="PiCompanyCheck"/></if>
+                </if>
+                <!-- get the Employee.distGroupEnumId if set, using invoice.fromPartyId -->
+                <set field="distGroupEnumId" from="null"/>
+                <if condition="invoice.partyRelationshipId">
+                    <entity-find-one entity-name="mantle.humanres.employment.Employee" value-field="invEmployee">
+                        <field-map field-name="partyId" from="invoice.fromPartyId"/></entity-find-one>
+                    <if condition="invEmployee?.distGroupEnumId">
+                        <set field="distGroupEnumId" from="invEmployee.distGroupEnumId"/></if>
+                </if>
+                <!-- make the payment -->
+                <service-call name="mantle.account.PaymentServices.create#InvoicePayment" out-map="paymentOut"
+                              in-map="context + [invoiceId:invoice.invoiceId, partyRelationshipId:invoice.partyRelationshipId,
+                        paymentInstrumentEnumId:toUseInstrumentEnumId]"/>
+                <if condition="paymentOut"><script>paymentIdList.add(paymentOut.paymentId)</script></if>
+            </iterate>
+        </actions>
+    </service>
+
     <service verb="process" noun="EmploymentPay">
         <in-parameters>
             <parameter name="partyRelationshipId" required="true"/>

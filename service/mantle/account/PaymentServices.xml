@@ -29,6 +29,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="paymentTotal" type="BigDecimal"/>
             <parameter name="appliedTotal" type="BigDecimal"/>
             <parameter name="unappliedTotal" type="BigDecimal"/>
+            <parameter name="checkNumber" type="Integer"/>
 
             <parameter name="statusHistoryList" type="List"><parameter name="auditLog" type="Map"/></parameter>
             <parameter name="paymentApplicationList" type="List"><parameter name="paymentApplication" type="Map"/></parameter>
@@ -76,6 +77,13 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- get payment description and totals -->
             <service-call name="mantle.account.PaymentServices.get#PaymentDescription" in-map="context" out-map="context"/>
             <service-call name="mantle.account.PaymentServices.get#PaymentTotals" in-map="context" out-map="context"/>
+
+            <!-- get check number is present -->
+            <entity-find entity-name="mantle.account.method.BankAccountCheck" list="bacList" limit="1">
+                <econdition field-name="paymentMethodId" from="payment.paymentMethodId" ignore-if-empty="true"/>
+                <econdition field-name="paymentId"/>
+            </entity-find>
+            <set field="checkNumber" from="bacList?(bacList[0]?.checkNumber):null"/>
 
             <entity-find entity-name="moqui.entity.EntityAuditLog" list="statusHistoryList">
                 <econdition field-name="changedEntityName" value="mantle.account.payment.Payment"/>

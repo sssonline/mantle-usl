@@ -80,6 +80,8 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="partyId" required="true"/>
             <parameter name="paymentMethodTypeEnumId"/>
+            <parameter name="purposeEnumId"/> <!-- singular or comma separated -->
+            <parameter name="purposeEnumGroupEnumId"/> <!-- singular or comma separated -->
         </in-parameters>
         <out-parameters>
             <parameter name="methodInfoList" type="List"><parameter name="infoMap" type="Map">
@@ -107,10 +109,19 @@ along with this software (see the LICENSE.md file). If not, see
             </parameter></parameter>
         </out-parameters>
         <actions>
+            <if condition="purposeEnumGroupEnumId">
+                <entity-find entity-name="moqui.basic.EnumAndGroup" list="enumList">
+                    <econdition field-name="enumGroupEnumId" operator="in" ignore-if-empty="true"/>
+                    <select-field field-name="enumId"/>
+                </entity-find>
+                <set field="purposeEnumIdList" from="enumList*.enumId"/>
+            </if>
             <entity-find entity-name="PaymentMethod" list="paymentMethodList">
                 <date-filter/>
                 <econdition field-name="ownerPartyId" from="partyId"/>
                 <econdition field-name="paymentMethodTypeEnumId" ignore-if-empty="true"/>
+                <econdition field-name="purposeEnumId" operator="in" ignore-if-empty="true"/>
+                <econdition field-name="purposeEnumId" operator="in" from="purposeEnumIdList" ignore-if-empty="true"/>
                 <order-by field-name="-fromDate"/><!-- get the most recent one if there is more than one -->
             </entity-find>
 

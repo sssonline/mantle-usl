@@ -29,6 +29,9 @@ along with this software (see the LICENSE.md file). If not, see
                 the next week day after fileDate is used.</description></parameter>
             <parameter name="nachaEntryDescription"><description>Overrides BankAccount.nachaEntryDescription</description></parameter>
             <parameter name="fileTypeEnumId" default-value="PmftNacha"/>
+            <parameter name="outgoingStatusId" default-value="PmntDelivered"/>
+            <parameter name="incomingStatusId" default-value="PmntDelivered">
+                <description>Could also be PmntAuthorized</description></parameter>
         </in-parameters>
         <out-parameters>
             <parameter name="paymentMethodFileId"/>

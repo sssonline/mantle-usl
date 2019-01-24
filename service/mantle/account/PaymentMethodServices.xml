@@ -438,6 +438,29 @@ along with this software (see the LICENSE.md file). If not, see
         </in-parameters>
         <out-parameters><parameter name="paymentMethodId"/></out-parameters>
         <actions>
+            <!-- Routing numbers are fairly US centric, Canada uses Transit Numbers and UK uses Sort Code; extend as necessary  -->
+            <if condition="!routingNumber"><then>
+                <return error="true" message="Routing number is required"/>
+            </then><else-if condition="!(routingNumber ==~ /\d{9}/)">
+                <return error="true" message="Invalid routing number: ${routingNumber}"/>
+            </else-if><else>
+                <script>
+                    // calculate routing number check digit
+                    String routingWeights = "37137137"
+                    int routingCheckSum = 0
+                    for (int i = 0; i &lt; 8; i++) routingCheckSum += (Character.digit(routingNumber.charAt(i), 10)) * (Character.digit(routingWeights.charAt(i), 10))
+                    int routingCheckDigit = routingCheckSum % 10 ? 10 - (routingCheckSum % 10) : 0
+                </script>
+                <if condition="routingCheckDigit != Character.digit(routingNumber.charAt(8), 10)">
+                    <return error="true" message="Invalid routing number: ${routingNumber}"/>
+                </if>
+            </else></if>
+            <if condition="!accountNumber"><then>
+                <return error="true" message="Account number is required"/>
+            </then><else-if condition="!(accountNumber ==~ /\d+/)">
+                <return error="true" message="Invalid account number: ${accountNumber}"/>
+            </else-if></if>
+
             <if condition="!description"><set field="description" value="${bankName ?: 'Bank Account'} ${accountNumber ?: ''}"/></if>
             <service-call name="create#mantle.account.method.PaymentMethod" in-map="context" out-map="context"/>
             <service-call name="create#mantle.account.method.BankAccount" in-map="context"/>
@@ -451,6 +474,30 @@ along with this software (see the LICENSE.md file). If not, see
         </in-parameters>
         <out-parameters><parameter name="paymentMethodId"/></out-parameters>
         <actions>
+            <!-- Routing numbers are fairly US centric, Canada uses Transit Numbers and UK uses Sort Code; extend as necessary  -->
+            <if condition="!routingNumber"><then>
+                <return error="true" message="Routing number is required"/>
+            </then><else-if condition="!(routingNumber ==~ /\d{9}/)">
+                <return error="true" message="Invalid routing number: ${routingNumber}"/>
+            </else-if></if>
+            <if condition="!accountNumber"><then>
+                <return error="true" message="Account number is required"/>
+            </then><else-if condition="!(accountNumber ==~ /\d+/)">
+                <return error="true" message="Invalid account number: ${accountNumber}"/>
+            </else-if><else>
+                <script>
+                    // calculate routing number check digit
+                    String routingWeights = "37137137"
+                    int routingCheckSum = 0
+                    for (int i = 0; i &lt; 8; i++) routingCheckSum += (Character.digit(routingNumber.charAt(i), 10)) * (Character.digit(routingWeights.charAt(i), 10))
+                    int routingCheckDigit = routingCheckSum % 10 ? 10 - (routingCheckSum % 10) : 0
+                    logger.warn(routingNumber.toString())
+                </script>
+                <if condition="routingCheckDigit != Character.digit(routingNumber.charAt(8), 10)">
+                    <return error="true" message="Invalid routing number: ${routingNumber}"/>
+                </if>
+            </else></if>
+
             <entity-find-one entity-name="mantle.account.method.BankAccount" value-field="origBankAccount"/>
             <script>newBankAccount = origBankAccount.cloneValue()</script>
             <entity-set value-field="newBankAccount" include="nonpk"/>

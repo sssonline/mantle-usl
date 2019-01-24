@@ -215,7 +215,7 @@ along with this software (see the LICENSE.md file). If not, see
                     String routingWeights = "37137137"
                     int routingCheckSum = 0
                     for (int i = 0; i < 8; i++) routingCheckSum += (Character.digit(routingNumber.charAt(i), 10)) * (Character.digit(routingWeights.charAt(i), 10))
-                    String routingCheckDigit = (10 - (routingCheckSum % 10)) as String
+                    String routingCheckDigit = (routingCheckSum % 10 ? 10 - (routingCheckSum % 10) : 0) as String
                     // add first 8 digits of routingNumber to routingNumberSum
                     routingNumberSum += (routingNumber.substring(0, 8) as long)
 

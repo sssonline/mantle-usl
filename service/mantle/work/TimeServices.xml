@@ -259,20 +259,36 @@ along with this software (see the LICENSE.md file). If not, see
             <service-call name="store#mantle.work.time.TimeEntry" out-map="context" in-map="context"/>
             <service-call name="mantle.work.TimeServices.get#TimeEntryRate" out-map="context" in-map="context"/>
 
+            // Because get#TimeEntryRate uses different names for things we need to assign them corresponding values
+            <if condition="!clientHourRate">
+                <set field="clientHourRate" from="rateAmount"/>
+            </if>
+            <if condition="!clientPieceRate">
+                <set field="clientPieceRate" from="pieceRateAmount"/>
+            </if>
+            <if condition="!vendorHourRate">
+                <set field="vendorHourRate" from="vendorRateAmount"/>
+            </if>
+            <if condition="!vendorPieceRate">
+                <set field="vendorPieceRate" from="vendorPieceRateAmount"/>
+            </if>
+
+
             <!-- If any rate increments were provided, add them to the Time Entry -->
             <if condition="vendorHourRateIncrement || vendorPieceRateIncrement || clientHourRateIncrement || clientPieceRateIncrement">
                 <entity-find-one entity-name="mantle.work.time.TimeEntry" value-field="timeEntry" for-update="true"/>
                 <if condition="vendorHourRateIncrement">
-                    <set field="timeEntry.vendorHourRate" from="(timeEntry.vendorHourRate?:0.0)+vendorHourRateIncrement"/>
+                    <log level="warn" message="266 vendorRateAmount: ${vendorRateAmount} in TimeServices.xml"/>
+                    <set field="timeEntry.vendorHourRate" from="(vendorHourRate?:0.0)+vendorHourRateIncrement"/>
                 </if>
                 <if condition="vendorPieceRateIncrement">
-                    <set field="timeEntry.vendorPieceRate" from="(timeEntry.vendorPieceRate?:0.0)+vendorPieceRateIncrement"/>
+                    <set field="timeEntry.vendorPieceRate" from="(vendorPieceRate?:0.0)+vendorPieceRateIncrement"/>
                 </if>
                 <if condition="clientHourRateIncrement">
-                    <set field="timeEntry.clientHourRate" from="(timeEntry.clientHourRate?:0.0)+clientHourRateIncrement"/>
+                    <set field="timeEntry.clientHourRate" from="(clientHourRate?:0.0)+clientHourRateIncrement"/>
                 </if>
                 <if condition="clientPieceRateIncrement">
-                    <set field="timeEntry.clientPieceRate" from="(timeEntry.clientPieceRate?:0.0)+clientPieceRateIncrement"/>
+                    <set field="timeEntry.clientPieceRate" from="(clientPieceRate?:0.0)+clientPieceRateIncrement"/>
                 </if>
                 <set field="timeEntry.hasModifiedRates" value="Y"/>
                 <entity-update value-field="timeEntry"/>

@@ -527,9 +527,9 @@ along with this software (see the LICENSE.md file). If not, see
                 <entity-find entity-name="mantle.humanres.employment.EmploymentBenefitAccrualSum" list="accrualSumList">
                     <econdition field-name="partyRelationshipId"/>
                     <econdition field-name="benefitTypeEnumId" from="benefit.benefitTypeEnumId"/>
-                    <select-field field-name="accruedHours"/>
+                    <select-field field-name="totalAccruedHours"/>
                 </entity-find>
-                <set field="accruedTotal" from="accrualSumList ? accrualSumList[0].accruedHours : 0.0"/>
+                <set field="accruedTotal" from="accrualSumList ? accrualSumList[0].totalAccruedHours : 0.0"/>
                 <if condition="accrualMaxHours &amp;&amp; accruedTotal &gt; accrualMaxHours">
                     <!-- accrued too much, add negative offset to bring down to max -->
                     <set field="offsetHours" from="accrualMaxHours - accruedTotal"/><!-- will be negative number -->

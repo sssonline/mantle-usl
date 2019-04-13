@@ -202,7 +202,23 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="EBA" entity-name="mantle.humanres.employment.EmploymentBenefitAccrual"/>
         <alias name="partyRelationshipId" entity-alias="EBA"/>
         <alias name="benefitTypeEnumId" entity-alias="EBA"/>
-        <alias name="accruedHours" entity-alias="EBA" function="sum"/>
+        <alias name="timePeriodId" entity-alias="EBA"/>
+        <alias name="usedHours" entity-alias="EBA" function="sum"><case>
+            <when expression="EBA.ACCRUED_HOURS &lt; 0">
+                <complex-alias>
+                    <complex-alias-field entity-alias="EBA" field="accruedHours"/>
+                </complex-alias>
+            </when>
+        </case>
+        </alias>
+        <alias name="totalAccruedHours" entity-alias="EBA" function="sum"><case>
+            <when expression="EBA.ACCRUED_HOURS &gt;= 0">
+                <complex-alias>
+                    <complex-alias-field entity-alias="EBA" field="accruedHours"/>
+                </complex-alias>
+            </when>
+        </case>
+        </alias>
         <alias name="workHoursUsed" entity-alias="EBA" function="sum"/>
     </view-entity>
 

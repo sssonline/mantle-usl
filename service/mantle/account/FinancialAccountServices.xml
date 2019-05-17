@@ -179,7 +179,9 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="true || ec.transaction.isTransactionCacheActive()"><then>
                 <set field="actualBalance" from="0.0"/>
                 <entity-find entity-name="mantle.account.financial.FinancialAccountTrans" list="fatList">
-                    <econdition field-name="finAccountId"/><select-field field-name="amount"/></entity-find>
+                    <econdition field-name="finAccountId"/>
+                    <econdition field-name="reasonEnumId" operator="not-equals" value="FatrBalanceAdjust"/>
+                    <select-field field-name="finAccountTransId,amount"/></entity-find>
                 <iterate list="fatList" entry="fat"><set field="actualBalance" from="actualBalance + fat.amount"/></iterate>
                 <!--<log level="warn" message="fatList ${fatList}"/>-->
 

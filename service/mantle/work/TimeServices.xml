@@ -241,8 +241,8 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
              -->
 
-            <!-- If the hasModifiedRatesFlag is passed in or already on the time entry, leave the rates alone. -->
-            <if condition="!(hasModifiedRates == 'Y' || timeEntry?.hasModifiedRates == 'Y')">
+            <!-- If the hasModifiedRatesFlag is passed with the initial create, do not look up rates. -->
+            <if condition="!timeEntryId &amp;&amp; hasModifiedRates != 'Y'">
                 <set field="hasModifiedRates" value="N"/>
                 <if condition="ec.user.hasPermission('TIME_ENTRY_RATE')"><then>
                     <if condition="(clientHourRate &amp;&amp; (timeEntry?.hasModifiedRates || clientHourRate != timeEntry?.clientHourRate)) ||

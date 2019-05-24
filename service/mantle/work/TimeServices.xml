@@ -261,7 +261,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <service-call name="store#mantle.work.time.TimeEntry" out-map="context" in-map="context"/>
 
-            <if condition="!timeEntryId &amp;&amp; hasModifiedRates != 'Y'">
+            <if condition="hasModifiedRates != 'Y'">
                 <service-call name="mantle.work.TimeServices.get#TimeEntryRate" out-map="context" in-map="context"/>
                 <!-- Because get#TimeEntryRate uses different names for things we need to assign them corresponding values -->
                 <if condition="!clientHourRate">

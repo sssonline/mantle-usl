@@ -540,7 +540,8 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="IBD">
             <exclude field="invoiceBatchId"/>
         </alias-all>
-        <alias-all entity-alias="INV"/>
+        <alias-all entity-alias="INV"><exclude field="invoiceBatchId"/><exclude field="description"/></alias-all>
+        <alias name="invoiceDescription" entity-alias="INV" field="description"/>
     </view-entity>
 
     <!-- ========================================================= -->

@@ -55,7 +55,7 @@ along with this software (see the LICENSE.md file). If not, see
                         <field-map field-name="partyId" from="toPartyId"/>
                     </entity-find-one>
                     <set field="orgName" from="ec.resource.expand('PartyNameTemplate','',toParty)"/>
-                    <return error="true" message="Position ${emplPosition.description} is not valid for ${orgName}"/>
+                    <return error="true" message="Position ${(emplPosition?.description)?:emplPositionId} is not valid for ${orgName}"/>
                 </if>
             </if>
             <service-call name="create#mantle.party.PartyRelationship" in-map="context" out-map="context"/>
@@ -128,7 +128,7 @@ along with this software (see the LICENSE.md file). If not, see
                         <field-map field-name="partyId" from="toPartyId"/>
                     </entity-find-one>
                     <set field="orgName" from="ec.resource.expand('PartyNameTemplate','',toParty)"/>
-                    <return error="true" message="Position ${emplPosition.description} is not valid for ${orgName}"/>
+                    <return error="true" message="Position ${(emplPosition?.description)?:emplPositionId} is not valid for ${orgName}"/>
                 </if>
             </if>
             <service-call name="update#mantle.party.PartyRelationship" in-map="context"/>

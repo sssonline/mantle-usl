@@ -521,28 +521,43 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="IEM"/><alias-all entity-alias="EMSG"/>
     </view-entity>
 
-    <view-entity entity-name="InvoiceBatchAndDetail" package="mantle.account.invoice">
+    <view-entity entity-name="InvoiceBatchAndInvoiceId" package="mantle.account.invoice">
         <member-entity entity-alias="IB" entity-name="mantle.account.invoice.InvoiceBatch"/>
-        <member-entity entity-alias="IBD" entity-name="mantle.account.invoice.InvoiceBatchDetail" join-from-alias="IB">
+        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="IB">
             <key-map field-name="invoiceBatchId"/></member-entity>
         <alias-all entity-alias="IB"/>
-        <alias-all entity-alias="IBD">
-            <exclude field="invoiceBatchId"/>
-        </alias-all>
+        <alias name="invoiceId" entity-alias="INV"/>
     </view-entity>
+<!--    <view-entity entity-name="InvoiceBatchAndDetail" package="mantle.account.invoice">-->
+<!--        <member-entity entity-alias="IB" entity-name="mantle.account.invoice.InvoiceBatch"/>-->
+<!--        <member-entity entity-alias="IBD" entity-name="mantle.account.invoice.InvoiceBatchDetail" join-from-alias="IB">-->
+<!--            <key-map field-name="invoiceBatchId"/></member-entity>-->
+<!--        <alias-all entity-alias="IB"/>-->
+<!--        <alias-all entity-alias="IBD">-->
+<!--            <exclude field="invoiceBatchId"/>-->
+<!--        </alias-all>-->
+<!--    </view-entity>-->
     <view-entity entity-name="InvoiceBatchAndInvoiceDetail" package="mantle.account.invoice">
         <member-entity entity-alias="IB" entity-name="mantle.account.invoice.InvoiceBatch"/>
-        <member-entity entity-alias="IBD" entity-name="mantle.account.invoice.InvoiceBatchDetail" join-from-alias="IB">
+        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="IB">
             <key-map field-name="invoiceBatchId"/></member-entity>
-        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="IBD">
-            <key-map field-name="invoiceId"/></member-entity>
         <alias-all entity-alias="IB"/>
-        <alias-all entity-alias="IBD">
-            <exclude field="invoiceBatchId"/>
-        </alias-all>
         <alias-all entity-alias="INV"><exclude field="invoiceBatchId"/><exclude field="description"/></alias-all>
         <alias name="invoiceDescription" entity-alias="INV" field="description"/>
     </view-entity>
+<!--    <view-entity entity-name="InvoiceBatchAndInvoiceDetail" package="mantle.account.invoice">-->
+<!--        <member-entity entity-alias="IB" entity-name="mantle.account.invoice.InvoiceBatch"/>-->
+<!--        <member-entity entity-alias="IBD" entity-name="mantle.account.invoice.InvoiceBatchDetail" join-from-alias="IB">-->
+<!--            <key-map field-name="invoiceBatchId"/></member-entity>-->
+<!--        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="IBD">-->
+<!--            <key-map field-name="invoiceId"/></member-entity>-->
+<!--        <alias-all entity-alias="IB"/>-->
+<!--        <alias-all entity-alias="IBD">-->
+<!--            <exclude field="invoiceBatchId"/>-->
+<!--        </alias-all>-->
+<!--        <alias-all entity-alias="INV"><exclude field="invoiceBatchId"/><exclude field="description"/></alias-all>-->
+<!--        <alias name="invoiceDescription" entity-alias="INV" field="description"/>-->
+<!--    </view-entity>-->
 
     <!-- ========================================================= -->
     <!-- mantle.account.method -->

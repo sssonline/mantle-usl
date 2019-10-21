@@ -587,9 +587,6 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="rateType"/>
             <script>
                 switch(benefitTypeEnumId) {
-                    case 'EbtPaidFamilyLeave':
-                        rateType = 'RatpFamilyLeave'
-                        break
                     case 'EbtPaidHoliday':
                         rateType = 'RatpHoliday'
                         break

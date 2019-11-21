@@ -22,6 +22,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- make sure there is no AcctgTrans for this invoiceId -->
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice', 'AttPurchaseInvoice', 'AttCustRtnInvoice',
                     'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttCommissionInvoice']"/>
+
             <!-- NOTE: not including 'AttInvoiceAdjust' even though included in revert#InvoicePost for reasons explained there -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="existingTransList">
                 <econdition field-name="invoiceId"/>
@@ -29,6 +30,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="reversedByAcctgTransId" from="null"/>
                 <econdition field-name="reverseOfAcctgTransId" from="null"/>
             </entity-find>
+
             <if condition="existingTransList">
                 <!-- This will happen when an invoice goes from paid to Finalized/etc -->
                 <return message="Invoice ${invoiceId} has already been posted in accounting transaction ${existingTransList*.acctgTransId}"/>
@@ -40,8 +42,88 @@ along with this software (see the LICENSE.md file). If not, see
                 <return message="Invoice ${invoiceId} cannot be posted in status ${invoice.statusId}"/></if>
 
             <!-- get all InvoiceItems, including sub-items and all types as we'll post them flat -->
-            <entity-find entity-name="mantle.account.invoice.InvoiceItem" list="invoiceItemList">
-                <econdition field-name="invoiceId"/></entity-find>
+            <entity-find entity-name="mantle.account.invoice.InvoiceItem" list="parentAndSoloInvoicesList">
+                <econdition field-name="invoiceId"/>
+                <econdition field-name="parentItemSeqId" from="null" />
+                <order-by field-name="invoiceItemSeqId"/>
+            </entity-find>
+
+            <!-- get all InvoiceItems, including sub-items and all types as we'll post them flat -->
+            <entity-find entity-name="mantle.account.invoice.InvoiceItem" list="childInvoicesList">
+                <econdition field-name="invoiceId"/>
+                <econdition field-name="parentItemSeqId" operator="is-not-null" />
+                <order-by field-name="parentItemSeqId"/>
+            </entity-find>
+
+            <set field="invoiceItemList" from="null"/>
+            <set field="invoiceItemGLAccountIdMap" from="[:]"/>
+
+            <script>
+                // TODO: this assumes every child item has exactly 1 parent
+                // TODO: find out if any child items could be orphans (such as the parent was deleted). How should we handle these cases?
+//                I think the database will defend itself on that, but you’d want to check it once…just go into the parent in the tools app and try to delete the parent that has a child…if it doesn’t, we’ll have to fix the missing relationship that enforces it.
+
+                ec.logger.warn("parentAndSoloInvoicesList " + parentAndSoloInvoicesList)
+                ec.logger.warn("childInvoicesList " + childInvoicesList)
+
+                // Set up the final, merged list:
+                invoiceItemList = []
+
+                // This is for efficiency:
+                def lastIndexMarkedAsAdded = 0
+
+                def numberOfParents = parentAndSoloInvoicesList.size()
+                def numberOfChildren = childInvoicesList.size()
+
+                // Go through every parent:
+                for (def j = 0; numberOfParents > j; j++) {
+
+                    // Add the parent or solo item:
+                    invoiceItemList.add(parentAndSoloInvoicesList[j])
+
+//                    def tempInvoiceItemGlAccountOut=ec.service.sync().name("mantle.ledger.InvoiceAutoPostServices.get#InvoiceItemGlAccount")
+//                            .parameters([
+//                                    acctgTransTypeEnumId : fromAcctgTrans.acctgTransTypeEnumId,
+//                                    organizationPartyId  : fromAcctgTrans.organizationPartyId,
+//                                    otherPartyId         : fromAcctgTrans.otherPartyId,
+//                                    itemTypeEnumId       : invoiceItem.itemTypeEnumId,
+//                                    productId            : invoiceItem.productId,
+//                                    assetId              : invoiceItem.assetId,
+//                                    direction            : 'O'
+//                            ]).call()
+//
+//                    ec.logger.warn(tempInvoiceItemGlAccountOut?.glAccountId)
+
+                    // Add the parent's override to the map. This will always be null at first:
+                    invoiceItemGLAccountIdMap[parentAndSoloInvoicesList[j].invoiceItemSeqId] = parentAndSoloInvoicesList[j].overrideGlAccountId
+
+                    // Go through the remaining children that we haven't added yet:
+                    for (def i = lastIndexMarkedAsAdded; numberOfChildren > i; i++) {
+
+                        // If this child belongs with this parent:
+                        if (parentAndSoloInvoicesList[j].invoiceItemSeqId == childInvoicesList[i].parentItemSeqId) {
+
+                            // Add the child to the list here:
+                            invoiceItemList.add(childInvoicesList[i])
+
+                            // Start the index later in the list so we don't waste time reviewing children we already added:
+                            lastIndexMarkedAsAdded++
+                        } else {
+                            // This child does not belong with this parent.
+                            // Stop this inner loop:
+                            break
+                        }
+                    }
+                }
+
+                // If not all children were added:
+                if (numberOfChildren > lastIndexMarkedAsAdded) {
+
+                    // TODO: figure out how better to handle this:
+                    throw new Exception("Error some child item invoices have no parent items.")
+                }
+            </script>
+
             <if condition="!invoiceItemList"><return message="Invoice ${invoiceId} has no items, not posting to GL"/></if>
 
             <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoicePartyAcctgPreferences"
@@ -212,6 +294,12 @@ along with this software (see the LICENSE.md file). If not, see
 
                         <!-- use InvoiceItem.overrideGlAccountId if specified -->
                         <set field="itemGlAccountId" from="invoiceItem.overrideGlAccountId"/>
+
+                        <!-- if it has a parent and does not have overrideGlAccountId -->
+                        <if condition="invoiceItem.parentItemSeqId &amp;&amp; !(invoiceItem.overrideGlAccountId)">
+                            <set field="itemGlAccountId" from="invoiceItemGLAccountIdMap[invoiceItem.parentItemSeqId]"/>
+                        </if>
+
                         <!-- no override? use AssetTypeGlAccount.profitGlAccountId based on Asset (queried above) -->
                         <if condition="!itemGlAccountId &amp;&amp; assetTypeGlAccount != null">
                             <set field="itemGlAccountId" from="assetTypeGlAccount.profitGlAccountId"/></if>
@@ -231,6 +319,15 @@ along with this software (see the LICENSE.md file). If not, see
                                 <field-map field-name="glAccountId" from="itemGlAccountId"/></entity-find-one>
                             <set field="itemGlAccountTypeEnumId" from="glAccount?.glAccountTypeEnumId"/>
                         </else></if>
+
+                        <!-- If this is a parent or solo invoice item and itemGlAccountId is not null -->
+                        <if condition="!(invoiceItem.parentItemSeqId) &amp;&amp; itemGlAccountId">
+                            <!-- Then set this map value for any children that will use it the next time through this loop -->
+                            <script>
+                                invoiceItemGLAccountIdMap[invoiceItem.invoiceItemSeqId] = itemGlAccountId
+                            </script>
+                        </if>
+
                         <if condition="!itemGlAccountId"><set field="useErrorJournal" from="true"/></if>
 
                         <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
@@ -244,6 +341,12 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="toPartyAcctgPreference != null">
                     <!-- use InvoiceItem.overrideGlAccountId if specified -->
                     <set field="itemGlAccountId" from="invoiceItem.overrideGlAccountId"/>
+
+                    <!-- if it has a parent and does not have overrideGlAccountId -->
+                    <if condition="invoiceItem.parentItemSeqId &amp;&amp; !(invoiceItem.overrideGlAccountId)">
+                        <set field="itemGlAccountId" from="invoiceItemGLAccountIdMap[invoiceItem.parentItemSeqId]"/>
+                    </if>
+
                     <!-- use InvoiceItemGlAccount setting (by itemTypeEnumId), or just get itemGlAccountTypeEnumId -->
                     <if condition="!itemGlAccountId"><then>
                         <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceItemGlAccount"
@@ -259,6 +362,15 @@ along with this software (see the LICENSE.md file). If not, see
                             <field-map field-name="glAccountId" from="itemGlAccountId"/></entity-find-one>
                         <set field="itemGlAccountTypeEnumId" from="glAccount?.glAccountTypeEnumId"/>
                     </else></if>
+
+                    <!-- If this is a parent or solo invoice item and itemGlAccountId is not null -->
+                    <if condition="!(invoiceItem.parentItemSeqId) &amp;&amp; itemGlAccountId">
+                        <!-- Then set this map value for any children that will use it the next time through this loop -->
+                        <script>
+                            invoiceItemGLAccountIdMap[invoiceItem.invoiceItemSeqId] = itemGlAccountId
+                        </script>
+                    </if>
+
                     <if condition="!itemGlAccountId"><set field="useErrorJournal" from="true"/></if>
 
                     <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
@@ -267,6 +379,10 @@ along with this software (see the LICENSE.md file). If not, see
                 </if>
             </iterate>
 
+            <script>
+
+                ec.logger.warn("abc "+invoiceItemGLAccountIdMap)
+            </script>
             <!-- ==== create balancing entry ==== -->
 
             <!-- balancing entry for from Party -->

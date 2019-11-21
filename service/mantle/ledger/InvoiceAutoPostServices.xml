@@ -59,9 +59,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="invoiceItemGLAccountIdMap" from="[:]"/>
 
             <script>
-                // TODO: this assumes every child item has exactly 1 parent
-                // TODO: find out if any child items could be orphans (such as the parent was deleted). How should we handle these cases?
-//                I think the database will defend itself on that, but you’d want to check it once…just go into the parent in the tools app and try to delete the parent that has a child…if it doesn’t, we’ll have to fix the missing relationship that enforces it.
+                // TODO: verify this assumption: this assumes every child item has exactly 1 parent
 
                 ec.logger.warn("parentAndSoloInvoicesList " + parentAndSoloInvoicesList)
                 ec.logger.warn("childInvoicesList " + childInvoicesList)
@@ -80,19 +78,6 @@ along with this software (see the LICENSE.md file). If not, see
 
                     // Add the parent or solo item:
                     invoiceItemList.add(parentAndSoloInvoicesList[j])
-
-//                    def tempInvoiceItemGlAccountOut=ec.service.sync().name("mantle.ledger.InvoiceAutoPostServices.get#InvoiceItemGlAccount")
-//                            .parameters([
-//                                    acctgTransTypeEnumId : fromAcctgTrans.acctgTransTypeEnumId,
-//                                    organizationPartyId  : fromAcctgTrans.organizationPartyId,
-//                                    otherPartyId         : fromAcctgTrans.otherPartyId,
-//                                    itemTypeEnumId       : invoiceItem.itemTypeEnumId,
-//                                    productId            : invoiceItem.productId,
-//                                    assetId              : invoiceItem.assetId,
-//                                    direction            : 'O'
-//                            ]).call()
-//
-//                    ec.logger.warn(tempInvoiceItemGlAccountOut?.glAccountId)
 
                     // Add the parent's override to the map. This will always be null at first:
                     invoiceItemGLAccountIdMap[parentAndSoloInvoicesList[j].invoiceItemSeqId] = parentAndSoloInvoicesList[j].overrideGlAccountId
@@ -119,7 +104,7 @@ along with this software (see the LICENSE.md file). If not, see
                 // If not all children were added:
                 if (numberOfChildren > lastIndexMarkedAsAdded) {
 
-                    // TODO: figure out how better to handle this:
+                    // This will send a growl to the user:
                     throw new Exception("Error some child item invoices have no parent items.")
                 }
             </script>

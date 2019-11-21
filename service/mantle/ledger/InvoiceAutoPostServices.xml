@@ -61,9 +61,6 @@ along with this software (see the LICENSE.md file). If not, see
             <script>
                 // TODO: verify this assumption: this assumes every child item has exactly 1 parent
 
-                ec.logger.warn("parentAndSoloInvoicesList " + parentAndSoloInvoicesList)
-                ec.logger.warn("childInvoicesList " + childInvoicesList)
-
                 // Set up the final, merged list:
                 invoiceItemList = []
 
@@ -363,11 +360,6 @@ along with this software (see the LICENSE.md file). If not, see
                                 debitCreditFlag:'D', glAccountTypeEnumId:itemGlAccountTypeEnumId, glAccountId:itemGlAccountId]"/>
                 </if>
             </iterate>
-
-            <script>
-
-                ec.logger.warn("abc "+invoiceItemGLAccountIdMap)
-            </script>
             <!-- ==== create balancing entry ==== -->
 
             <!-- balancing entry for from Party -->

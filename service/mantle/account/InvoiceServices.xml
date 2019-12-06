@@ -850,6 +850,7 @@ along with this software (see the LICENSE.md file). If not, see
                 the OrderPart. Must be a list of OrderItem EntityValue objects in the OrderPart.</description>
                 <parameter name="orderItem" type="Map"><auto-parameters entity-name="mantle.order.OrderItem" include="all"/></parameter>
             </parameter>
+            <parameter name="settlementTermId"/>
         </in-parameters>
         <out-parameters><parameter name="invoiceId"/></out-parameters>
         <actions>
@@ -865,9 +866,17 @@ along with this software (see the LICENSE.md file). If not, see
 
             <set field="description" value="Invoice for Order ${orderId} part ${orderPartSeqId}"/>
             <service-call name="mantle.account.InvoiceServices.create#Invoice" out-map="context"
-                    in-map="[invoiceTypeEnumId:'InvoiceSales', fromPartyId:orderPart.vendorPartyId, toPartyId:toPartyId,
-                        invoiceDate:invoiceDate, currencyUomId:orderHeader.currencyUomId, otherPartyOrderId:orderPart.otherPartyOrderId,
-                        description:description, productStoreId:orderHeader.productStoreId, systemMessageRemoteId:orderHeader.systemMessageRemoteId]"/>
+                    in-map="[
+                        invoiceTypeEnumId:'InvoiceSales',
+                        fromPartyId:orderPart.vendorPartyId,
+                        toPartyId:toPartyId,
+                        settlementTermId:orderHeader.settlementTermId,
+                        invoiceDate:invoiceDate,
+                        currencyUomId:orderHeader.currencyUomId,
+                        otherPartyOrderId:orderPart.otherPartyOrderId,
+                        description:description,
+                        productStoreId:orderHeader.productStoreId,
+                        systemMessageRemoteId:orderHeader.systemMessageRemoteId]"/>
 
             <if condition="partialOrderItemList"><then>
                 <set field="orderItemList" from="partialOrderItemList"/>

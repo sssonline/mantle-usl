@@ -1685,6 +1685,17 @@ General Order Placement and eCommerce Usage
             <parameter name="eecaOperation"/>
         </in-parameters>
         <actions>
+            <!-- Look up this OrderItemBilling entity with this order id: -->
+            <entity-find-one entity-name="mantle.order.OrderItemBilling" value-field="invoiceItemContainingOrder">
+                <field-map field-name="orderId" from="orderId"/>
+            </entity-find-one>
+
+            <!-- If one was found and it has an invoice id: -->
+            <if condition="invoiceItemContainingOrder?.invoiceId">
+                <!-- Then we cannot make edits to this order: -->
+                <return error="true" message="Order has already been invoiced. Cannot make changes to it."/>
+            </if>
+
             <if condition="eecaOperation == 'delete'">
                 <service-call name="mantle.order.OrderServices.update#OrderPartTotal" in-map="context"/>
                 <return/>

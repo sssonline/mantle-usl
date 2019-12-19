@@ -203,6 +203,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="partyRelationshipId" entity-alias="EBA"/>
         <alias name="benefitTypeEnumId" entity-alias="EBA"/>
         <alias name="timePeriodId" entity-alias="EBA"/>
+        <alias name="payrollBatchId" entity-alias="EBA"/>
         <alias name="usedHours" entity-alias="EBA" function="sum"><case>
             <when expression="EBA.ACCRUED_HOURS &lt; 0">
                 <complex-alias>
@@ -402,7 +403,9 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="PBD" entity-name="mantle.humanres.employment.PayrollBatchDetail" join-from-alias="PB">
             <key-map field-name="payrollBatchId"/></member-entity>
         <member-entity entity-alias="EBA" entity-name="mantle.humanres.employment.EmploymentBenefitAccrual" join-from-alias="PBD">
-            <key-map field-name="partyRelationshipId"/></member-entity>
+            <key-map field-name="partyRelationshipId"/>
+            <key-map field-name="payrollBatchId"/>
+        </member-entity>
         <alias-all entity-alias="PB"/>
         <alias-all entity-alias="PBD">
             <exclude field="timePeriodId"/>

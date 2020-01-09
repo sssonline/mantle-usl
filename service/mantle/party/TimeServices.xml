@@ -209,15 +209,23 @@ along with this software (see the LICENSE.md file). If not, see
                     </if>
                 </then><else>
                     <!-- calculate based on calendar year -->
-                    <set field="fromDateDt" from="java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(fromDate.time), java.time.ZoneId.systemDefault())"/>
+                    <set field="asOfDate" from="fromDate"/>
+                    <if condition="timePeriodTypeId in ['PayrollYear','PayrollSemiYear','PayrollQuarter','PayrollMonth','PayrollSemiMonth','PayrollBiWeek','PayrollWeek','PayrollDay']">
+                        <!-- At the very least, payroll pay periods are more appropriately determined by the
+                             pay date (estimatedSettleDate) but if it is not available, the thruDate is a better
+                             period to use.
+                        -->
+                        <set field="asOfDate" from="estimatedSettleDate?:thruDate?:fromDate"/>
+                    </if>
+                    <set field="asOfDateDt" from="java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(asOfDate.time), java.time.ZoneId.systemDefault())"/>
                     <if condition="timePeriodType.lengthUomId == 'TF_yr'"><then>
-                        <set field="periodNum" from="fromDateDt.getYear()"/>
+                        <set field="periodNum" from="asOfDateDt.getYear()"/>
                     </then><else-if condition="timePeriodType.lengthUomId == 'TF_mon'">
-                        <set field="periodNum" from="((fromDateDt.getMonthValue() - 1) / timePeriodType.periodLength).intValue() + 1"/>
-                        <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; fromDateDt.getDayOfMonth() &gt; 1">
+                        <set field="periodNum" from="((asOfDateDt.getMonthValue() - 1) / timePeriodType.periodLength).intValue() + 1"/>
+                        <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; asOfDateDt.getDayOfMonth() &gt; 1">
                             <set field="periodNum" from="periodNum + 1"/></if>
                     </else-if><else-if condition="timePeriodType.lengthUomId == 'TF_wk'">
-                        <set field="periodNum" from="(fromDateDt.get(java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR) / timePeriodType.periodLength).intValue()"/>
+                        <set field="periodNum" from="(asOfDateDt.get(java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR) / timePeriodType.periodLength).setScale(0, BigDecimal.ROUND_HALF_UP).intValue()"/>
                     </else-if></if>
                 </else></if>
             </if>

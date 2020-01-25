@@ -130,7 +130,7 @@ along with this software (see the LICENSE.md file). If not, see
             <service-call name="mantle.humanres.PayrollDocumentServices.get#EmploymentInfo"
                           in-map="[timePeriodId:timePeriodId, partyRelationshipId:partyRelationshipId]" out-map="context"/>
 
-            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistory" list="payHistoryList">
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjustedToInvoice" list="payHistoryList">
                 <econdition field-name="partyRelationshipId"/>
                 <econdition field-name="payDate" operator="greater-equals" from="timePeriod.fromDate"/>
                 <econdition field-name="payDate" operator="less-equals" from="timePeriod.thruDate"/>

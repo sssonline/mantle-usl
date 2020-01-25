@@ -225,7 +225,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="approvedCount &gt; 0"><return error="true" message="Found ${approvedCount} invoices in Approved or later status, cannot re-open period"/></if>
 
             <!-- delete all EmploymentPayHistory and EmploymentPay*Detail records -->
-            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistory" list="payHistoryList">
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjustedToInvoice" list="payHistoryList">
                 <econdition field-name="timePeriodId"/></entity-find>
             <iterate list="payHistoryList" entry="payHistory">
                 <entity-delete-by-condition entity-name="mantle.humanres.employment.EmploymentPayTimeDetail">
@@ -457,7 +457,7 @@ along with this software (see the LICENSE.md file). If not, see
         </out-parameters>
         <actions>
             <!-- make sure there is no EmploymentPayHistory record for partyRelationshipId and timePeriodId -->
-            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistory" list="existingPayHistoryList">
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjustedToInvoice" list="existingPayHistoryList">
                 <econdition field-name="partyRelationshipId"/><econdition field-name="timePeriodId"/></entity-find>
             <if condition="existingPayHistoryList"><return message="Employment pay already processed for employment ${partyRelationshipId}, time period ${timePeriodId}"/></if>
 
@@ -770,7 +770,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="thisYearList" from="ec.user.getPeriodRange('year', '0')"/>
             <set field="yearStart" from="new java.sql.Date(thisYearList[0].time)"/>
             <set field="yearEnd" from="new java.sql.Date(thisYearList[1].time)"/>
-            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistory" list="payHistoryList">
+            <entity-find entity-name="mantle.humanres.employment.EmploymentPayHistoryAdjustedToInvoice" list="payHistoryList">
                 <econdition field-name="partyRelationshipId"/>
                 <econdition field-name="payDate" operator="greater-equals" from="yearStart"/>
                 <econdition field-name="payDate" operator="less" from="yearEnd"/>

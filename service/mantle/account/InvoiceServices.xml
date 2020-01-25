@@ -1764,7 +1764,8 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="update#mantle.humanres.employment.EmploymentPayAdjDetail"
                               in-map="[employmentPayAdjDetailId:iphad.employmentPayAdjDetailId, invoiceItemSeqId:null]"/>
                 <service-call name="update#mantle.humanres.employment.EmploymentPayHistory"
-                              in-map="[employmentPayHistoryId:iphad.employmentPayHistoryId, invoiceId:null]"/>
+                              in-map="[employmentPayHistoryId:iphad.employmentPayHistoryId, invoiceId:null,
+                                       netPayInvoiceAdjAmount:0.0]"/>
             </iterate>
             <entity-find entity-name="mantle.humanres.employment.EmploymentPayAdjDetail" list="epadList">
                 <econdition field-name="payeeInvoiceId" from="invoiceId"/>

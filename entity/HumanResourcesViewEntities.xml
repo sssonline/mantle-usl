@@ -99,6 +99,48 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PTY"><exclude field="comments"/></alias-all>
     </view-entity>
 
+    <view-entity entity-name="EmploymentPayHistoryAdjustedToInvoice" package="mantle.humanres.employment">
+        <member-entity entity-alias="EMPH" entity-name="mantle.humanres.employment.EmploymentPayHistory"/>
+        <alias-all entity-alias="EMPH">
+            <!-- Adjust these for the invoice net pay adjustment -->
+            <exclude field="payAmount"/>
+            <exclude field="taxablePayAmount"/>
+            <exclude field="socialTaxablePayAmount"/>
+            <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="netPayAmount"/>
+        </alias-all>
+        <alias name="payAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="payAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="taxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="taxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="socialTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="socialTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="medicalTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="medicalTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="netPayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="netPayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+    </view-entity>
+
     <view-entity entity-name="EmploymentPayHistoryAdjDetail" package="mantle.humanres.employment">
         <member-entity entity-alias="EMPH" entity-name="mantle.humanres.employment.EmploymentPayHistory"/>
         <member-entity entity-alias="EMPAD" entity-name="mantle.humanres.employment.EmploymentPayAdjDetail"
@@ -107,10 +149,47 @@ along with this software (see the LICENSE.md file). If not, see
         </member-entity>
         <member-entity entity-alias="ITEM" entity-name="moqui.basic.Enumeration" join-from-alias="EMPAD">
             <key-map field-name="payrollPhaseEnumId" related="enumId"/></member-entity>
-        <alias-all entity-alias="EMPH"/>
+        <alias-all entity-alias="EMPH">
+            <!-- Adjust these for the invoice net pay adjustment -->
+            <exclude field="payAmount"/>
+            <exclude field="taxablePayAmount"/>
+            <exclude field="socialTaxablePayAmount"/>
+            <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="netPayAmount"/>
+        </alias-all>
         <alias-all entity-alias="EMPAD">
             <exclude field="employmentPayHistoryId"/>
         </alias-all>
+        <alias name="payAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="payAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="taxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="taxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="socialTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="socialTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="medicalTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="medicalTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="netPayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="netPayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
         <alias name="payrollPhaseSequenceNum" field="sequenceNum" entity-alias="ITEM"/>
         <alias name="payrollPhaseDescription" field="description" entity-alias="ITEM"/>
     </view-entity>
@@ -144,7 +223,14 @@ along with this software (see the LICENSE.md file). If not, see
         </member-entity>
         <member-entity entity-alias="ITEM" entity-name="moqui.basic.Enumeration" join-from-alias="EMPTD">
             <key-map field-name="payrollPhaseEnumId" related="enumId"/></member-entity>
-        <alias-all entity-alias="EMPH"/>
+        <alias-all entity-alias="EMPH">
+            <!-- Adjust these for the invoice net pay adjustment -->
+            <exclude field="payAmount"/>
+            <exclude field="taxablePayAmount"/>
+            <exclude field="socialTaxablePayAmount"/>
+            <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="netPayAmount"/>
+        </alias-all>
         <alias-all entity-alias="EMPTD">
             <exclude field="employmentPayHistoryId"/>
         </alias-all>
@@ -167,6 +253,36 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="vendorInvoiceId"/>
             <exclude field="vendorInvoiceItemSeqId"/>
         </alias-all>
+        <alias name="payAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="payAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="taxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="taxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="socialTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="socialTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="medicalTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="medicalTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="netPayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="netPayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
         <alias name="payrollPhaseSequenceNum" field="sequenceNum" entity-alias="ITEM"/>
         <alias name="payrollPhaseDescription" field="description" entity-alias="ITEM"/>
         <!-- Rename the fields so they are from the perspective of the employer. -->

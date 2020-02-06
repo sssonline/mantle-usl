@@ -20,8 +20,9 @@ along with this software (see the LICENSE.md file). If not, see
         <out-parameters><parameter name="fromAcctgTransId"/><parameter name="toAcctgTransId"/></out-parameters>
         <actions>
             <!-- make sure there is no AcctgTrans for this invoiceId -->
-            <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice', 'AttPurchaseInvoice', 'AttCustRtnInvoice',
-                    'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttCommissionInvoice']"/>
+            <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttPayrollBillingInvoice', 'AttVendRtnInvoice',
+                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
+                    'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice']"/>
 
             <!-- NOTE: not including 'AttInvoiceAdjust' even though included in revert#InvoicePost for reasons explained there -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="existingTransList">
@@ -764,8 +765,10 @@ along with this software (see the LICENSE.md file). If not, see
                 <return error="true" message="Invoice ${invoiceId} cannot be posted in status ${invoice.statusId}"/></if>
 
             <!-- find existing AcctgTrans for this invoiceId -->
-            <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice', 'AttPurchaseInvoice', 'AttCustRtnInvoice',
-                    'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttCommissionInvoice', 'AttInvoiceAdjust']"/>
+            <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttPayrollBillingInvoice', 'AttVendRtnInvoice',
+                        'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
+                        'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
+                        'AttInvoiceAdjust']"/>
             <!-- NOTE: including 'AttInvoiceAdjust' to remove and repost those as well -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="existingTransList">
                 <econdition field-name="invoiceId"/>
@@ -805,8 +808,10 @@ along with this software (see the LICENSE.md file). If not, see
     <service verb="revert" noun="InvoicePost">
         <in-parameters><parameter name="invoiceId" required="true"/></in-parameters>
         <actions>
-            <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice', 'AttPurchaseInvoice', 'AttCustRtnInvoice',
-                    'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttCommissionInvoice', 'AttInvoiceAdjust']"/>
+            <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttPayrollBillingInvoice', 'AttVendRtnInvoice',
+                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
+                    'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
+                    'AttInvoiceAdjust']"/>
             <!-- NOTE: including 'AttInvoiceAdjust', for now, on repost those will be posted with the main transaction (may want to change that somehow in the future) -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="acctgTransList">
                 <econdition field-name="invoiceId"/>

@@ -714,4 +714,97 @@ along with this software (see the LICENSE.md file). If not, see
             <econdition field-name="creditDcFlag" value="C"/>
         </entity-condition>
     </view-entity>
+    
+    <view-entity entity-name="PaymentAndMethodAndTrans" package="mantle.account.method">
+        <member-entity entity-alias="PMT" entity-name="mantle.account.payment.Payment"/>
+        <member-entity entity-alias="PMTM" entity-name="mantle.account.method.PaymentMethod" join-from-alias="PMT">
+            <key-map field-name="paymentMethodId"/>
+        </member-entity>
+        <member-entity entity-alias="PMTMT" entity-name="mantle.account.method.PaymentMethodTrans"
+                       join-from-alias="PMT" join-optional="true">
+            <key-map field-name="paymentId"/>
+        </member-entity>
+        <alias-all entity-alias="PMT"/>
+        <alias-all entity-alias="PMTM">
+            <exclude field="paymentGatewayConfigId"/>
+            <exclude field="finAccountId"/>
+        </alias-all>
+        <alias-all entity-alias="PMTMT">
+            <exclude field="paymentMethodId"/>
+        </alias-all>
+    </view-entity>
+
+    <view-entity entity-name="PaymentMethodStmtAndDetailAndPayment" package="mantle.account.method">
+        <member-entity entity-alias="PMS" entity-name="mantle.account.method.PaymentMethodStmt"/>
+        <member-entity entity-alias="PMSD" entity-name="mantle.account.method.PaymentMethodStmtDetail" join-from-alias="PMS">
+            <key-map field-name="paymentMethodStmtId"/>
+        </member-entity>
+        <member-entity entity-alias="PMT" entity-name="mantle.account.payment.Payment" join-from-alias="PMSD">
+            <key-map field-name="paymentId"/>
+        </member-entity>
+        <alias-all entity-alias="PMS">
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias-all entity-alias="PMSD">
+            <exclude field="paymentMethodStmtId"/>
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias-all entity-alias="PMT">
+            <exclude field="paymentMethodId"/>
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias entity-alias="PMS" name="stmtReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
+    </view-entity>
+
+    <view-entity entity-name="PaymentAndPaymentMethodStmtAndDetail" package="mantle.account.method">
+        <member-entity entity-alias="PMT" entity-name="mantle.account.payment.Payment"/>
+        <member-entity entity-alias="PMTM" entity-name="mantle.account.method.PaymentMethod" join-from-alias="PMT">
+            <key-map field-name="paymentMethodId"/>
+        </member-entity>
+        <member-entity entity-alias="BKCK" entity-name="mantle.account.method.BankAccountCheck" join-from-alias="PMT" join-optional="true">
+            <key-map field-name="paymentId"/>
+        </member-entity>
+        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="PMT">
+            <key-map field-name="forInvoiceId" related="invoiceId"/>
+        </member-entity>
+        <member-entity entity-alias="PMSD" entity-name="mantle.account.method.PaymentMethodStmtDetail" join-from-alias="PMT" join-optional="true">
+            <key-map field-name="paymentId"/>
+        </member-entity>
+        <member-entity entity-alias="PMS" entity-name="mantle.account.method.PaymentMethodStmt" join-from-alias="PMSD" join-optional="true">
+            <key-map field-name="paymentMethodStmtId"/>
+        </member-entity>
+        <alias-all entity-alias="PMT">
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias-all entity-alias="PMTM">
+            <exclude field="paymentGatewayConfigId"/>
+            <exclude field="finAccountId"/>
+        </alias-all>
+        <alias-all entity-alias="INV">
+            <exclude field="description"/>
+            <exclude field="currencyUomId"/>
+            <exclude field="fromPartyId"/>
+            <exclude field="toPartyId"/>
+            <exclude field="statusId"/>
+            <exclude field="overrideOrgPartyId"/>
+            <exclude field="partyRelationshipId"/>
+            <exclude field="timePeriodId"/>
+            <exclude field="acctgTransResultEnumId"/>
+        </alias-all>
+        <alias-all entity-alias="PMS">
+            <exclude field="paymentMethodId"/>
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias-all entity-alias="PMSD">
+            <exclude field="paymentMethodStmtId"/>
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias entity-alias="BKCK" name="checkNumber"/>
+        <alias entity-alias="PMS" name="stmtReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
+    </view-entity>
+
 </entities>

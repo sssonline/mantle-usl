@@ -128,7 +128,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="create#mantle.account.method.PaymentMethodTrans" in-map="[paymentMethodId:paymentMethodId,
                         fitId:fitId, transType:transType, transCode:transCode, postedDate:postedDate,
                         transAmount:transAmount, transName:transName, transMemo:STMTTRN.MEMO?.getAt(0)?.text(),
-                        checkNumber:STMTTRN.CHECKNUM?.getAt(0)?.text().replaceFirst('^0+(?!$)', ''), refNumber:STMTTRN.REFNUM?.getAt(0)?.text()]"/>
+                        checkNumber:STMTTRN.CHECKNUM?.getAt(0)?.text(), refNumber:STMTTRN.REFNUM?.getAt(0)?.text()]"/>
             </iterate>
 
             <!-- update ledgerBalance, availableBalance, balanceDate (only if more recent than last balanceDate) -->

@@ -766,6 +766,32 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
     </view-entity>
 
+    <view-entity entity-name="PaymentMethodStmtAndDetailAndPaymentSummary" package="mantle.account.method">
+        <member-entity entity-alias="PMS" entity-name="mantle.account.method.PaymentMethodStmt"/>
+        <member-entity entity-alias="PMSD" entity-name="mantle.account.method.PaymentMethodStmtDetail" join-from-alias="PMS">
+            <key-map field-name="paymentMethodStmtId"/>
+        </member-entity>
+        <member-entity entity-alias="PMT" entity-name="mantle.account.payment.Payment" join-from-alias="PMSD">
+            <key-map field-name="paymentId"/>
+        </member-entity>
+        <alias-all entity-alias="PMS">
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias-all entity-alias="PMSD">
+            <exclude field="paymentMethodStmtId"/>
+            <exclude field="reconcileStatusId"/>
+        </alias-all>
+        <alias-all entity-alias="PMT">
+            <exclude field="paymentMethodId"/>
+            <exclude field="reconcileStatusId"/>
+            <exclude field="amount"/>
+        </alias-all>
+        <alias entity-alias="PMS" name="stmtReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="amount" function="sum"/>
+    </view-entity>
+
     <view-entity entity-name="PaymentAndPaymentMethodStmtAndDetail" package="mantle.account.method">
         <member-entity entity-alias="PMT" entity-name="mantle.account.payment.Payment"/>
         <member-entity entity-alias="PMTM" entity-name="mantle.account.method.PaymentMethod" join-from-alias="PMT">

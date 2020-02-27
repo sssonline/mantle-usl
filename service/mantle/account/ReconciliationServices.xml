@@ -186,7 +186,8 @@ along with this software (see the LICENSE.md file). If not, see
 
                 <!-- set Payment.reconcileStatusId -->
                 <!-- TODO: could populate originalCurrencyAmount, originalCurrencyUomId if they are different -->
-                <if condition="!payment"><entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment"/></if>
+                <log level="warn" message="189 payment - ${payment} in ReconciliationServices.xml -DEBUG-"/>
+                <if condition="!payment"><entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment" for-update="true"/></if>
                 <log level="warn" message="190 payment - ${payment} in ReconciliationServices.xml -DEBUG-"/>
                 <log level="warn" message="191 payment.reconcileStatusId - ${payment.reconcileStatusId} in ReconciliationServices.xml -DEBUG-"/>
                 <log level="warn" message="192 pmtReconcileStatusId - ${pmtReconcileStatusId} in ReconciliationServices.xml -DEBUG-"/>

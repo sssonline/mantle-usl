@@ -163,17 +163,13 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="ateReconcileStatusId" default-value="AterRec"/>
         </in-parameters>
         <actions>
-            <log level="warn" message="166 ******** in ReconciliationServices.xml -DEBUG-"/>
             <if condition="!bankAccountTrans"><entity-find-one entity-name="mantle.account.method.PaymentMethodTrans"
                     value-field="bankAccountTrans"/></if>
 
-            <log level="warn" message="170 paymentId - ${paymentId} in ReconciliationServices.xml -DEBUG-"/>
             <if condition="paymentId">
-                <log level="warn" message="171 paymentId - ${paymentId} in ReconciliationServices.xml -DEBUG-"/>
                 <!-- if another PaymentMethodTrans has this paymentId clear it -->
                 <entity-find entity-name="mantle.account.method.PaymentMethodTrans" list="existingTransList">
                     <econdition field-name="paymentId"/></entity-find>
-                <log level="warn" message="176 existingTransList - ${existingTransList} in ReconciliationServices.xml -DEBUG-"/>
                 <iterate list="existingTransList" entry="existingTrans">
                     <set field="existingTrans.paymentId" from="null"/>
                     <entity-update value-field="existingTrans"/>
@@ -182,20 +178,14 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- set the paymentId -->
                 <set field="bankAccountTrans.paymentId" from="paymentId"/>
                 <entity-update value-field="bankAccountTrans"/>
-                <log level="warn" message="185 bankAccountTrans - ${bankAccountTrans} in ReconciliationServices.xml -DEBUG-"/>
 
                 <!-- set Payment.reconcileStatusId -->
                 <!-- TODO: could populate originalCurrencyAmount, originalCurrencyUomId if they are different -->
-                <log level="warn" message="189 payment - ${payment} in ReconciliationServices.xml -DEBUG-"/>
-                <if condition="!payment"><entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment" for-update="true"/></if>
-                <log level="warn" message="190 payment - ${payment} in ReconciliationServices.xml -DEBUG-"/>
-                <log level="warn" message="191 payment.reconcileStatusId - ${payment.reconcileStatusId} in ReconciliationServices.xml -DEBUG-"/>
-                <log level="warn" message="192 pmtReconcileStatusId - ${pmtReconcileStatusId} in ReconciliationServices.xml -DEBUG-"/>
+                <if condition="!payment"><entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment"/></if>
                 <if condition="payment.reconcileStatusId != pmtReconcileStatusId">
-                    <log level="warn" message="194 in ReconciliationServices.xml -DEBUG-"/>
                     <set field="payment.reconcileStatusId" from="pmtReconcileStatusId"/>
-                    <entity-update value-field="payment"/>
-                    <log level="warn" message="197 payment - ${payment} in ReconciliationServices.xml -DEBUG-"/>
+                    <service-call name="update#mantle.account.payment.Payment" in-map="[paymentId:paymentId,reconcileStatusId:payment.reconcileStatusId]"/>
+<!--                    <entity-update value-field="payment"/>-->
                 </if>
             </if>
             <if condition="acctgTransId &amp;&amp; acctgTransEntrySeqId">

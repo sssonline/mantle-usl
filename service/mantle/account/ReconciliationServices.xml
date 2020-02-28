@@ -168,7 +168,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <if condition="paymentId">
                 <!-- if another PaymentMethodTrans has this paymentId clear it -->
-                <entity-find entity-name="mantle.account.method.PaymentMethodTrans" list="existingTransList" for-update="true">
+                <entity-find entity-name="mantle.account.method.PaymentMethodTrans" list="existingTransList">
                     <econdition field-name="paymentId"/></entity-find>
                 <iterate list="existingTransList" entry="existingTrans">
                     <set field="existingTrans.paymentId" from="null"/>
@@ -180,7 +180,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="update#mantle.account.method.PaymentMethodTrans"
                               in-map="[paymentMethodId: bankAccountTrans.paymentMethodId,
                                        fitId:           bankAccountTrans.fitId,
-                                       paymentId:       bankAccountTrans.paymentId]"/> <!-- entity-update unsafe on some DB if bankAccountTrans passed in w/o for-update -->
+                                       paymentId:       bankAccountTrans.paymentId]"/>
 
                 <!-- set Payment.reconcileStatusId -->
                 <!-- TODO: could populate originalCurrencyAmount, originalCurrencyUomId if they are different -->
@@ -194,7 +194,7 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
             <if condition="acctgTransId &amp;&amp; acctgTransEntrySeqId">
                 <!-- if another PaymentMethodTrans has this acctgTransId/acctgTransEntrySeqId clear them -->
-                <entity-find entity-name="mantle.account.method.PaymentMethodTrans" list="existingTransList" for-update="true">
+                <entity-find entity-name="mantle.account.method.PaymentMethodTrans" list="existingTransList">
                     <econdition field-name="acctgTransId"/><econdition field-name="acctgTransEntrySeqId"/></entity-find>
                 <iterate list="existingTransList" entry="existingTrans">
                     <set field="existingTrans.acctgTransId" from="null"/>
@@ -209,12 +209,12 @@ along with this software (see the LICENSE.md file). If not, see
                               in-map="[paymentMethodId:      bankAccountTrans.paymentMethodId,
                                        fitId:                bankAccountTrans.fitId,
                                        acctgTransId:         bankAccountTrans.acctgTransId,
-                                       acctgTransEntrySeqId: bankAccountTrans.acctgTransEntrySeqId]"/> <!-- entity-update unsafe on some DB if bankAccountTrans passed in w/o for-update -->
+                                       acctgTransEntrySeqId: bankAccountTrans.acctgTransEntrySeqId]"/>
 
                 <!-- set AcctgTransEntry.reconcileStatusId -->
                 <!-- TODO: could populate originalCurrencyAmount, originalCurrencyUomId if they are different -->
                 <if condition="!acctgTransEntry"><entity-find-one entity-name="mantle.ledger.transaction.AcctgTransEntry"
-                        value-field="acctgTransEntry" for-update="true"/></if>
+                        value-field="acctgTransEntry"/></if>
                 <if condition="acctgTransEntry.reconcileStatusId != ateReconcileStatusId">
                     <set field="acctgTransEntry.reconcileStatusId" from="ateReconcileStatusId"/>
                     <entity-update value-field="acctgTransEntry"/>

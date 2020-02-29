@@ -841,6 +841,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PMS" name="stmtReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="fromPaymentMethodId" field="paymentMethodId"/>
     </view-entity>
 
     <view-entity entity-name="PaymentMethodTransAndBankAccountCheckAndPayment" package="mantle.account.method">

@@ -764,6 +764,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PMS" name="stmtReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="fromPaymentMethodId" field="paymentMethodId"/>
     </view-entity>
 
     <view-entity entity-name="PaymentMethodStmtAndDetailAndPaymentSummary" package="mantle.account.method">
@@ -789,6 +790,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PMS" name="stmtReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
+        <alias entity-alias="PMT" name="fromPaymentMethodId" field="paymentMethodId"/>
         <alias entity-alias="PMT" name="amount" function="sum"/>
     </view-entity>
 
@@ -800,7 +802,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="BKCK" entity-name="mantle.account.method.BankAccountCheck" join-from-alias="PMT" join-optional="true">
             <key-map field-name="paymentId"/>
         </member-entity>
-        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="PMT">
+        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="PMT" join-optional="true">
             <key-map field-name="forInvoiceId" related="invoiceId"/>
         </member-entity>
         <member-entity entity-alias="PMSD" entity-name="mantle.account.method.PaymentMethodStmtDetail" join-from-alias="PMT" join-optional="true">

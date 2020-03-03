@@ -584,6 +584,17 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="BAC"/>
         <alias-all entity-alias="PMT"><exclude field="paymentMethodId"/></alias-all>
         <alias entity-alias="PMT" name="pmtPaymentMethodId" field="paymentMethodId"/>
+        <relationship type="one" related="mantle.account.payment.Payment" short-alias="payment"/>
+    </view-entity>
+    <view-entity entity-name="PaymentAndBankAccountCheck" package="mantle.account.method">
+        <member-entity entity-alias="PMT" entity-name="mantle.account.payment.Payment"/>
+        <member-entity entity-alias="BAC" entity-name="mantle.account.method.BankAccountCheck" join-from-alias="PMT" join-optional="true">
+            <key-map field-name="paymentId"/>
+        </member-entity>
+        <alias-all entity-alias="PMT"/>
+        <alias-all entity-alias="BAC"><exclude field="paymentMethodId"/></alias-all>
+        <alias entity-alias="PMT" name="pmtPaymentMethodId" field="paymentMethodId"/>
+        <relationship type="one" related="mantle.account.payment.Payment" short-alias="payment"/>
     </view-entity>
 
     <!-- ========================================================= -->

@@ -64,38 +64,58 @@ along with this software (see the LICENSE.md file). If not, see
                         </else>
                     </if>
 
-                    <!-- if we have checkNumber or refNumber match against Payment.paymentRefNum -->
+                    <!-- if we have checkNumber match against BankAccountCheckAndPayment.checkNumber -->
                     <if condition="bankAccountTrans.checkNumber || bankAccountTrans.refNumber">
-                        <!-- TODO: what if we match on this and amounts differ... handle differently? -->
-                        <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">
-                            <econdition-object field="findPmt"/>
-                            <econdition field-name="paymentRefNum" from="bankAccountTrans.checkNumber ?: bankAccountTrans.refNumber"/>
-                        </entity-find>
-                        <set field="payment" from="paymentList ? paymentList[0] : null"/>
-                    </if>
-
-                    <!-- otherwise match against transAmount, postedDate (within X number of days after Payment.effectiveDate?) -->
-                    <if condition="!payment">
-                        <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">
+                        <entity-find entity-name="mantle.account.method.BankAccountCheckAndPayment" list="paymentList">
                             <econdition-object field="findPmt"/>
                             <econdition field-name="amount" from="bankAccountTrans.transAmount.abs()"/>
                             <econdition field-name="amountUomId" from="paymentMethod.currencyUomId" ignore-if-empty="true"/>
+                            <econdition field-name="checkNumber" from="bankAccountTrans.checkNumber ?: bankAccountTrans.refNumber"/>
+                            <econdition field-name="statusId" operator="in" value="PmntAuthorized,PmntDelivered,PmntConfirmed"/>
+                        </entity-find>
+                        <set field="payment" from="paymentList ? paymentList[0].payment : null"/>
+                    </if>
+
+                    <!-- if we have checkNumber or refNumber match against Payment.paymentRefNum -->
+<!--                    <if condition="!payment &amp;&amp; (bankAccountTrans.checkNumber || bankAccountTrans.refNumber)">-->
+<!--                        <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">-->
+<!--                            <econdition-object field="findPmt"/>-->
+<!--                            <econdition field-name="amount" from="bankAccountTrans.transAmount.abs()"/>-->
+<!--                            <econdition field-name="amountUomId" from="paymentMethod.currencyUomId" ignore-if-empty="true"/>-->
+<!--                            <econdition field-name="paymentRefNum" from="bankAccountTrans.checkNumber ?: bankAccountTrans.refNumber"/>-->
+<!--                            <econdition field-name="statusId" operator="in" value="PmntAuthorized,PmntDelivered,PmntConfirmed"/>-->
+<!--                        </entity-find>-->
+<!--                        <set field="payment" from="paymentList ? paymentList[0] : null"/>-->
+<!--                    </if>-->
+
+                    <!-- otherwise match against transAmount, postedDate (within X number of days after Payment.effectiveDate?) -->
+                    <if condition="!payment">
+                        <entity-find entity-name="mantle.account.method.PaymentAndBankAccountCheck" list="paymentList">
+                            <econdition-object field="findPmt"/>
+                            <econdition field-name="amount" from="bankAccountTrans.transAmount.abs()"/>
+                            <econdition field-name="amountUomId" from="paymentMethod.currencyUomId" ignore-if-empty="true"/>
+                            <!-- Note that bankAccountTrans may have a check or reference number, but those could be bank
+                                 generated, so just ensure that this doesn't match against something that really does have a
+                                 checkNumber.  More or less this is looking to match deposits -->
+                            <econdition field-name="checkNumber" operator="is-null"/>
                             <econdition field-name="effectiveDate" operator="less-equals" from="bankAccountTrans.postedDate"/>
                             <econdition field-name="effectiveDate" operator="greater-equals" from="lookBackTs"/>
+                            <econdition field-name="statusId" operator="in" value="PmntAuthorized,PmntDelivered,PmntConfirmed"/>
                         </entity-find>
-                        <set field="payment" from="paymentList ? paymentList[0] : null"/>
+                        <set field="payment" from="paymentList ? paymentList[0].payment : null"/>
                     </if>
                     <!-- nothing found? match against originalCurrencyAmount, originalCurrencyUomId -->
-                    <if condition="!payment &amp;&amp; paymentMethod.currencyUomId">
-                        <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">
-                            <econdition-object field="findPmt"/>
-                            <econdition field-name="originalCurrencyAmount" from="bankAccountTrans.transAmount.abs()"/>
-                            <econdition field-name="originalCurrencyUomId" from="paymentMethod.currencyUomId"/>
-                            <econdition field-name="effectiveDate" operator="less-equals" from="bankAccountTrans.postedDate"/>
-                            <econdition field-name="effectiveDate" operator="greater-equals" from="lookBackTs"/>
-                        </entity-find>
-                        <set field="payment" from="paymentList ? paymentList[0] : null"/>
-                    </if>
+<!--                    <if condition="!payment &amp;&amp; paymentMethod.currencyUomId">-->
+<!--                        <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">-->
+<!--                            <econdition-object field="findPmt"/>-->
+<!--                            <econdition field-name="originalCurrencyAmount" from="bankAccountTrans.transAmount.abs()"/>-->
+<!--                            <econdition field-name="originalCurrencyUomId" from="paymentMethod.currencyUomId"/>-->
+<!--                            <econdition field-name="effectiveDate" operator="less-equals" from="bankAccountTrans.postedDate"/>-->
+<!--                            <econdition field-name="effectiveDate" operator="greater-equals" from="lookBackTs"/>-->
+<!--                            <econdition field-name="statusId" operator="in" value="PmntAuthorized,PmntDelivered,PmntConfirmed"/>-->
+<!--                        </entity-find>-->
+<!--                        <set field="payment" from="paymentList ? paymentList[0] : null"/>-->
+<!--                    </if>-->
                 </if>
                 <if condition="!bankAccountTrans.acctgTransId &amp;&amp; paymentMethod.glAccountId">
                     <!-- match PaymentMethod.glAccountId against AcctgTransEntry.glAccountId -->

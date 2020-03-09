@@ -695,62 +695,569 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="glAccount" type="EntityValue"/>
         </out-parameters>
         <actions>
-            <service-call name="mantle.ledger.LedgerServices.expand#ParentOrganizationList" out-map="context"
-                    in-map="[organizationPartyId:organizationPartyId]"/>
+            <script>
+                def logIdToFind = "asdf10"
 
-            <!-- look by productId first (if passed in) -->
+//                ec.logger.log("warn", (
+//                        "\n---------" + logIdToFind + "-1"
+//                            + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                            + "\norganizationPartyId=" + organizationPartyId
+//                            + "\notherPartyId=" + otherPartyId
+//                            + "\nitemTypeEnumId=" + itemTypeEnumId
+//                            + "\nproductId=" + productId
+//                            + "\ndirection=" + direction
+//                            + "\nglAccountId=" + glAccountId
+//                            + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                            + "\nglAccount=" + glAccount
+//                            + "\ncontext = " + context
+//                            + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                            + "\nproductItemTypes = " + productItemTypes
+//                            + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                            + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                            + "\nproductGlAccountList = " + productGlAccountList
+//                            + "\nproduct = " + product
+//                            + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                            + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                        + "\n-------------------"
+//                ), null)
+            </script>
+
+            <!-- This service call below does this:
+                 List orgPartyIdList = mantle.ledger.LedgerServices.expand#ParentOrganizationList(organizationPartyId)
+                 and then adds orgPartyIdList to the moqui context variable.
+                 For Sun Pac, this list contains only [BF].
+                 TODO: why get this? Why not use organizationPartyId instead?
+             -->
+            <service-call name="mantle.ledger.LedgerServices.expand#ParentOrganizationList"
+                          out-map="context"
+                          in-map="[organizationPartyId:organizationPartyId]"/>
+
+            <script>
+//                ec.logger.log("warn", (
+//                        "\n---------" + logIdToFind + "-2"
+//                                + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                + "\norganizationPartyId=" + organizationPartyId
+//                                + "\notherPartyId=" + otherPartyId
+//                                + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                + "\nproductId=" + productId
+//                                + "\ndirection=" + direction
+//                                + "\nglAccountId=" + glAccountId
+//                                + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                + "\nglAccount=" + glAccount
+//                                + "\ncontext = " + context
+//                                + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                + "\nproductItemTypes = " + productItemTypes
+//                                + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                + "\nproductGlAccountList = " + productGlAccountList
+//                                + "\nproduct = " + product
+//                                + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                + "\n-------------------"
+//                ), null)
+            </script>
+
+            <!-- look by productId first (if passed in)
+                 List productItemTypeEgms = SELECT * FROM EnumGroupMember WHERE enumGroupEnumId = 'EngItemsProduct'
+                 and then adds productItemTypeEgms to the moqui context variable.
+                 TODO: why get this?
+            -->
             <entity-find entity-name="moqui.basic.EnumGroupMember" list="productItemTypeEgms" cache="true">
-                <econdition field-name="enumGroupEnumId" value="EngItemsProduct"/></entity-find>
+                <econdition field-name="enumGroupEnumId" value="EngItemsProduct"/>
+            </entity-find>
+
+            <script>
+//                ec.logger.log("warn", (
+//                        "\n---------" + logIdToFind + "-3"
+//                                + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                + "\norganizationPartyId=" + organizationPartyId
+//                                + "\notherPartyId=" + otherPartyId
+//                                + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                + "\nproductId=" + productId
+//                                + "\ndirection=" + direction
+//                                + "\nglAccountId=" + glAccountId
+//                                + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                + "\nglAccount=" + glAccount
+//                                + "\ncontext = " + context
+//                                + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                + "\nproductItemTypes = " + productItemTypes
+//                                + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                + "\nproductGlAccountList = " + productGlAccountList
+//                                + "\nproduct = " + product
+//                                + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                + "\n-------------------"
+//                ), null)
+            </script>
+
+            <!-- Get a list of all enumId's that live inside all the objects in the productItemTypeEgms list
+                 List productItemTypes = productItemTypeEgms*.enumId
+                 TODO: why get this?
+            -->
             <set field="productItemTypes" from="productItemTypeEgms*.enumId"/>
+
+            <script>
+//                ec.logger.log("warn", (
+//                        "\n---------" + logIdToFind + "-4"
+//                                + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                + "\norganizationPartyId=" + organizationPartyId
+//                                + "\notherPartyId=" + otherPartyId
+//                                + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                + "\nproductId=" + productId
+//                                + "\ndirection=" + direction
+//                                + "\nglAccountId=" + glAccountId
+//                                + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                + "\nglAccount=" + glAccount
+//                                + "\ncontext = " + context
+//                                + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                + "\nproductItemTypes = " + productItemTypes
+//                                + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                + "\nproductGlAccountList = " + productGlAccountList
+//                                + "\nproduct = " + product
+//                                + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                + "\n-------------------"
+//                ), null)
+            </script>
+
+            <!-- If the productId was passed in as non-null and non-empty and the passed in itemTypeEnumId is one of
+                 the enums in the productItemTypes list.
+                 TODO: why does this matter?
+            -->
             <if condition="productId &amp;&amp; itemTypeEnumId in productItemTypes">
+
+                <!-- TODO: find out more about why we need to look this up
+                     List productCategoryMemberList = SELECT * FROM ProductCategoryMember
+                     WHERE (date.now is between the from and thru dates in the row of this table AND ?? ... TODO: find out more about this)
+                     AND productId='" + context.productId + "'
+                -->
                 <entity-find entity-name="mantle.product.category.ProductCategoryMember" list="productCategoryMemberList">
-                    <date-filter/><econdition field-name="productId"/></entity-find>
+                    <date-filter/>
+                    <econdition field-name="productId"/>
+                </entity-find>
+
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-5"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
+
+                <!-- TODO: why do we have to look up the information in 4+ different tables? Isn't there a better organization / structure we could have instead? -->
+
+                <!-- Look up info in this list to find the glAccountId.
+                     List productCategoryGlAccountList = SELECT * FROM ProductCategoryGlAccount
+                     WHERE productCategoryId IN (" + productCategoryMemberList.productCategoryId + ")
+                     AND organizationPartyId IN (" + orgPartyIdList + ")
+                -->
                 <entity-find entity-name="mantle.ledger.config.ProductCategoryGlAccount" list="productCategoryGlAccountList">
                     <econdition field-name="productCategoryId" operator="in" from="productCategoryMemberList.productCategoryId"/>
                     <econdition field-name="organizationPartyId" operator="in" from="orgPartyIdList"/>
                 </entity-find>
+
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-6"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
+
+                <!-- Set the output parameter:
+                     if productCategoryGlAccountList is non-null and non-empty then
+                        if direction is O then set glAccountId to productCategoryGlAccountList[0].glAccountId
+                        else then set glAccountId to productCategoryGlAccountList[0].contraGlAccountId
+                     else, then set glAccountId to null so it can be set by the other lookups below.
+                     TODO: why do we pick the first item in this productCategoryGlAccountList? Does the list need an order by?
+                -->
                 <set field="glAccountId" from="productCategoryGlAccountList ?
                     (direction == 'O' ? productCategoryGlAccountList[0].glAccountId : productCategoryGlAccountList[0].contraGlAccountId) : null"/>
 
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-7"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
+
+                <!-- If glAccountId is null / empty, then: -->
                 <if condition="!glAccountId">
+
+                    <!-- Look up data in this table for the next calculations below.
+                         productGlAccountList = SELECT * FROM mantle.ledger.config.ProductGlAccount
+                         WHERE productId = '" + productId + "'
+                         AND organizationPartyId IN (" + orgPartyIdList + ")
+                    -->
                     <entity-find entity-name="mantle.ledger.config.ProductGlAccount" list="productGlAccountList">
                         <econdition field-name="productId"/>
                         <econdition field-name="organizationPartyId" operator="in" from="orgPartyIdList"/>
                     </entity-find>
+
+                    <script>
+//                        ec.logger.log("warn", (
+//                                "\n---------" + logIdToFind + "-8"
+//                                        + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                        + "\norganizationPartyId=" + organizationPartyId
+//                                        + "\notherPartyId=" + otherPartyId
+//                                        + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                        + "\nproductId=" + productId
+//                                        + "\ndirection=" + direction
+//                                        + "\nglAccountId=" + glAccountId
+//                                        + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                        + "\nglAccount=" + glAccount
+//                                        + "\ncontext = " + context
+//                                        + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                        + "\nproductItemTypes = " + productItemTypes
+//                                        + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                        + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                        + "\nproductGlAccountList = " + productGlAccountList
+//                                        + "\nproduct = " + product
+//                                        + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                        + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                        + "\n-------------------"
+//                        ), null)
+                    </script>
+
+                    <!-- If productGlAccountList is non-empty and non-null, then
+                            if direction is O then set glAccountId to productGlAccountList[0].glAccountId
+                            else then set glAccountId to productGlAccountList[0].contraGlAccountId
+                         else just set glAccountId to null so it can be set by one of the other lookups below.
+                         TODO: why do we pick the first item in this productGlAccountList? Does the list need an order by?
+                    -->
                     <set field="glAccountId" from="productGlAccountList ?
                         (direction == 'O' ? productGlAccountList[0].glAccountId : productGlAccountList[0].contraGlAccountId) : null"/>
+
+                    <script>
+//                        ec.logger.log("warn", (
+//                                "\n---------" + logIdToFind + "-9"
+//                                        + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                        + "\norganizationPartyId=" + organizationPartyId
+//                                        + "\notherPartyId=" + otherPartyId
+//                                        + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                        + "\nproductId=" + productId
+//                                        + "\ndirection=" + direction
+//                                        + "\nglAccountId=" + glAccountId
+//                                        + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                        + "\nglAccount=" + glAccount
+//                                        + "\ncontext = " + context
+//                                        + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                        + "\nproductItemTypes = " + productItemTypes
+//                                        + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                        + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                        + "\nproductGlAccountList = " + productGlAccountList
+//                                        + "\nproduct = " + product
+//                                        + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                        + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                        + "\n-------------------"
+//                        ), null)
+                    </script>
+
                 </if>
 
+                <!-- If glAccountId is null / empty, then: -->
                 <if condition="!glAccountId">
+
+                    <!-- product = SELECT TOP 1 * FROM mantle.product.Product WHERE productId = '" + productId + "' -->
                     <entity-find-one entity-name="mantle.product.Product" value-field="product">
-                        <field-map field-name="productId"/></entity-find-one>
+                        <field-map field-name="productId"/>
+                    </entity-find-one>
+
+                    <script>
+//                        ec.logger.log("warn", (
+//                                "\n---------" + logIdToFind + "-10"
+//                                        + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                        + "\norganizationPartyId=" + organizationPartyId
+//                                        + "\notherPartyId=" + otherPartyId
+//                                        + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                        + "\nproductId=" + productId
+//                                        + "\ndirection=" + direction
+//                                        + "\nglAccountId=" + glAccountId
+//                                        + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                        + "\nglAccount=" + glAccount
+//                                        + "\ncontext = " + context
+//                                        + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                        + "\nproductItemTypes = " + productItemTypes
+//                                        + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                        + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                        + "\nproductGlAccountList = " + productGlAccountList
+//                                        + "\nproduct = " + product
+//                                        + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                        + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                        + "\n-------------------"
+//                        ), null)
+                    </script>
+
+                    <!-- If the product info exists and its assetTypeEnumId is non-null and non-empty: -->
                     <if condition="product?.assetTypeEnumId">
+
+                        <!-- The code below is confusing and non-intuitive, but what it is actually doing is this:
+                             Map assetTypeGlAccount = null
+                             assetTypeGlAccount = mantle.ledger.AssetAutoPostServices.get#AssetTypeGlAccount(
+                                organizationPartyId, product.assetTypeEnumId, product.assetClassEnumId)
+                        -->
                         <set field="assetTypeGlAccount" from="null"/>
-                        <service-call name="mantle.ledger.AssetAutoPostServices.get#AssetTypeGlAccount" out-map="context"
-                                in-map="[organizationPartyId:organizationPartyId,
-                                    assetTypeEnumId:product.assetTypeEnumId, classEnumId:product.assetClassEnumId]"/>
+                        <service-call name="mantle.ledger.AssetAutoPostServices.get#AssetTypeGlAccount"
+                                      out-map="context"
+                                      in-map="[ organizationPartyId : organizationPartyId,
+                                                assetTypeEnumId : product.assetTypeEnumId,
+                                                classEnumId : product.assetClassEnumId ]"/>
+
+                        <script>
+//                            ec.logger.log("warn", (
+//                                "\n---------" + logIdToFind + "-11"
+//                                + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                + "\norganizationPartyId=" + organizationPartyId
+//                                + "\notherPartyId=" + otherPartyId
+//                                + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                + "\nproductId=" + productId
+//                                + "\ndirection=" + direction
+//                                + "\nglAccountId=" + glAccountId
+//                                + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                + "\nglAccount=" + glAccount
+//                                + "\ncontext = " + context
+//                                + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                + "\nproductItemTypes = " + productItemTypes
+//                                + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                + "\nproductGlAccountList = " + productGlAccountList
+//                                + "\nproduct = " + product
+//                                + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                + "\n-------------------"
+//                            ), null)
+                        </script>
+
+                        <!-- If the direction = O, then set glAccountId to assetTypeGlAccount?.profitGlAccountId
+                             Else set glAccountId to assetTypeGlAccount?.receiptGlAccountId
+                        -->
                         <set field="glAccountId" from="direction == 'O' ? assetTypeGlAccount?.profitGlAccountId : assetTypeGlAccount?.receiptGlAccountId"/>
+
+                        <script>
+//                            ec.logger.log("warn", (
+//                                    "\n---------" + logIdToFind + "-12"
+//                                            + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                            + "\norganizationPartyId=" + organizationPartyId
+//                                            + "\notherPartyId=" + otherPartyId
+//                                            + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                            + "\nproductId=" + productId
+//                                            + "\ndirection=" + direction
+//                                            + "\nglAccountId=" + glAccountId
+//                                            + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                            + "\nglAccount=" + glAccount
+//                                            + "\ncontext = " + context
+//                                            + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                            + "\nproductItemTypes = " + productItemTypes
+//                                            + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                            + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                            + "\nproductGlAccountList = " + productGlAccountList
+//                                            + "\nproduct = " + product
+//                                            + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                            + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                            + "\n-------------------"
+//                            ), null)
+                        </script>
+
                     </if>
                 </if>
             </if>
 
-            <!-- nothing? look by itemTypeEnumId -->
+            <!-- If glAccountId is null / empty, then try to look up the data by itemTypeEnumId -->
             <if condition="!glAccountId">
+
+                <!-- Get results that are in this orgPartyIdList, with this itemTypeEnumId, and with this direction or E:
+                     List itemTypeGlAccountList = SELECT * FROM ItemTypeGlAccount
+                     WHERE organizationPartyId IN (" + orgPartyIdList + ")
+                     AND itemTypeEnumId = '" + itemTypeEnumId + "'
+                     AND (direction = '" + context.direction + "' OR direction='E')
+                     TODO: why lookup by direction='E'? What does E mean?
+                -->
                 <entity-find entity-name="mantle.ledger.config.ItemTypeGlAccount" list="itemTypeGlAccountList" cache="true">
                     <econdition field-name="organizationPartyId" operator="in" from="orgPartyIdList"/>
                     <econdition field-name="itemTypeEnumId"/>
-                    <econditions combine="or"><econdition field-name="direction"/><econdition field-name="direction" value="E"/></econditions>
+                    <econditions combine="or">
+                        <econdition field-name="direction"/>
+                        <econdition field-name="direction" value="E"/>
+                    </econditions>
                 </entity-find>
+
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-13"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
+
+                <!-- glAccountId = itemTypeGlAccountList.first?.glAccountId
+                     TODO: why grab the first one? Do we need to make sure to order by anything in the lookup above?
+                -->
                 <set field="glAccountId" from="itemTypeGlAccountList.first?.glAccountId"/>
+
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-14"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
             </if>
 
+            <!-- If glAccountId is non-null and non-empty. Meaning, it was found in one of the lookups above: -->
             <if condition="glAccountId">
+
+                <!-- Overwrite the glAccount variable with data from this lookup. This lookup attempts to get the
+                     glAccountTypeEnumId for the account id, since that id is also an output parameter of this service.
+                     glAccount = SELECT TOP 1 * FROM GlAccount WHERE glAccountId = '" + glAccountId + "'
+                -->
                 <entity-find-one entity-name="mantle.ledger.account.GlAccount" value-field="glAccount" cache="true">
-                    <field-map field-name="glAccountId"/></entity-find-one>
+                    <field-map field-name="glAccountId"/>
+                </entity-find-one>
+
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-15"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
+
+                <!-- Set this output parameter if there's data for this:
+                     glAccountTypeEnumId = glAccount?.glAccountTypeEnumId
+                -->
                 <set field="glAccountTypeEnumId" from="glAccount?.glAccountTypeEnumId"/>
+
+                <script>
+//                    ec.logger.log("warn", (
+//                            "\n---------" + logIdToFind + "-16"
+//                                    + "\nacctgTransTypeEnumId=" + acctgTransTypeEnumId
+//                                    + "\norganizationPartyId=" + organizationPartyId
+//                                    + "\notherPartyId=" + otherPartyId
+//                                    + "\nitemTypeEnumId=" + itemTypeEnumId
+//                                    + "\nproductId=" + productId
+//                                    + "\ndirection=" + direction
+//                                    + "\nglAccountId=" + glAccountId
+//                                    + "\nglAccountTypeEnumId=" + glAccountTypeEnumId
+//                                    + "\nglAccount=" + glAccount
+//                                    + "\ncontext = " + context
+//                                    + "\nproductItemTypeEgms = " + productItemTypeEgms
+//                                    + "\nproductItemTypes = " + productItemTypes
+//                                    + "\nproductCategoryMemberList = " + productCategoryMemberList
+//                                    + "\nproductCategoryGlAccountList = " + productCategoryGlAccountList
+//                                    + "\nproductGlAccountList = " + productGlAccountList
+//                                    + "\nproduct = " + product
+//                                    + "\nassetTypeGlAccount = " + assetTypeGlAccount
+//                                    + "\nitemTypeGlAccountList = " + itemTypeGlAccountList
+//                                    + "\n-------------------"
+//                    ), null)
+                </script>
             </if>
 
-            <!-- <log level="warn" message="InvoiceItemGlAccount itemTypeEnumId ${itemTypeEnumId} productId ${productId} direction ${direction} glAccountId ${glAccountId}"/> -->
         </actions>
     </service>
 

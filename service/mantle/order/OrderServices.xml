@@ -245,12 +245,20 @@ General Order Placement and eCommerce Usage
             <parameter name="quantity" type="BigDecimal" default="1"/>
             <parameter name="requireInventory" type="Boolean">
                 <description>If true make sure inventory is available, if false don't check. If null defer to ProductStore setting.</description></parameter>
+            <parameter name="assetId"/>
         </in-parameters>
         <out-parameters>
             <parameter name="orderItemSeqId" required="true"/>
         </out-parameters>
         <actions>
+
+            <!-- If the fromAssetId was null or empty, try setting it to the assetId parameter instead. -->
+            <if condition="!fromAssetId">
+                <set field="fromAssetId" from="assetId"/>
+            </if>
+
             <set field="isProductItem" from="false"/>
+
             <if condition="productId">
                 <entity-find-one entity-name="mantle.product.Product" value-field="product" cache="true"/>
                 <if condition="product == null"><return error="true" message="Product ${productId} not found"/></if>

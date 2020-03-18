@@ -1859,24 +1859,40 @@ along with this software (see the LICENSE.md file). If not, see
         <out-parameters><parameter name="invoiceItemDetailId"/></out-parameters>
         <actions>
             <if condition="!createNoQuantity &amp;&amp; !quantity"><return/></if>
-            <if condition="!assetId &amp;&amp; !facilityId &amp;&amp; !partyId">
+            <if condition="!assetId &amp;&amp; !facilityId &amp;&amp; !partyId &amp;&amp; !workTypeEnumId">
                 <return error="true" message="Must specify one of facility, asset, or party"/></if>
             <if condition="assetId &amp;&amp; facilityId"><return error="true" message="Both asset and facility specified, choose only one"/></if>
             <if condition="assetId &amp;&amp; partyId"><return error="true" message="Both asset and party specified, choose only one"/></if>
+            <if condition="assetId &amp;&amp; workTypeEnumId"><return error="true" message="Both asset and work type specified, choose only one"/></if>
             <if condition="facilityId &amp;&amp; partyId"><return error="true" message="Both facility and party specified, choose only one"/></if>
+            <!-- Allow Facility and WorkType together -->
+            <if condition="partyId &amp;&amp; workTypeEnumId"><return error="true" message="Both party and work type specified, choose only one"/></if>
 
             <if condition="assetId"><then>
                 <entity-find entity-name="mantle.account.invoice.InvoiceItemDetail" list="iidList">
                     <econdition field-name="invoiceId"/><econdition field-name="invoiceItemSeqId"/><econdition field-name="assetId"/></entity-find>
                 <if condition="iidList"><return message="Detail already exists for item ${invoiceItemSeqId} and asset ${assetId}"/></if>
             </then><else-if condition="facilityId">
-                <entity-find entity-name="mantle.account.invoice.InvoiceItemDetail" list="iidList">
-                    <econdition field-name="invoiceId"/><econdition field-name="invoiceItemSeqId"/><econdition field-name="facilityId"/></entity-find>
-                <if condition="iidList"><return message="Detail already exists for item ${invoiceItemSeqId} and facility ${facilityId}"/></if>
+                <if condition="workTypeEnumId"><then>
+                    <entity-find entity-name="mantle.account.invoice.InvoiceItemDetail" list="iidList">
+                        <econdition field-name="invoiceId"/><econdition field-name="invoiceItemSeqId"/>
+                        <econdition field-name="facilityId"/><econdition field-name="workTypeEnumId"/></entity-find>
+                    <if condition="iidList"><return message="Detail already exists for item ${invoiceItemSeqId} with facility ${facilityId} and work type ${workTypeEnumId}"/></if>
+                </then><else>
+                    <entity-find entity-name="mantle.account.invoice.InvoiceItemDetail" list="iidList">
+                        <econdition field-name="invoiceId"/><econdition field-name="invoiceItemSeqId"/><econdition field-name="facilityId"/></entity-find>
+                    <if condition="iidList"><return message="Detail already exists for item ${invoiceItemSeqId} and facility ${facilityId}"/></if>
+                </else></if>
             </else-if><else-if condition="partyId">
                 <entity-find entity-name="mantle.account.invoice.InvoiceItemDetail" list="iidList">
                     <econdition field-name="invoiceId"/><econdition field-name="invoiceItemSeqId"/><econdition field-name="partyId"/></entity-find>
                 <if condition="iidList"><return message="Detail already exists for item ${invoiceItemSeqId} and party ${partyId}"/></if>
+            </else-if><else-if condition="workTypeEnumId">
+                <!-- Disallow work type by itself until a use case exists for it. -->
+                <return error="true" message="Work Type is only allowed when a facility is also specified."/>
+<!--                <entity-find entity-name="mantle.account.invoice.InvoiceItemDetail" list="iidList">-->
+<!--                    <econdition field-name="invoiceId"/><econdition field-name="invoiceItemSeqId"/><econdition field-name="workTypeEnumId"/></entity-find>-->
+<!--                <if condition="iidList"><return message="Detail already exists for item ${invoiceItemSeqId} and work type ${workTypeEnumId}"/></if>-->
             </else-if></if>
             <service-call name="create#mantle.account.invoice.InvoiceItemDetail" in-map="context" out-map="context"/>
         </actions>

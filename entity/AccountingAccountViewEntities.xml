@@ -123,6 +123,8 @@ along with this software (see the LICENSE.md file). If not, see
         </member-entity>
         <alias entity-alias="IID" name="assetId"/>
         <alias entity-alias="IID" name="facilityId"/>
+        <alias entity-alias="IID" name="workTypeEnumId"/>
+        <alias entity-alias="IID" name="partyId"/>
         <alias entity-alias="ATX" name="organizationPartyId"/>
         <alias entity-alias="ATX" name="transactionDate"/>
         <alias entity-alias="ATX" name="isPosted"/>

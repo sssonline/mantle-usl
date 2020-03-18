@@ -1064,7 +1064,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <entity-find-one entity-name="moqui.basic.Enumeration" value-field="valEnum">
                     <field-map field-name="enumId" from="settingValue"/></entity-find-one>
                 <if condition="valEnum == null || valEnum.enumTypeId != partySettingType.enumTypeId">
-                    <return error="true" message="Selected value ${valEnum.description?:''} is not valid"/></if>
+                    <return error="true" message="Selected value ${(valEnum?.description)?:''} is not valid"/></if>
             </then><else-if condition="partySettingType.validRegexp">
                 <if condition="!settingValue.matches(partySettingType.validRegexp)">
                     <return error="true" message="Value ${settingValue} is not valid"/></if>

@@ -1083,7 +1083,7 @@ General Order Placement and eCommerce Usage
             </then><else>
                 <set field="subject" value="Order ${orderId} needs approval"/>
                 <set field="messageUrl" from="org.moqui.impl.context.WebFacadeImpl.getWebappRootUrl(sri?.webappName ?: 'webroot', null, true, false, ec)"/>
-                <set field="messageUrl" value="${messageUrl}/apps/sunpac/Purchasing/PurchaseOrder/OrderDetail?orderId=100000"/>
+                <set field="messageUrl" value="${messageUrl}/apps/sunpac/Purchasing/PurchaseOrder/OrderDetail?orderId=${orderId}"/>
                 <!--<set field="messageUrl" value="&lt;a href='${url}/apps/sunpac/Purchasing/PurchaseOrder/OrderDetail?orderId=100000'&gt;test&lt;/a&gt;"/>-->
                 <log level="warn" message="url is ${messageUrl}"/>
                 <service-call name="mantle.party.CommunicationServices.create#Message" in-map="[fromPartyId:messageFrom, communicationEventTypeId:'Message',

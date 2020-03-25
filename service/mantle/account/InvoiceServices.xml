@@ -1796,9 +1796,13 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- get related invoices -->
             <set field="paymentIdSet" from="new TreeSet()"/>
+            <set field="paymentMethodFileIdSet" from="new TreeSet()"/>
             <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">
                 <econdition field-name="forInvoiceId" from="invoiceId"/></entity-find>
-            <if condition="paymentList"><script>paymentIdSet.addAll(paymentList*.paymentId)</script></if>
+            <if condition="paymentList">
+                <script>paymentIdSet.addAll(paymentList*.paymentId)</script>
+                <script>paymentMethodFileIdSet.addAll(paymentList*.paymentMethodFileId)</script>
+            </if>
 
             <entity-find entity-name="mantle.account.payment.PaymentApplication" list="paymentApplicationList">
                 <econdition field-name="invoiceId"/></entity-find>
@@ -1811,6 +1815,15 @@ along with this software (see the LICENSE.md file). If not, see
                 <entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment"/>
                 <set field="targetStatusId" from="payment.statusId in ['PmntProposed', 'PmntPromised'] ? 'PmntCancelled' : 'PmntVoid'"/>
                 <service-call name="update#mantle.account.payment.Payment" in-map="[paymentId:paymentId, statusId:targetStatusId]"/>
+            </iterate>
+
+            <!-- cancel payment method files -->
+            <iterate list="paymentMethodFileIdSet" entry="paymentMethodFileId">
+                <if condition="paymentMethodFileId">
+                    <service-call name="update#mantle.account.method.PaymentMethodFile"
+                                  in-map="[paymentMethodFileId: paymentMethodFileId,
+                                           isCancelled:         'Y']"/>
+                </if>
             </iterate>
         </actions>
     </service>

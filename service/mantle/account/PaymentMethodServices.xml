@@ -470,6 +470,9 @@ along with this software (see the LICENSE.md file). If not, see
             </then><else-if condition="!(accountNumber ==~ /\d+/)">
                 <return error="true" message="Invalid account number: ${accountNumber}"/>
             </else-if></if>
+            <if condition="nachaPrenoteValidAfterDays &amp;&amp; nachaPrenoteValidAfterDays &lt; 0">
+                <return error="true" message="Prenote Valid After Days must be at least 0"/>
+            </if>
 
             <if condition="!description"><set field="description" value="${bankName ?: 'Bank Account'} ${accountNumber ?: ''}"/></if>
             <service-call name="create#mantle.account.method.PaymentMethod" in-map="context" out-map="context"/>
@@ -507,6 +510,9 @@ along with this software (see the LICENSE.md file). If not, see
                     <return error="true" message="Invalid routing number: ${routingNumber}"/>
                 </if>
             </else></if>
+            <if condition="nachaPrenoteValidAfterDays &amp;&amp; nachaPrenoteValidAfterDays &lt; 0">
+                <return error="true" message="Prenote Valid After Days must be at least 0"/>
+            </if>
 
             <entity-find-one entity-name="mantle.account.method.BankAccount" value-field="origBankAccount"/>
             <set field="newBankAccount" from="origBankAccount.cloneValue()"/>
@@ -566,10 +572,15 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="nachaDiscrData"><text-length max="20"/></parameter>
             <parameter name="nachaCompanyId"><text-length max="10"/></parameter>
             <parameter name="nachaEntryDescription"><text-length max="10"/></parameter>
+            <parameter name="nachaPrenoteRequired"/>
+            <parameter name="nachaPrenoteValidAfterDays" type="Integer"/>
             <parameter name="posPayBankNumber"/>
             <parameter name="posPayFormatEnumId"/>
         </in-parameters>
         <actions>
+            <if condition="nachaPrenoteValidAfterDays &amp;&amp; nachaPrenoteValidAfterDays &lt; 0">
+                <return error="true" message="Prenote Valid After Days must be at least 0"/>
+            </if>
             <service-call name="update#mantle.account.method.PaymentMethod" in-map="context"/>
             <service-call name="update#mantle.account.method.BankAccount" in-map="context"/>
         </actions>
@@ -670,6 +681,7 @@ along with this software (see the LICENSE.md file). If not, see
             <auto-parameters entity-name="mantle.account.method.PaymentMethodFile" include="nonpk"/>
             <parameter name="fileText" allow-html="any"/>
             <parameter name="paymentList" type="List"/>
+            <parameter name="prenoteList" type="List"/>
             <parameter name="outgoingStatusId" default-value="PmntDelivered"/>
             <parameter name="incomingStatusId" default-value="PmntDelivered"><description>Could also be PmntAuthorized</description></parameter>
         </in-parameters>
@@ -683,7 +695,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <set field="outgoing" from="payment.fromPartyId == paymentMethod.ownerPartyId"/>
                 <service-call name="update#mantle.account.payment.Payment"
                         in-map="[paymentId:payment.paymentId, paymentMethodFileId:paymentMethodFileId,
-                            statusId:(outgoing ? outgoingStatusId : incomingStatusId)]"/>
+                                 statusId:(outgoing ? outgoingStatusId : incomingStatusId)]"/>
             </iterate>
 
             <!-- save full file text, etc to PaymentMethodFile -->

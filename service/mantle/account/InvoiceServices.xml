@@ -1796,12 +1796,12 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- get related invoices -->
             <set field="paymentIdSet" from="new TreeSet()"/>
-            <set field="paymentMethodFileIdSet" from="new TreeSet()"/>
+            <set field="paymentMethodFileIdList" from="[]"/> <!-- Nulls are possible; can't use TreeSet -->
             <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">
                 <econdition field-name="forInvoiceId" from="invoiceId"/></entity-find>
             <if condition="paymentList">
                 <script>paymentIdSet.addAll(paymentList*.paymentId)</script>
-                <script>paymentMethodFileIdSet.addAll(paymentList*.paymentMethodFileId)</script>
+                <script>paymentMethodFileIdList.addAll(paymentList*.paymentMethodFileId.unique())</script>
             </if>
 
             <entity-find entity-name="mantle.account.payment.PaymentApplication" list="paymentApplicationList">
@@ -1818,7 +1818,7 @@ along with this software (see the LICENSE.md file). If not, see
             </iterate>
 
             <!-- cancel payment method files -->
-            <iterate list="paymentMethodFileIdSet" entry="paymentMethodFileId">
+            <iterate list="paymentMethodFileIdList" entry="paymentMethodFileId">
                 <if condition="paymentMethodFileId">
                     <service-call name="update#mantle.account.method.PaymentMethodFile"
                                   in-map="[paymentMethodFileId: paymentMethodFileId,

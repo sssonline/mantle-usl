@@ -570,6 +570,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="nachaDiscrData"><text-length max="20"/></parameter>
             <parameter name="nachaCompanyId"><text-length max="10"/></parameter>
             <parameter name="nachaEntryDescription"><text-length max="10"/></parameter>
+            <parameter name="nachaOffsetRecordRequired"/>
             <parameter name="nachaPrenoteRequired"/>
             <parameter name="nachaPrenoteValidAfterDays" type="Integer"/>
             <parameter name="posPayBankNumber"/>

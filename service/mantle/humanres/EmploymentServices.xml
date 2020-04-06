@@ -618,8 +618,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="organizationPartyId"/>
             <parameter name="timePeriodId"/>
             <parameter name="availableAfterDays" type="Integer"/>
-            <parameter name="availableDate"/>
-            <parameter name="startDateTime"/>
+            <parameter name="availableDate" type="Date"/>
+            <parameter name="startDateTime" type="Timestamp"/>
         </in-parameters>
         <out-parameters>
             <parameter name="availableDateTime"/>

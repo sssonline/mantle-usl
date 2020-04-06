@@ -658,23 +658,11 @@ along with this software (see the LICENSE.md file). If not, see
                     <econdition field-name="fromDate" operator="greater-equals" from="xDaysAgo"/>
                     <order-by field-name="fromDate"/>
                 </entity-find>
-                <log level="warn" message="661 partyId - ${partyId} in EmploymentServices.xml -DEBUG-"/>
-                <log level="warn" message="662 availableAfterDays - ${availableAfterDays} in EmploymentServices.xml -DEBUG-"/>
-                <log level="warn" message="663 availableDate - ${availableDate} in EmploymentServices.xml -DEBUG-"/>
-                <log level="warn" message="664 startDateTime - ${startDateTime} in EmploymentServices.xml -DEBUG-"/>
                 <if condition="timeEntryList2.size() &lt; 1">
-                    <log level="warn" message="666 in EmploymentServices.xml -DEBUG-"/>
                     <set field="startDateTime" from="java.time.ZonedDateTime.ofInstant(timeEntryList1[0].fromDate.toInstant(), java.time.ZoneId.systemDefault())"/>
                     <set field="availableDateTime" from="startDateTime.plusDays(availableAfterDays?: 0)"/>
                 <else>
-                    <log level="warn" message="670 in EmploymentServices.xml -DEBUG-"/>
-                    <log level="warn" message="671 availableDate - ${availableDate} in EmploymentServices.xml -DEBUG-"/>
-                    <if condition="availableDate">
-                        <log level="warn" message="673 availableDate.getClass() - ${availableDate.getClass()} in EmploymentServices.xml -DEBUG-"/>
-                        <log level="warn" message="673 availableDate.toLocalDate().toInstant() - ${availableDate.toLocalDate().toInstant()} in EmploymentServices.xml -DEBUG-"/>
-                        <log level="warn" message="675 java.time.ZonedDateTime.ofInstant(availableDate.toLocalDate().toInstant(), java.time.ZoneId.systemDefault()) - ${java.time.ZonedDateTime.ofInstant(availableDate.toInstant(), java.time.ZoneId.systemDefault())} in EmploymentServices.xml -DEBUG-"/>
-                    </if>
-                    <set field="availableDateTime" from="availableDate ? java.time.ZonedDateTime.ofInstant(availableDate.toLocalDate().toInstant(), java.time.ZoneId.systemDefault()): startDateTime"/>
+                    <set field="availableDateTime" from="availableDate ? java.time.ZonedDateTime.ofInstant(availableDate.toLocalDate().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant(), java.time.ZoneId.systemDefault()): startDateTime"/>
                 </else></if>
             </else></if>
         </actions>

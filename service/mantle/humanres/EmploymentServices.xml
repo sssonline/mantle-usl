@@ -671,7 +671,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <log level="warn" message="671 availableDate - ${availableDate} in EmploymentServices.xml -DEBUG-"/>
                     <if condition="availableDate">
                         <log level="warn" message="673 availableDate.getClass() - ${availableDate.getClass()} in EmploymentServices.xml -DEBUG-"/>
-                        <log level="warn" message="673 availableDate.toInstant() - ${availableDate.toInstant()} in EmploymentServices.xml -DEBUG-"/>
+                        <log level="warn" message="673 availableDate.toLocalDate().toInstant() - ${availableDate.toLocalDate().toInstant()} in EmploymentServices.xml -DEBUG-"/>
                         <log level="warn" message="675 java.time.ZonedDateTime.ofInstant(availableDate.toLocalDate().toInstant(), java.time.ZoneId.systemDefault()) - ${java.time.ZonedDateTime.ofInstant(availableDate.toInstant(), java.time.ZoneId.systemDefault())} in EmploymentServices.xml -DEBUG-"/>
                     </if>
                     <set field="availableDateTime" from="availableDate ? java.time.ZonedDateTime.ofInstant(availableDate.toLocalDate().toInstant(), java.time.ZoneId.systemDefault()): startDateTime"/>

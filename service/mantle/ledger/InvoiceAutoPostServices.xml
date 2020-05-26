@@ -127,7 +127,8 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- ==== create the main tx record(s) ==== -->
             <if condition="fromPartyAcctgPreference != null">
                 <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="fromInvoiceTypeTransTypeOut"
-                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.fromPartyId, isPayable:'N']"/>
+                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.fromPartyId, isPayable:'N',
+                                 invoiceId: invoice.invoiceId, invoice: invoice]"/>
                 <if condition="!fromInvoiceTypeTransTypeOut.acctgTransTypeEnumId">
                     <return error="true" message="Cannot post invoice [${invoiceId}], no accounting transaction type for invoice type ${invoice.invoiceTypeEnumId}"/></if>
 
@@ -139,7 +140,8 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
             <if condition="toPartyAcctgPreference != null">
                 <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="toInvoiceTypeTransTypeOut"
-                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.toPartyId, isPayable:'Y']"/>
+                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.toPartyId, isPayable:'Y',
+                                 invoiceId: invoice.invoiceId, invoice: invoice]"/>
                 <if condition="!toInvoiceTypeTransTypeOut.acctgTransTypeEnumId">
                     <return error="true" message="Cannot post invoice [${invoiceId}], no accounting transaction type for invoice type ${invoice.invoiceTypeEnumId}"/></if>
 
@@ -482,7 +484,8 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="transactionDate" from="invoiceItem.itemDate ?: invoice.invoiceDate"/>
             <if condition="fromPartyAcctgPreference">
                 <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="fromInvoiceTypeTransTypeOut"
-                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.fromPartyId, isPayable:'N']"/>
+                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.fromPartyId, isPayable:'N',
+                                 invoiceId: invoice.invoiceId, invoice: invoice]"/>
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                         in-map="[acctgTransTypeEnumId:'AttInvoiceAdjust',
                             organizationPartyId:invoice.fromPartyId, otherPartyId:invoice.toPartyId,
@@ -491,7 +494,8 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
             <if condition="toPartyAcctgPreference">
                 <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="toInvoiceTypeTransTypeOut"
-                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.toPartyId, isPayable:'Y']"/>
+                        in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.toPartyId, isPayable:'Y',
+                                 invoiceId: invoice.invoiceId, invoice: invoice]"/>
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                         in-map="[acctgTransTypeEnumId:'AttInvoiceAdjust',
                             organizationPartyId:invoice.toPartyId, otherPartyId:invoice.fromPartyId,
@@ -648,6 +652,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="invoiceTypeEnumId" required="true"/>
             <parameter name="organizationPartyId" required="true"/>
             <parameter name="isPayable" required="true"/>
+            <parameter name="invoiceId" required="true"><description>If present, lookup invoice and ensure glAccountId is common across all invoice items</description></parameter>
+            <parameter name="invoice" type="Map"><description>If present, ensure glAccountId is common across all invoice items</description></parameter>
         </in-parameters>
         <out-parameters>
             <parameter name="acctgTransTypeEnumId"/>
@@ -656,9 +662,28 @@ along with this software (see the LICENSE.md file). If not, see
         </out-parameters>
 
         <actions>
-            <service-call name="mantle.ledger.LedgerServices.expand#ParentOrganizationList" out-map="context"
-                    in-map="[organizationPartyId:organizationPartyId]"/>
 
+
+            <!-- This is merely an optimization; support has only been added for these...it just ensures it won't affect anything else -->
+            <set field="checkInvoiceItemTypesForGlAndAcctTransType" from="invoiceTypeEnumId in ['InvoiceGarnishment', 'InvoicePayrollOther', 'InvoiceTax']"/>
+
+            <if condition="checkInvoiceItemTypesForGlAndAcctTransType">
+                <if condition="invoice"><then>
+                    <if condition="invoiceId != invoice.invoiceId">
+                        <return error="true" message="Invoice ID does not match invoice."/>
+                    </if>
+                    <set field="invoiceId" from="invoiceId?:invoice.invoiceId"/>
+                </then><else-if condition="invoiceId">
+                    <entity-find-one entity-name="mantle.account.invoice.Invoice" value-field="invoice">
+                        <field-map field-name="invoiceId"/>
+                    </entity-find-one>
+                </else-if></if>
+            </if>
+
+            <service-call name="mantle.ledger.LedgerServices.expand#ParentOrganizationList" out-map="context"
+                          in-map="[organizationPartyId:organizationPartyId]"/>
+
+            <!-- Get the default InvoiceTypeTransType glAccountId -->
             <entity-find entity-name="mantle.ledger.config.InvoiceTypeTransType" list="invoiceTypeTransTypeList" cache="true">
                 <econdition field-name="organizationPartyId" operator="in" from="orgPartyIdList"/>
                 <econdition field-name="invoiceTypeEnumId"/>
@@ -666,6 +691,55 @@ along with this software (see the LICENSE.md file). If not, see
             </entity-find>
             <set field="acctgTransTypeEnumId" from="invoiceTypeTransTypeList.first?.acctgTransTypeEnumId"/>
             <set field="glAccountId" from="invoiceTypeTransTypeList.first?.glAccountId"/>
+
+            <if condition="checkInvoiceItemTypesForGlAndAcctTransType">
+                <!-- Do an initial check to see if ANY invoice item types have an entry -->
+                <entity-find entity-name="mantle.ledger.config.InvoiceItemTypeTransType" list="anyIitttList" limit="1">
+                    <econdition field-name="invoiceTypeEnumId"/>
+                    <econdition field-name="organizationPartyId"/>
+                    <econdition field-name="isPayable"/>
+                </entity-find>
+                <if condition="anyIitttList">
+                    <entity-find entity-name="mantle.account.invoice.InvoiceItem" list="invoiceItemList">
+                        <econdition field-name="invoiceId"/>
+                    </entity-find>
+                    <set field="invoiceItemTypeEnumIdList" from="new TreeSet()"/>
+                    <set field="invoiceItemTypeEnumIdList" from="invoiceItemList*.itemTypeEnumId"/>
+
+                    <!-- Check if any of the item types on this invoice have an entry; if they do, they must all match -->
+                    <entity-find entity-name="mantle.ledger.config.InvoiceItemTypeTransType" list="anyIitttList" limit="1">
+                        <econdition field-name="invoiceTypeEnumId"/>
+                        <econdition field-name="itemTypeEnumId" operator="in" from="invoiceItemTypeEnumIdList"/> <!-- Add in this condition in case none match -->
+                        <econdition field-name="organizationPartyId"/>
+                        <econdition field-name="isPayable"/>
+                    </entity-find>
+
+                    <if condition="anyIitttList">
+                        <!-- All invoice item types must find a result and must match -->
+                        <set field="overrideGlAccountId" from="null"/>
+                        <set field="overrideAcctgTransTypeEnumId" from="null"/>
+                        <iterate list="invoiceItemTypeEnumIdList" entry="itemTypeEnumId">
+                            <entity-find-one entity-name="mantle.ledger.config.InvoiceItemTypeTransType" value-field="iittt">
+                                <field-map field-name="invoiceTypeEnumId"/>
+                                <field-map field-name="itemTypeEnumId"/>
+                                <field-map field-name="organizationPartyId"/>
+                                <field-map field-name="isPayable"/>
+                            </entity-find-one>
+                            <if condition="!iittt"><then>
+                                <return error="true" message="Invoice with ID ${invoiceId} has multiple invoice item types that map to sub trans type GL Accounts but ${itemTypeEnumId} does not have a mapping."/>
+                            </then><else-if condition="!overrideGlAccountId">
+                                <set field="overrideGlAccountId" from="iittt.glAccountId"/>
+                                <set field="overrideAcctgTransTypeEnumId" from="iittt.acctgTransTypeEnumId"/>
+                            </else-if><else-if condition="(overrideGlAccountId != iittt.glAccountId) ||
+                                                          (overrideAcctgTransTypeEnumId != iittt.acctgTransTypeEnumId)">
+                                <return error="true" message="ID ${invoiceId} has multiple invoice item types that map to sub trans type GL Accounts but multiple GL Accounts (${overrideGlAccountId}, ${iittt.acctgTransTypeEnumId}) or accounting trans types (${overrideAcctgTransTypeEnumId}, ${iittt.acctgTransTypeEnumId}) exist"/>
+                            </else-if></if>
+                        </iterate>
+                        <set field="glAccountId" from="overrideGlAccountId"/>
+                        <set field="acctgTransTypeEnumId" from="overrideAcctgTransTypeEnumId"/>
+                    </if>
+                </if>
+            </if>
 
             <if condition="glAccountId">
                 <entity-find-one entity-name="mantle.ledger.account.GlAccount" value-field="glAccount" cache="true">
@@ -676,7 +750,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="!glAccountId">
                 <set field="glAccountTypeEnumId" from="isPayable == 'Y' ? 'GatAccountsPayable' : 'GatAccountsReceivable'"/>
                 <service-call name="mantle.ledger.LedgerServices.get#DefaultGlAccountByType" out-map="invoiceBalanceGlAccountOut"
-                        in-map="[glAccountTypeEnumId:glAccountTypeEnumId, organizationPartyId:organizationPartyId]"/>
+                              in-map="[glAccountTypeEnumId:glAccountTypeEnumId, organizationPartyId:organizationPartyId]"/>
                 <set field="glAccountId" from="invoiceBalanceGlAccountOut.glAccountId"/>
             </if>
         </actions>

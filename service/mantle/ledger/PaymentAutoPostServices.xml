@@ -578,7 +578,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <if condition="invoiceId"><then>
                         <!-- debit applied (AP) account for invoiceId -->
                         <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="fromInvoiceTypeTransTypeOut"
-                                in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:fromPartyId, isPayable:'Y']"/>
+                                in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:fromPartyId, isPayable:'Y',
+                                         invoiceId: invoice.invoiceId, invoice: invoice]"/>
                         <if condition="!fromInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                         <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
                                 in-map="[amount:paymentApplication.amountApplied, acctgTransId:fromAcctgTrans.acctgTransId, acctgTrans:fromAcctgTrans,
@@ -595,7 +596,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <!-- no paymentId, have a invoiceId/toInvoiceId pair -->
                     <!-- credit AR applied for invoiceId -->
                     <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="fromFromInvoiceTypeTransTypeOut"
-                            in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:fromPartyId, isPayable:'N']"/>
+                            in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:fromPartyId, isPayable:'N',
+                                     invoiceId: invoice.invoiceId, invoice: invoice]"/>
                     <if condition="!fromFromInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                     <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
                             in-map="[amount:paymentApplication.amountApplied, acctgTransId:fromAcctgTrans.acctgTransId, acctgTrans:fromAcctgTrans,
@@ -604,7 +606,8 @@ along with this software (see the LICENSE.md file). If not, see
 
                     <!-- debit AP applied for toInvoiceId -->
                     <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="fromToInvoiceTypeTransTypeOut"
-                            in-map="[invoiceTypeEnumId:toInvoice.invoiceTypeEnumId, organizationPartyId:fromPartyId, isPayable:'Y']"/>
+                            in-map="[invoiceTypeEnumId:toInvoice.invoiceTypeEnumId, organizationPartyId:fromPartyId, isPayable:'Y',
+                                     invoiceId: toInvoice.invoiceId, toInvoice: invoice]"/>
                     <if condition="!fromToInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                     <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
                             in-map="[amount:paymentApplication.amountApplied, acctgTransId:fromAcctgTrans.acctgTransId, acctgTrans:fromAcctgTrans,
@@ -629,7 +632,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <if condition="invoiceId"><then>
                         <!-- credit applied (AR) account for invoiceId -->
                         <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="toInvoiceTypeTransTypeOut"
-                                in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:toPartyId, isPayable:'N']"/>
+                                in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:toPartyId, isPayable:'N',
+                                         invoiceId: invoice.invoiceId, invoice: invoice]"/>
                         <if condition="!toInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                         <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
                                 in-map="[amount:paymentApplication.amountApplied, acctgTransId:toAcctgTrans.acctgTransId, acctgTrans:toAcctgTrans,
@@ -646,7 +650,8 @@ along with this software (see the LICENSE.md file). If not, see
                     <!-- no paymentId, have a invoiceId/toInvoiceId pair -->
                     <!-- debit AP applied for invoiceId -->
                     <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="toFromInvoiceTypeTransTypeOut"
-                            in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:toPartyId, isPayable:'Y']"/>
+                            in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:toPartyId, isPayable:'Y',
+                                         invoiceId: invoice.invoiceId, invoice: invoice]"/>
                     <if condition="!toFromInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                     <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
                             in-map="[amount:paymentApplication.amountApplied, acctgTransId:toAcctgTrans.acctgTransId, acctgTrans:toAcctgTrans,
@@ -655,7 +660,8 @@ along with this software (see the LICENSE.md file). If not, see
 
                     <!-- credit AR applied for toInvoiceId -->
                     <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoiceTypeTransType" out-map="toToInvoiceTypeTransTypeOut"
-                            in-map="[invoiceTypeEnumId:toInvoice.invoiceTypeEnumId, organizationPartyId:toPartyId, isPayable:'N']"/>
+                            in-map="[invoiceTypeEnumId:toInvoice.invoiceTypeEnumId, organizationPartyId:toPartyId, isPayable:'N',
+                                     invoiceId: toInvoice.invoiceId, toInvoice: invoice]"/>
                     <if condition="!toToInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                     <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
                             in-map="[amount:paymentApplication.amountApplied, acctgTransId:toAcctgTrans.acctgTransId, acctgTrans:toAcctgTrans,

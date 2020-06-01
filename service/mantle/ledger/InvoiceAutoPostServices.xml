@@ -662,10 +662,9 @@ along with this software (see the LICENSE.md file). If not, see
         </out-parameters>
 
         <actions>
-
-
             <!-- This is merely an optimization; support has only been added for these...it just ensures it won't affect anything else -->
-            <set field="checkInvoiceItemTypesForGlAndAcctTransType" from="invoiceTypeEnumId in ['InvoiceGarnishment', 'InvoicePayrollOther', 'InvoiceTax']"/>
+            <set field="checkInvoiceItemTypesForGlAndAcctTransType"
+                 from="invoiceTypeEnumId in ['InvoiceGarnishment', 'InvoicePayrollBilling', 'InvoicePayrollOther', 'InvoiceTax']"/>
 
             <if condition="checkInvoiceItemTypesForGlAndAcctTransType">
                 <if condition="invoice"><then>

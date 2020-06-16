@@ -251,7 +251,6 @@ General Order Placement and eCommerce Usage
             <parameter name="orderItemSeqId" required="true"/>
         </out-parameters>
         <actions>
-
             <!-- If the fromAssetId was null or empty, try setting it to the assetId parameter instead. -->
             <if condition="!fromAssetId">
                 <set field="fromAssetId" from="assetId"/>
@@ -1758,15 +1757,22 @@ General Order Placement and eCommerce Usage
         </in-parameters>
         <actions>
             <!-- Look up this OrderItemBilling entity with this order id: -->
-            <entity-find-one entity-name="mantle.order.OrderItemBilling" value-field="invoiceItemContainingOrder">
-                <field-map field-name="orderId" from="orderId"/>
-            </entity-find-one>
-
-            <!-- If one was found and it has an invoice id: -->
-            <if condition="invoiceItemContainingOrder?.invoiceId">
+            <entity-find entity-name="mantle.order.OrderItemBilling" list="invoiceItemsContainingOrder" >
+                <econdition field-name="orderId" from="orderId"/>
+                <select-field field-name="invoiceId"/>
+            </entity-find>
+            <!-- If one was found and it has an invoice id: and at least one is not InvoiceCancelled -->
+            <iterate list="invoiceItemsContainingOrder" entry="invoiceId">
+            <if condition="invoiceId">
+                <entity-find-one entity-name="Invoice" value-field="invoice">
+                    <field-map field-name="invoiceId" from="invoiceId.invoiceId"/>
+                </entity-find-one>
                 <!-- Then we cannot make edits to this order: -->
-                <return error="true" message="Order has already been invoiced. Cannot make changes to it."/>
+                <if condition="invoice?.statusId != 'InvoiceCancelled'">
+                    <return error="true" message="Order has already been invoiced. Cannot make changes to it."/>
+                </if>
             </if>
+            </iterate>
 
             <if condition="eecaOperation == 'delete'">
                 <service-call name="mantle.order.OrderServices.update#OrderPartTotal" in-map="context"/>

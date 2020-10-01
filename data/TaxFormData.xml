@@ -114,54 +114,77 @@ along with this software (see the LICENSE.md file). If not, see
                 layoutSequenceNum="53" fieldTypeEnumId="DBFFT_drop-down" printTop="2.825in" printLeft="5.83in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
-        <moqui.screen.form.DbFormField fieldName="w2_14" title="14 Other"
-                layoutSequenceNum="55" fieldTypeEnumId="DBFFT_text-area" printTop="3.125in" printLeft="4.625in">
-            <moqui.screen.form.DbFormFieldAttribute attributeName="cols" value="20"/>
-            <moqui.screen.form.DbFormFieldAttribute attributeName="rows" value="4"/>
-        </moqui.screen.form.DbFormField>
+
+        <!-- Box 14: Other, while technically free form typcially has a code or small text on the left and a value on
+             the right.  Being that things such as L&I appear in these boxes and are likely to be programmatically
+             placed, treat it like 12a-12d -->
+        <moqui.screen.form.DbFormField fieldName="w2_14ac" title="14a Other Code"
+                                       layoutSequenceNum="61" fieldTypeEnumId="DBFFT_text-line" printTop="3.28125in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14av" title="14a Other Value"
+                                       layoutSequenceNum="62" fieldTypeEnumId="DBFFT_text-line" printTop="3.28125in" printRight="2.25in" printTextAlign="right">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14bc" title="14b Other Code"
+                                       layoutSequenceNum="63" fieldTypeEnumId="DBFFT_text-line" printTop="3.46875in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14bv" title="14b Other Value"
+                                       layoutSequenceNum="64" fieldTypeEnumId="DBFFT_text-line" printTop="3.46875in" printRight="2.25in" printTextAlign="right">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14cc" title="14c Other Code"
+                                       layoutSequenceNum="65" fieldTypeEnumId="DBFFT_text-line" printTop="3.65625in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14cv" title="14c Other Value"
+                                       layoutSequenceNum="66" fieldTypeEnumId="DBFFT_text-line" printTop="3.65625in" printRight="2.25in" printTextAlign="right">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14dc" title="14d Other Code"
+                                       layoutSequenceNum="67" fieldTypeEnumId="DBFFT_text-line" printTop="3.84375in" printLeft="4.625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+        <moqui.screen.form.DbFormField fieldName="w2_14dv" title="14d Other Value"
+                                       layoutSequenceNum="68" fieldTypeEnumId="DBFFT_text-line" printTop="3.84375in" printRight="2.25in" printTextAlign="right">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2_15as" title="15a State"
-                layoutSequenceNum="61" fieldTypeEnumId="DBFFT_text-line" printTop="3.95in" printLeft="0.57in">
+                layoutSequenceNum="71" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="0.57in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="2"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_15ae" title="15a Employer's state ID number"
-                layoutSequenceNum="62" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="0.95in">
+                layoutSequenceNum="72" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="0.95in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_16a" title="16a State wages, tips, etc."
-                layoutSequenceNum="63" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="2.75in">
+                layoutSequenceNum="73" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="2.75in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_17a" title="17a State income tax"
-                layoutSequenceNum="64" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="3.9375in">
+                layoutSequenceNum="74" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="3.9375in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_18a" title="18a Local wages, tips, etc."
-                layoutSequenceNum="65" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="5.05in">
+                layoutSequenceNum="75" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="5.05in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_19a" title="19a Local income tax"
-                layoutSequenceNum="66" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="6.23in">
+                layoutSequenceNum="76" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="6.23in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_20a" title="20a Locality name"
-                layoutSequenceNum="67" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="7.3125in">
+                layoutSequenceNum="77" fieldTypeEnumId="DBFFT_text-line" printTop="3.97in" printLeft="7.3125in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2_15bs" title="15b State"
-                layoutSequenceNum="71" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="0.57in">
+                layoutSequenceNum="81" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="0.57in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="2"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_15be" title="15b Employer's state ID number"
-                layoutSequenceNum="72" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="0.95in">
+                layoutSequenceNum="82" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="0.95in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_16b" title="16b State wages, tips, etc."
-                layoutSequenceNum="73" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="2.75in">
+                layoutSequenceNum="83" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="2.75in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_17b" title="17b State income tax"
-                layoutSequenceNum="74" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="3.9375in">
+                layoutSequenceNum="84" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="3.9375in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_18b" title="18b Local wages, tips, etc."
-                layoutSequenceNum="75" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="5.05in">
+                layoutSequenceNum="85" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="5.05in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_19b" title="19b Local income tax"
-                layoutSequenceNum="76" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="6.23in">
+                layoutSequenceNum="86" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="6.23in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_20b" title="20b Locality name"
-                layoutSequenceNum="77" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="7.3125in">
+                layoutSequenceNum="87" fieldTypeEnumId="DBFFT_text-line" printTop="4.27in" printLeft="7.3125in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="8"/></moqui.screen.form.DbFormField>
     </moqui.screen.form.DbForm>
 

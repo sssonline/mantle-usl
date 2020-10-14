@@ -249,6 +249,9 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="amountThreshold" type="BigDecimal" default="600"/>
         </in-parameters>
         <actions>
+            <!-- TODO: This is likely replaced by the 1099-NEC.  This service should be renamed and changed. -->
+            <return error="true" message="Vendor 1099s should likely appear on the 1099-NEC, not 1099-MISC; investigate and/or change this service."/>
+
             <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
             <service-call name="mantle.party.TimeServices.get#TimePeriodInfo" in-map="[timePeriod:timePeriod]" out-map="periodInfo"/>
             <set field="fromTimestamp" from="periodInfo.fromTimestamp"/>
@@ -286,6 +289,9 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="taxStatementId"/>
         </out-parameters>
         <actions>
+            <!-- TODO: This is likely replaced by the 1099-NEC.  This service should be renamed and changed. -->
+            <return error="true" message="Vendor 1099s should likely appear on the 1099-NEC, not 1099-MISC; investigate and/or change this service."/>
+
             <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod"/>
 
             <!-- split out various item types instead of all in otherIncome -->

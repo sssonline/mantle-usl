@@ -199,198 +199,198 @@ along with this software (see the LICENSE.md file). If not, see
         <!-- print coordinates are for the 8.5"x11.0" form -->
 
         <moqui.screen.form.DbFormField fieldName="w2c_a" title="a Employer's name, address, and ZIP code"
-                                       layoutSequenceNum="1" fieldTypeEnumId="DBFFT_text-area" printTop="1.150in" printLeft="0.563in">
+                                       layoutSequenceNum="1" fieldTypeEnumId="DBFFT_text-area" printTop="1.100in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="cols" value="60"/>
             <moqui.screen.form.DbFormFieldAttribute attributeName="rows" value="5"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_b" title="b Employer identification number (EIN)"
-                                       layoutSequenceNum="2" fieldTypeEnumId="DBFFT_text-line" printTop="2.50in" printLeft="0.563in">
+                                       layoutSequenceNum="2" fieldTypeEnumId="DBFFT_text-line" printTop="2.470in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_c" title="c Tax year/Form corrected"
-                                       layoutSequenceNum="3" fieldTypeEnumId="DBFFT_text-line" printTop="1.250in" printLeft="4.400in">
+                                       layoutSequenceNum="3" fieldTypeEnumId="DBFFT_text-line" printTop="1.305in" printLeft="4.400in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_d" title="d Employee's correct SSN"
-                                       layoutSequenceNum="4" fieldTypeEnumId="DBFFT_text-line" printTop="1.250in" printLeft="6.250in" printWidth="1.5in">
+                                       layoutSequenceNum="4" fieldTypeEnumId="DBFFT_text-line" printTop="1.305in" printLeft="6.300in" printWidth="1.5in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_e" title="e Corrected SSN and/or name"
-                                       layoutSequenceNum="5" fieldTypeEnumId="DBFFT_drop-down" printTop="1.750in" printLeft="7.865in">
+                                       layoutSequenceNum="5" fieldTypeEnumId="DBFFT_drop-down" printTop="1.601in" printLeft="7.840in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_f" title="f Employee's Previously reported SSN"
-                                       layoutSequenceNum="6" fieldTypeEnumId="DBFFT_text-line" printTop="2.150in" printLeft="4.400in" printWidth="1.5in">
+                                       layoutSequenceNum="6" fieldTypeEnumId="DBFFT_text-line" printTop="2.140in" printLeft="4.400in" printWidth="1.5in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_g1" title="g1 Employee's Previously reported first name and initial"
-                                       layoutSequenceNum="7" fieldTypeEnumId="DBFFT_text-line" printTop="2.50in" printLeft="4.400in"/>
+                                       layoutSequenceNum="7" fieldTypeEnumId="DBFFT_text-line" printTop="2.470in" printLeft="4.400in"/>
         <moqui.screen.form.DbFormField fieldName="w2c_g2" title="g2 Employee's Previously reported last name"
-                                       layoutSequenceNum="8" fieldTypeEnumId="DBFFT_text-line" printTop="2.50in" printLeft="6.250in"/>
+                                       layoutSequenceNum="8" fieldTypeEnumId="DBFFT_text-line" printTop="2.470in" printLeft="6.300in"/>
         <moqui.screen.form.DbFormField fieldName="w2c_g3" title="g3 Employee's Previously reported suffix"
-                                       layoutSequenceNum="9" fieldTypeEnumId="DBFFT_text-line" printTop="2.50in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="9" fieldTypeEnumId="DBFFT_text-line" printTop="2.470in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_h1" title="h1 Employee's first name and initial"
-                                       layoutSequenceNum="10" fieldTypeEnumId="DBFFT_text-line" printTop="2.85in" printLeft="4.400in"/>
+                                       layoutSequenceNum="10" fieldTypeEnumId="DBFFT_text-line" printTop="2.810in" printLeft="4.400in"/>
         <moqui.screen.form.DbFormField fieldName="w2c_h2" title="h2 Employee's last name"
-                                       layoutSequenceNum="11" fieldTypeEnumId="DBFFT_text-line" printTop="2.85in" printLeft="5.750in"/>
+                                       layoutSequenceNum="11" fieldTypeEnumId="DBFFT_text-line" printTop="2.810in" printLeft="6.300in"/>
         <moqui.screen.form.DbFormField fieldName="w2c_h3" title="h3 Employee's suffix"
-                                       layoutSequenceNum="12" fieldTypeEnumId="DBFFT_text-line" printTop="2.85in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="12" fieldTypeEnumId="DBFFT_text-line" printTop="2.810in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_i" title="f Employee's address and ZIP code"
-                                       layoutSequenceNum="13" fieldTypeEnumId="DBFFT_text-area" printTop="3.000in" printLeft="4.400in">
+                                       layoutSequenceNum="13" fieldTypeEnumId="DBFFT_text-area" printTop="2.980in" printLeft="4.400in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="cols" value="60"/>
             <moqui.screen.form.DbFormFieldAttribute attributeName="rows" value="4"/>
         </moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_01p" title="1p Wages, tips, other compensation (Previously reported)"
-                                       layoutSequenceNum="14" fieldTypeEnumId="DBFFT_text-line" printTop="4.05in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="14" fieldTypeEnumId="DBFFT_text-line" printTop="3.978in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_01c" title="1c Wages, tips, other compensation (Corrected)"
-                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="4.05in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="15" fieldTypeEnumId="DBFFT_text-line" printTop="3.978in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_02p" title="2p Federal income tax withheld (Previously reported)"
-                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="4.05in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="16" fieldTypeEnumId="DBFFT_text-line" printTop="3.978in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_02c" title="2c Federal income tax withheld (Corrected)"
-                                       layoutSequenceNum="17" fieldTypeEnumId="DBFFT_text-line" printTop="4.05in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="17" fieldTypeEnumId="DBFFT_text-line" printTop="3.978in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_03p" title="3p Social security wages (Previously reported)"
-                                       layoutSequenceNum="18" fieldTypeEnumId="DBFFT_text-line" printTop="4.30in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="18" fieldTypeEnumId="DBFFT_text-line" printTop="4.307in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_03c" title="3c Social security wages (Corrected)"
-                                       layoutSequenceNum="19" fieldTypeEnumId="DBFFT_text-line" printTop="4.30in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="19" fieldTypeEnumId="DBFFT_text-line" printTop="4.307in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_04p" title="4p Social security tax withheld (Previously reported)"
-                                       layoutSequenceNum="20" fieldTypeEnumId="DBFFT_text-line" printTop="4.30in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="20" fieldTypeEnumId="DBFFT_text-line" printTop="4.307in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_04c" title="4c Social security tax withheld (Corrected)"
-                                       layoutSequenceNum="21" fieldTypeEnumId="DBFFT_text-line" printTop="4.30in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="21" fieldTypeEnumId="DBFFT_text-line" printTop="4.307in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_05p" title="5p Medicare wages and tips (Previously reported)"
-                                       layoutSequenceNum="22" fieldTypeEnumId="DBFFT_text-line" printTop="4.60in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="22" fieldTypeEnumId="DBFFT_text-line" printTop="4.645in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_05c" title="5c Medicare wages and tips (Corrected"
-                                       layoutSequenceNum="23" fieldTypeEnumId="DBFFT_text-line" printTop="4.60in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="23" fieldTypeEnumId="DBFFT_text-line" printTop="4.645in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_06p" title="6p Medicare tax withheld (Previously reported)"
-                                       layoutSequenceNum="24" fieldTypeEnumId="DBFFT_text-line" printTop="4.60in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="24" fieldTypeEnumId="DBFFT_text-line" printTop="4.645in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_06c" title="6c Medicare tax withheld (Corrected"
-                                       layoutSequenceNum="25" fieldTypeEnumId="DBFFT_text-line" printTop="4.60in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="25" fieldTypeEnumId="DBFFT_text-line" printTop="4.645in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_07p" title="7p Social security tips (Previously reported)"
-                                       layoutSequenceNum="26" fieldTypeEnumId="DBFFT_text-line" printTop="4.90in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="26" fieldTypeEnumId="DBFFT_text-line" printTop="4.976in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_07c" title="7c Social security tips (Corrected)"
-                                       layoutSequenceNum="27" fieldTypeEnumId="DBFFT_text-line" printTop="4.90in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="27" fieldTypeEnumId="DBFFT_text-line" printTop="4.976in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_08p" title="8p Allocated tips (Previously reported)"
-                                       layoutSequenceNum="28" fieldTypeEnumId="DBFFT_text-line" printTop="4.90in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="28" fieldTypeEnumId="DBFFT_text-line" printTop="4.976in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_08c" title="8c Allocated tips (Corrected)"
-                                       layoutSequenceNum="29" fieldTypeEnumId="DBFFT_text-line" printTop="4.90in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="29" fieldTypeEnumId="DBFFT_text-line" printTop="4.976in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_09p" title="9p Verification Code (Previously reported)"
-                                       layoutSequenceNum="30" fieldTypeEnumId="DBFFT_text-line" printTop="5.20in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="30" fieldTypeEnumId="DBFFT_text-line" printTop="5.309in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="16"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_09c" title="9c Verification Code (Corrected)"
-                                       layoutSequenceNum="31" fieldTypeEnumId="DBFFT_text-line" printTop="5.20in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="31" fieldTypeEnumId="DBFFT_text-line" printTop="5.309in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="16"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_10p" title="10p Dependent care benefits (Previously reported)"
-                                       layoutSequenceNum="32" fieldTypeEnumId="DBFFT_text-line" printTop="5.20in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="32" fieldTypeEnumId="DBFFT_text-line" printTop="5.309in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_10c" title="10c Dependent care benefits (Corrected)"
-                                       layoutSequenceNum="33" fieldTypeEnumId="DBFFT_text-line" printTop="5.20in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="33" fieldTypeEnumId="DBFFT_text-line" printTop="5.309in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_11p" title="11p Nonqualified plans (Previously reported)"
-                                       layoutSequenceNum="34" fieldTypeEnumId="DBFFT_text-line" printTop="5.70in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="34" fieldTypeEnumId="DBFFT_text-line" printTop="5.639in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_11c" title="11c Nonqualified plans (Corrected)"
-                                       layoutSequenceNum="35" fieldTypeEnumId="DBFFT_text-line" printTop="5.70in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="35" fieldTypeEnumId="DBFFT_text-line" printTop="5.639in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_12acp" title="12ap Code (Previously reported)"
-                                       layoutSequenceNum="36" fieldTypeEnumId="DBFFT_text-line" printTop="5.70in" printLeft="4.45in">
+                                       layoutSequenceNum="36" fieldTypeEnumId="DBFFT_text-line" printTop="5.639in" printLeft="4.455in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12acc" title="12ac Code (Corrected)"
-                                       layoutSequenceNum="37" fieldTypeEnumId="DBFFT_text-line" printTop="5.70in" printLeft="6.250in">
+                                       layoutSequenceNum="37" fieldTypeEnumId="DBFFT_text-line" printTop="5.639in" printLeft="6.350in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12avp" title="12ap Value (Previously reported)"
-                                       layoutSequenceNum="38" fieldTypeEnumId="DBFFT_text-line" printTop="5.70in" printRight="2.245in" printTextAlign="right">
+                                       layoutSequenceNum="38" fieldTypeEnumId="DBFFT_text-line" printTop="5.639in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12avc" title="12ac Value (Corrected)"
-                                       layoutSequenceNum="39" fieldTypeEnumId="DBFFT_text-line" printTop="5.70in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="39" fieldTypeEnumId="DBFFT_text-line" printTop="5.639in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_12bcp" title="12bp Code (Previously reported)"
-                                       layoutSequenceNum="40" fieldTypeEnumId="DBFFT_text-line" printTop="6.00in" printLeft="4.45in">
+                                       layoutSequenceNum="40" fieldTypeEnumId="DBFFT_text-line" printTop="5.975in" printLeft="4.455in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12bcc" title="12bc Code (Corrected)"
-                                       layoutSequenceNum="41" fieldTypeEnumId="DBFFT_text-line" printTop="6.00in" printLeft="6.250in">
+                                       layoutSequenceNum="41" fieldTypeEnumId="DBFFT_text-line" printTop="5.975in" printLeft="6.350in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12bvp" title="12bp Value (Previously reported)"
-                                       layoutSequenceNum="42" fieldTypeEnumId="DBFFT_text-line" printTop="6.00in" printRight="2.245in" printTextAlign="right">
+                                       layoutSequenceNum="42" fieldTypeEnumId="DBFFT_text-line" printTop="5.975in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12bvc" title="12bc Value (Corrected)"
-                                       layoutSequenceNum="43" fieldTypeEnumId="DBFFT_text-line" printTop="6.00in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="43" fieldTypeEnumId="DBFFT_text-line" printTop="5.975in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_12ccp" title="12cp Code (Previously reported)"
-                                       layoutSequenceNum="44" fieldTypeEnumId="DBFFT_text-line" printTop="6.35in" printLeft="4.45in">
+                                       layoutSequenceNum="44" fieldTypeEnumId="DBFFT_text-line" printTop="6.309in" printLeft="4.455in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12ccc" title="12cc Code (Corrected)"
-                                       layoutSequenceNum="45" fieldTypeEnumId="DBFFT_text-line" printTop="6.35in" printLeft="6.250in">
+                                       layoutSequenceNum="45" fieldTypeEnumId="DBFFT_text-line" printTop="6.309in" printLeft="6.350in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12cvp" title="12cp Value (Previously reported)"
-                                       layoutSequenceNum="46" fieldTypeEnumId="DBFFT_text-line" printTop="6.35in" printRight="2.245in" printTextAlign="right">
+                                       layoutSequenceNum="46" fieldTypeEnumId="DBFFT_text-line" printTop="6.309in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12cvc" title="12cc Value (Corrected)"
-                                       layoutSequenceNum="47" fieldTypeEnumId="DBFFT_text-line" printTop="6.35in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="47" fieldTypeEnumId="DBFFT_text-line" printTop="6.309in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_12dcp" title="12dp Code (Previously reported)"
-                                       layoutSequenceNum="48" fieldTypeEnumId="DBFFT_text-line" printTop="6.85in" printLeft="4.45in">
+                                       layoutSequenceNum="48" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printLeft="4.455in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12dcc" title="12dc Code (Corrected)"
-                                       layoutSequenceNum="49" fieldTypeEnumId="DBFFT_text-line" printTop="6.85in" printLeft="6.250in">
+                                       layoutSequenceNum="49" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printLeft="6.350in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="4"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12dvp" title="12dp Value (Previously reported)"
-                                       layoutSequenceNum="50" fieldTypeEnumId="DBFFT_text-line" printTop="6.85in" printRight="2.245in" printTextAlign="right">
+                                       layoutSequenceNum="50" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_12dvc" title="12dc Value (Corrected)"
-                                       layoutSequenceNum="51" fieldTypeEnumId="DBFFT_text-line" printTop="6.85in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="51" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_13ap" title="13ap Statutory Employee (Previously reported)"
-                                       layoutSequenceNum="52" fieldTypeEnumId="DBFFT_drop-down" printTop="6.00in" printLeft="0.755in">
+                                       layoutSequenceNum="52" fieldTypeEnumId="DBFFT_drop-down" printTop="5.965in" printLeft="0.751in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_13ac" title="13ac Statutory Employee (Corrected)"
-                                       layoutSequenceNum="53" fieldTypeEnumId="DBFFT_drop-down" printTop="6.00in" printLeft="2.650in">
+                                       layoutSequenceNum="53" fieldTypeEnumId="DBFFT_drop-down" printTop="5.965in" printLeft="2.650in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_13bp" title="13bp Retirement plan (Previously reported)"
-                                       layoutSequenceNum="54" fieldTypeEnumId="DBFFT_drop-down" printTop="6.00in" printLeft="1.135in">
+                                       layoutSequenceNum="54" fieldTypeEnumId="DBFFT_drop-down" printTop="5.965in" printLeft="1.251in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_13bc" title="13bc Retirement plan (Corrected)"
-                                       layoutSequenceNum="55" fieldTypeEnumId="DBFFT_drop-down" printTop="6.00in" printLeft="3.000in">
+                                       layoutSequenceNum="55" fieldTypeEnumId="DBFFT_drop-down" printTop="5.965in" printLeft="3.159in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_13cp" title="13cp Third-party sick pay (Previously reported)"
-                                       layoutSequenceNum="56" fieldTypeEnumId="DBFFT_drop-down" printTop="6.00in" printLeft="1.873in">
+                                       layoutSequenceNum="56" fieldTypeEnumId="DBFFT_drop-down" printTop="5.965in" printLeft="1.834in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_13cc" title="13cc Third-party sick pay (Corrected)"
-                                       layoutSequenceNum="57" fieldTypeEnumId="DBFFT_drop-down" printTop="6.00in" printLeft="3.745in">
+                                       layoutSequenceNum="57" fieldTypeEnumId="DBFFT_drop-down" printTop="5.965in" printLeft="3.735in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
 
@@ -398,138 +398,138 @@ along with this software (see the LICENSE.md file). If not, see
              the right.  Being that things such as L&I appear in these boxes and are likely to be programmatically
              placed, treat it like 12a-12d -->
         <moqui.screen.form.DbFormField fieldName="w2c_14acp" title="14ap Other Code (Previously reported)"
-                                       layoutSequenceNum="58" fieldTypeEnumId="DBFFT_text-line" printTop="6.30in" printLeft="0.563in">
+                                       layoutSequenceNum="58" fieldTypeEnumId="DBFFT_text-line" printTop="6.267in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14acc" title="14ac Other Code (Corrected)"
-                                       layoutSequenceNum="59" fieldTypeEnumId="DBFFT_text-line" printTop="6.30in" printLeft="2.450in">
+                                       layoutSequenceNum="59" fieldTypeEnumId="DBFFT_text-line" printTop="6.267in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14avp" title="14ap Other Value (Previously reported)"
-                                       layoutSequenceNum="60" fieldTypeEnumId="DBFFT_text-line" printTop="6.30in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="60" fieldTypeEnumId="DBFFT_text-line" printTop="6.267in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14avc" title="14ac Other Value (Corrected)"
-                                       layoutSequenceNum="61" fieldTypeEnumId="DBFFT_text-line" printTop="6.30in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="61" fieldTypeEnumId="DBFFT_text-line" printTop="6.267in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14bcp" title="14bp Other Code (Previously reported)"
-                                       layoutSequenceNum="62" fieldTypeEnumId="DBFFT_text-line" printTop="6.45in" printLeft="0.563in">
+                                       layoutSequenceNum="62" fieldTypeEnumId="DBFFT_text-line" printTop="6.448in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14bcc" title="14bc Other Code (Corrected)"
-                                       layoutSequenceNum="63" fieldTypeEnumId="DBFFT_text-line" printTop="6.45in" printLeft="2.450in">
+                                       layoutSequenceNum="63" fieldTypeEnumId="DBFFT_text-line" printTop="6.448in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14bvp" title="14bp Other Value (Previously reported)"
-                                       layoutSequenceNum="64" fieldTypeEnumId="DBFFT_text-line" printTop="6.45in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="64" fieldTypeEnumId="DBFFT_text-line" printTop="6.448in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14bvc" title="14bc Other Value (Corrected)"
-                                       layoutSequenceNum="65" fieldTypeEnumId="DBFFT_text-line" printTop="6.45in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="65" fieldTypeEnumId="DBFFT_text-line" printTop="6.448in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14ccp" title="14cp Other Code (Previously reported)"
-                                       layoutSequenceNum="66" fieldTypeEnumId="DBFFT_text-line" printTop="6.60in" printLeft="0.563in">
+                                       layoutSequenceNum="66" fieldTypeEnumId="DBFFT_text-line" printTop="6.629in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14ccc" title="14cc Other Code (Corrected)"
-                                       layoutSequenceNum="67" fieldTypeEnumId="DBFFT_text-line" printTop="6.60in" printLeft="2.450in">
+                                       layoutSequenceNum="67" fieldTypeEnumId="DBFFT_text-line" printTop="6.629in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14cvp" title="14cp Other Value (Previously reported)"
-                                       layoutSequenceNum="68" fieldTypeEnumId="DBFFT_text-line" printTop="6.60in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="68" fieldTypeEnumId="DBFFT_text-line" printTop="6.629in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14cvc" title="14cc Other Value (Corrected)"
-                                       layoutSequenceNum="69" fieldTypeEnumId="DBFFT_text-line" printTop="6.60in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="69" fieldTypeEnumId="DBFFT_text-line" printTop="6.629in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14dcp" title="14dp Other Code (Previously reported)"
-                                       layoutSequenceNum="70" fieldTypeEnumId="DBFFT_text-line" printTop="6.75in" printLeft="0.563in">
+                                       layoutSequenceNum="70" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14dcc" title="14dc Other Code (Corrected)"
-                                       layoutSequenceNum="71" fieldTypeEnumId="DBFFT_text-line" printTop="6.75in" printLeft="2.450in">
+                                       layoutSequenceNum="71" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14dvp" title="14dp Other Value (Previously reported)"
-                                       layoutSequenceNum="72" fieldTypeEnumId="DBFFT_text-line" printTop="6.75in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="72" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_14dvc" title="14dc Other Value (Corrected)"
-                                       layoutSequenceNum="73" fieldTypeEnumId="DBFFT_text-line" printTop="6.75in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="73" fieldTypeEnumId="DBFFT_text-line" printTop="6.810in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_15asp" title="15ap State (Previously reported)"
-                                       layoutSequenceNum="74" fieldTypeEnumId="DBFFT_text-line" printTop="7.500in" printLeft="0.563in">
+                                       layoutSequenceNum="74" fieldTypeEnumId="DBFFT_text-line" printTop="7.483in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="2"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_15asc" title="15ac State (Corrected)"
-                                       layoutSequenceNum="75" fieldTypeEnumId="DBFFT_text-line" printTop="7.500in" printLeft="2.450in">
+                                       layoutSequenceNum="75" fieldTypeEnumId="DBFFT_text-line" printTop="7.483in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="2"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_15aep" title="15ap Employer's state ID number (Previously reported)"
-                                       layoutSequenceNum="76" fieldTypeEnumId="DBFFT_text-line" printTop="7.800in" printLeft="0.563in">
+                                       layoutSequenceNum="76" fieldTypeEnumId="DBFFT_text-line" printTop="7.813in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_15aec" title="15ac Employer's state ID number (Corrected)"
-                                       layoutSequenceNum="77" fieldTypeEnumId="DBFFT_text-line" printTop="7.800in" printLeft="2.450in">
+                                       layoutSequenceNum="77" fieldTypeEnumId="DBFFT_text-line" printTop="7.813in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_16ap" title="16ap State wages, tips, etc. (Previously reported)"
-                                       layoutSequenceNum="78" fieldTypeEnumId="DBFFT_text-line" printTop="8.150in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="78" fieldTypeEnumId="DBFFT_text-line" printTop="8.144in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_16ac" title="16ac State wages, tips, etc. (Corrected)"
-                                       layoutSequenceNum="79" fieldTypeEnumId="DBFFT_text-line" printTop="8.150in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="79" fieldTypeEnumId="DBFFT_text-line" printTop="8.144in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_17ap" title="17ap State income tax (Previously reported)"
-                                       layoutSequenceNum="80" fieldTypeEnumId="DBFFT_text-line" printTop="8.500in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="80" fieldTypeEnumId="DBFFT_text-line" printTop="8.479in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_17ac" title="17ac State income tax (Corrected)"
-                                       layoutSequenceNum="81" fieldTypeEnumId="DBFFT_text-line" printTop="8.500in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="81" fieldTypeEnumId="DBFFT_text-line" printTop="8.479in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_18ap" title="18ap Local wages, tips, etc. (Previously reported)"
-                                       layoutSequenceNum="82" fieldTypeEnumId="DBFFT_text-line" printTop="9.150in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="82" fieldTypeEnumId="DBFFT_text-line" printTop="9.143in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_18ac" title="18ac Local wages, tips, etc. (Corrected)"
-                                       layoutSequenceNum="83" fieldTypeEnumId="DBFFT_text-line" printTop="9.150in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="83" fieldTypeEnumId="DBFFT_text-line" printTop="9.143in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_19ap" title="19ap Local income tax (Previously reported)"
-                                       layoutSequenceNum="84" fieldTypeEnumId="DBFFT_text-line" printTop="9.500in" printRight="6.125in" printTextAlign="right">
+                                       layoutSequenceNum="84" fieldTypeEnumId="DBFFT_text-line" printTop="9.479in" printRight="6.125in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_19ac" title="19ac Local income tax (Corrected)"
-                                       layoutSequenceNum="85" fieldTypeEnumId="DBFFT_text-line" printTop="9.500in" printRight="4.245in" printTextAlign="right">
+                                       layoutSequenceNum="85" fieldTypeEnumId="DBFFT_text-line" printTop="9.479in" printRight="4.245in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_20ap" title="20ap Locality name (Previously reported)"
-                                       layoutSequenceNum="86" fieldTypeEnumId="DBFFT_text-line" printTop="9.870in" printLeft="0.5in">
+                                       layoutSequenceNum="86" fieldTypeEnumId="DBFFT_text-line" printTop="9.812in" printLeft="0.563in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="8"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_20ac" title="20ac Locality name (Corrected)"
-                                       layoutSequenceNum="87" fieldTypeEnumId="DBFFT_text-line" printTop="9.870in" printLeft="2.450in">
+                                       layoutSequenceNum="87" fieldTypeEnumId="DBFFT_text-line" printTop="9.812in" printLeft="2.458in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="8"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2c_15bsp" title="15bp State (Previously reported)"
-                                       layoutSequenceNum="88" fieldTypeEnumId="DBFFT_text-line" printTop="7.500in" printLeft="4.400in">
+                                       layoutSequenceNum="88" fieldTypeEnumId="DBFFT_text-line" printTop="7.483in" printLeft="4.400in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="2"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_15bsc" title="15bc State (Corrected)"
-                                       layoutSequenceNum="89" fieldTypeEnumId="DBFFT_text-line" printTop="7.500in" printLeft="6.250in">
+                                       layoutSequenceNum="89" fieldTypeEnumId="DBFFT_text-line" printTop="7.483in" printLeft="6.300in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="2"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_15bep" title="15bp Employer's state ID number (Previously reported)"
-                                       layoutSequenceNum="90" fieldTypeEnumId="DBFFT_text-line" printTop="7.800in" printLeft="4.400in">
+                                       layoutSequenceNum="90" fieldTypeEnumId="DBFFT_text-line" printTop="7.813in" printLeft="4.400in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_15bec" title="15bc Employer's state ID number (Corrected)"
-                                       layoutSequenceNum="91" fieldTypeEnumId="DBFFT_text-line" printTop="7.800in" printLeft="6.250in">
+                                       layoutSequenceNum="91" fieldTypeEnumId="DBFFT_text-line" printTop="7.813in" printLeft="6.300in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_16bp" title="16bp State wages, tips, etc. (Previously reported)"
-                                       layoutSequenceNum="92" fieldTypeEnumId="DBFFT_text-line" printTop="8.150in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="92" fieldTypeEnumId="DBFFT_text-line" printTop="8.144in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_16bc" title="16bc State wages, tips, etc. (Corrected)"
-                                       layoutSequenceNum="93" fieldTypeEnumId="DBFFT_text-line" printTop="8.150in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="93" fieldTypeEnumId="DBFFT_text-line" printTop="8.144in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_17bp" title="17bp State income tax (Previously reported)"
-                                       layoutSequenceNum="94" fieldTypeEnumId="DBFFT_text-line" printTop="8.500in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="94" fieldTypeEnumId="DBFFT_text-line" printTop="8.479in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_17bc" title="17bc State income tax (Corrected)"
-                                       layoutSequenceNum="95" fieldTypeEnumId="DBFFT_text-line" printTop="8.500in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="95" fieldTypeEnumId="DBFFT_text-line" printTop="8.479in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_18bp" title="18bp Local wages, tips, etc. (Previously reported)"
-                                       layoutSequenceNum="96" fieldTypeEnumId="DBFFT_text-line" printTop="9.150in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="96" fieldTypeEnumId="DBFFT_text-line" printTop="9.143in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_18bc" title="18bc Local wages, tips, etc. (Corrected)"
-                                       layoutSequenceNum="97" fieldTypeEnumId="DBFFT_text-line" printTop="9.150in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="97" fieldTypeEnumId="DBFFT_text-line" printTop="9.143in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_19bp" title="19bp Local income tax (Previously reported)"
-                                       layoutSequenceNum="98" fieldTypeEnumId="DBFFT_text-line" printTop="9.500in" printRight="2.325in" printTextAlign="right">
+                                       layoutSequenceNum="98" fieldTypeEnumId="DBFFT_text-line" printTop="9.479in" printRight="2.325in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_19bc" title="19bc Local income tax (Corrected)"
-                                       layoutSequenceNum="99" fieldTypeEnumId="DBFFT_text-line" printTop="9.500in" printRight="0.563in" printTextAlign="right">
+                                       layoutSequenceNum="99" fieldTypeEnumId="DBFFT_text-line" printTop="9.479in" printRight="0.563in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_20bp" title="20bp Locality name (Previously reported)"
-                                       layoutSequenceNum="100" fieldTypeEnumId="DBFFT_text-line" printTop="9.870in" printLeft="4.400in">
+                                       layoutSequenceNum="100" fieldTypeEnumId="DBFFT_text-line" printTop="9.812in" printLeft="4.400in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="8"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2c_20bc" title="20bc Locality name (Corrected)"
-                                       layoutSequenceNum="101" fieldTypeEnumId="DBFFT_text-line" printTop="9.870in" printLeft="6.250in">
+                                       layoutSequenceNum="101" fieldTypeEnumId="DBFFT_text-line" printTop="9.812in" printLeft="6.300in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="8"/></moqui.screen.form.DbFormField>
     </moqui.screen.form.DbForm>
 

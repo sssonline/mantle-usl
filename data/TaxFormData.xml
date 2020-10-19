@@ -195,7 +195,6 @@ along with this software (see the LICENSE.md file). If not, see
                               description="USA IRS Form W-2 C" printTemplateLocation="" printFontSize="9pt"
                               printFontFamily="Courier, monospace" printContainerHeight="11.0in" printContainerWidth="8.5in"
                               printRepeatCount="1">
-        <!-- see the mantle.humanres.PayrollDocumentServices.get#UsaIrsW2FormData service for data prep -->
         <!-- print coordinates are for the 8.5"x11.0" form -->
 
         <moqui.screen.form.DbFormField fieldName="w2c_a" title="a Employer's name, address, and ZIP code"

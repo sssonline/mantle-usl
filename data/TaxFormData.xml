@@ -70,7 +70,7 @@ along with this software (see the LICENSE.md file). If not, see
         <moqui.screen.form.DbFormField fieldName="w2_08" title="8 Allocated tips"
                 layoutSequenceNum="28" fieldTypeEnumId="DBFFT_text-line" printTop="1.972in" printRight="0.545in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
-        <moqui.screen.form.DbFormField fieldName="w2_09" title="09 Verification Code"
+        <moqui.screen.form.DbFormField fieldName="w2_09" title="9 Verification Code"
                 layoutSequenceNum="29" fieldTypeEnumId="DBFFT_text-line" printTop="2.306in" printRight="2.250in" printTextAlign="right">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="16"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_10" title="10 Dependent care benefits"

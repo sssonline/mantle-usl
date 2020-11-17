@@ -418,7 +418,7 @@ along with this software (see the LICENSE.md file). If not, see
         </actions>
     </service>
     <service verb="get" noun="PayerTaxInfo">
-        <in-parameters><parameter name="partyId"/></in-parameters>
+        <in-parameters><parameter name="partyId" required="true"/></in-parameters>
         <out-parameters>
             <parameter name="name"/><parameter name="ein"/><parameter name="uid"/><parameter name="federalAgentIndicatorCode"/>
             <parameter name="contactInfo" type="Map"/><parameter name="addressString"/><parameter name="phoneString"/><parameter name="faxString"/>
@@ -430,12 +430,12 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find-one entity-name="mantle.party.PartyIdentification" value-field="einPi">
                 <field-map field-name="partyId"/><field-map field-name="partyIdTypeEnumId" value="PtidFein"/></entity-find-one>
             <set field="ein" from="einPi?.idValue"/>
-            <entity-find-one entity-name="mantle.party.PartyIdentification" value-field="einPi">
+            <entity-find-one entity-name="mantle.party.PartyIdentification" value-field="uidPi">
                 <field-map field-name="partyId"/><field-map field-name="partyIdTypeEnumId" value="PtidFuid"/></entity-find-one>
-            <set field="uid" from="einPi?.idValue"/>
-            <entity-find-one entity-name="mantle.party.PartyIdentification" value-field="einPi">
+            <set field="uid" from="uidPi?.idValue"/>
+            <entity-find-one entity-name="mantle.party.PartyIdentification" value-field="faiPi">
                 <field-map field-name="partyId"/><field-map field-name="partyIdTypeEnumId" value="PtidFaic"/></entity-find-one>
-            <set field="federalAgentIndicatorCode" from="einPi?.idValue"/>
+            <set field="federalAgentIndicatorCode" from="faiPi?.idValue"/>
 
             <service-call name="mantle.party.ContactServices.get#PartyContactInfo" out-map="contactInfo"
                     in-map="[partyId:partyId, postalContactMechPurposeId:'PostalTax', telecomContactMechPurposeId:'PhoneTax',

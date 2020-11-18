@@ -22,28 +22,42 @@ along with this software (see the LICENSE.md file). If not, see
 
         <moqui.screen.form.DbFormField fieldName="w2_a" title="a Employee's social security number"
                 layoutSequenceNum="1" fieldTypeEnumId="DBFFT_text-line" printTop="0.640in" printLeft="2.220in" printWidth="1.5in">
-            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
+        </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_b" title="b Employer identification number (EIN)"
                 layoutSequenceNum="2" fieldTypeEnumId="DBFFT_text-line" printTop="0.970in" printLeft="0.5625in">
-            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
+        </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_c" title="c Employer's name, address, and ZIP code"
                 layoutSequenceNum="3" fieldTypeEnumId="DBFFT_text-area" printTop="1.25in" printLeft="0.5625in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="cols" value="60"/>
             <moqui.screen.form.DbFormFieldAttribute attributeName="rows" value="5"/>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_d" title="d Control number"
-                layoutSequenceNum="4" fieldTypeEnumId="DBFFT_text-line" printTop="2.306in" printLeft="0.5625in"/>
+                layoutSequenceNum="4" fieldTypeEnumId="DBFFT_text-line" printTop="2.306in" printLeft="0.5625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
+        </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_e1" title="e1 Employee's first name and initial"
-                layoutSequenceNum="5" fieldTypeEnumId="DBFFT_text-line" printTop="2.610in" printLeft="0.5625in"/>
+                layoutSequenceNum="5" fieldTypeEnumId="DBFFT_text-line" printTop="2.610in" printLeft="0.5625in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
+        </moqui.screen.form.DbFormField>    
         <moqui.screen.form.DbFormField fieldName="w2_e2" title="e2 Employee's last name"
-                layoutSequenceNum="6" fieldTypeEnumId="DBFFT_text-line" printTop="2.610in" printLeft="2.4500in"/>
+                layoutSequenceNum="6" fieldTypeEnumId="DBFFT_text-line" printTop="2.610in" printLeft="2.4500in">
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
+        </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_e3" title="e3 Employee's suffix"
                 layoutSequenceNum="7" fieldTypeEnumId="DBFFT_text-line" printTop="2.610in" printRight="3.980in" printTextAlign="right">
-            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
+        </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="w2_f" title="f Employee's address and ZIP code"
                 layoutSequenceNum="8" fieldTypeEnumId="DBFFT_text-area" printTop="2.75in" printLeft="0.5625in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="cols" value="60"/>
             <moqui.screen.form.DbFormFieldAttribute attributeName="rows" value="4"/>
+            <moqui.screen.form.DbFormFieldAttribute attributeName="read-only" value="true"/>
         </moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="w2_01" title="1 Wages, tips, other compensation"

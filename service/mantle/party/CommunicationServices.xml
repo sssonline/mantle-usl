@@ -104,4 +104,67 @@ along with this software (see the LICENSE.md file). If not, see
                     in-map="[wikiPageId:wikiPageId, communicationEventId:communicationEventId]"/>
         </actions>
     </service>
+
+    <service verb="send" noun="ManagerEmail">
+        <in-parameters>
+            <parameter name="managerType" required="true"/>
+            <parameter name="orderId" required="true"/>
+        </in-parameters>
+        <actions>
+            <!-- Send message to a manager for approval after order is placed-->
+            <set field="messageFrom" from="partyId"/>
+            <entity-find entity-name="mantle.order.OrderItem" list="orderItems">
+                <econdition field-name="orderId"/>
+            </entity-find>
+            <set field="uniqueManagers" from="[:]"/>
+            <!-- check if there is a division manager for this order-->
+            <iterate list="orderItems" entry="orderItem">
+                <entity-find entity-name="mantle.party.PartyRelationship" list="managers">
+                    <econdition field-name="toPartyId" from="orderItem.overGlAcctOrgPartyId"/>
+                    <econdition field-name="toRoleTypeId" value="OrgDivision"/>
+                    <econdition field-name="fromRoleTypeId" value="OrgDivisionManager"/>
+                    <econdition field-name="fromPartyId" operator="is-not-null"/>
+                    <econdition field-name="fromDate" operator="less-equals" from="ec.user.nowTimestamp" or-null="true"/>
+                    <econdition field-name="thruDate" operator="greater" from="ec.user.nowTimestamp" or-null="true"/>
+                </entity-find>
+                <if condition="managers">
+                    <iterate list="managers" entry="manager">
+                        <set field="uniqueManagers[manager.fromPartyId]" value="1"/>
+                    </iterate>
+                    <set field="messageTo" from="manager.fromPartyId"/>
+                </if>
+            </iterate>
+            <!--If this division doesn't have an active manager, look at organization -->
+            <if condition="managers.size() == 0"><then>
+                <set field="uniqueOrgManagers" from="[:]"/>
+                <entity-find entity-name="mantle.party.PartyRelationship" list="orgManagers">
+                    <econdition field-name="toPartyId" from="customerPartyId"/>
+                    <econdition field-name="toRoleTypeId" value="OrgInternal"/>
+                    <econdition field-name="fromRoleTypeId" value="Manager"/>
+                    <econdition field-name="fromPartyId" operator="is-not-null"/>
+                    <econdition field-name="fromDate" operator="less-equals" from="ec.user.nowTimestamp" or-null="true"/>
+                    <econdition field-name="thruDate" operator="greater" from="ec.user.nowTimestamp" or-null="true"/>
+                </entity-find>
+                <if condition="orgManagers">
+                    <iterate list="orgManagers" entry="orgManager">
+                        <set field="uniqueOrgManagers[orgManager.fromPartyId]" value="1"/>
+                    </iterate>
+                    <set field="messageTo" from="orgManager.fromPartyId"/>
+                </if>
+            </then></if>
+
+            <!-- if no division manager  or organization manager put up an error-->
+            <if condition="messageTo == null"><then>
+                <return type="warning" message="Unable to find manager to notify for approval of Order ${orderId}. Please manually notify
+                    appropriate management of the need for approval."/>
+            </then><else>
+                <set field="subject" value="Order ${orderId} needs approval"/>
+                <set field="messageUrl" from="org.moqui.impl.context.WebFacadeImpl.getWebappRootUrl(sri?.webappName ?: 'webroot', null, true, false, ec)"/>
+                <set field="messageUrl" value="&lt;a href='${messageUrl}/apps/sunpac/Purchasing/PurchaseOrder/OrderDetail?orderId=${orderId}'&gt;Review Order ${orderId} for approval&lt;/a&gt;"/>
+                <!--<set field="messageUrl" value="&lt;a href='${url}/apps/sunpac/Purchasing/PurchaseOrder/OrderDetail?orderId=100000'&gt;test&lt;/a&gt;"/>-->
+                <service-call name="mantle.party.CommunicationServices.create#Message" in-map="[fromPartyId:messageFrom, communicationEventTypeId:'Message',
+                    subject:subject, toPartyId:messageTo, body:messageUrl, contentType:'text/html']"/>
+            </else></if>
+        </actions>
+    </service>
 </services>

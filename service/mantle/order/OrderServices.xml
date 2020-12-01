@@ -1028,7 +1028,7 @@ General Order Placement and eCommerce Usage
                 </iterate>
             </if>
             <service-call name="mantle.party.CommunicationServices.send#ManagerEmail"
-                          in-map="[orderId:orderId, managerType:'OrgDivisionManager']"/>
+                          in-map="[orderId:orderId,relationshipType:'PrtManager']"/>
 
 
         </actions>
@@ -1039,6 +1039,32 @@ General Order Placement and eCommerce Usage
         <actions>
             <if condition="!ec.user.hasPermission('ORDER_APPROVE')">
                 <return error="true" message="Order Approve permission required"/></if>
+
+            <set field="orderItems" from="[:]"/>
+            <entity-find entity-name="mantle.order.OrderItem" list="orderItems">
+                <econdition field-name="orderId"/>
+            </entity-find>
+            <set field="managers" from="[:]"/>
+            <iterate list="orderItems" entry="orderItem">
+                <entity-find entity-name="mantle.party.PartyRelationship" list="managers">
+                    <econdition field-name="toPartyId" from="orderItem.overGlAcctOrgPartyId"/>
+                    <econdition field-name="toRoleTypeId" value="OrgDivision"/>
+                    <econdition field-name="fromRoleTypeId" operator="like" value="%Manager"/>
+                    <econdition field-name="fromPartyId" from="ec.user.userAccount.partyId"/>
+                    <econdition field-name="fromDate" operator="less-equals" from="ec.user.nowTimestamp" or-null="true"/>
+                    <econdition field-name="thruDate" operator="greater" from="ec.user.nowTimestamp" or-null="true"/>
+                </entity-find>
+                <if condition="managers">
+                    <iterate list="managers" entry="manager">
+                        <if condition="manager.relationshipTypeEnumId == 'PrtManager'"><then>
+                            <service-call name="mantle.party.CommunicationServices.send#ManagerEmail"
+                                          in-map="[orderId:orderId, relationshipType:'PrtRegionalManager']"/>
+                            <return type="warn" message="Purchase Order still needs Regional Manager Approval"/>
+                        </then></if>
+                    </iterate>
+                </if>
+            </iterate>
+
             <service-call name="mantle.order.OrderServices.update#OrderStatus" out-map="context" in-map="context + [statusId:'OrderApproved']"/>
         </actions>
     </service>

@@ -107,8 +107,8 @@ along with this software (see the LICENSE.md file). If not, see
 
     <service verb="send" noun="ManagerEmail">
         <in-parameters>
-            <parameter name="managerType" required="true"/>
             <parameter name="orderId" required="true"/>
+            <parameter name="relationshipType" required="true"/>
         </in-parameters>
         <actions>
             <!-- Send message to a manager for approval after order is placed-->
@@ -123,6 +123,7 @@ along with this software (see the LICENSE.md file). If not, see
                     <econdition field-name="toPartyId" from="orderItem.overGlAcctOrgPartyId"/>
                     <econdition field-name="toRoleTypeId" value="OrgDivision"/>
                     <econdition field-name="fromRoleTypeId" value="OrgDivisionManager"/>
+                    <econdition field-name="relationshipTypeEnumId" from="relationshipType"/>
                     <econdition field-name="fromPartyId" operator="is-not-null"/>
                     <econdition field-name="fromDate" operator="less-equals" from="ec.user.nowTimestamp" or-null="true"/>
                     <econdition field-name="thruDate" operator="greater" from="ec.user.nowTimestamp" or-null="true"/>

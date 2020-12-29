@@ -487,9 +487,9 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- does the OrderPart have shippable items? -->
             <entity-find-related value-field="orderPart" relationship-name="mantle.order.OrderItem" list="orderItemList"
-                    order-by-list="['orderItemSeqId']"/>
+                    order-by-list="['orderItemSeqId']"/><!--
             <if condition="!orderItemList.find({ it.product?.productTypeEnumId in ['PtAsset', 'PtDigitalAsset', 'PtAssetUse'] })">
-                <return type="warning" message="Order ${orderId} part ${orderPartSeqId} has no shippable product items (type asset or asset use)"/></if>
+                <return type="warning" message="Order ${orderId} part ${orderPartSeqId} has no shippable product items (type asset or asset use)"/></if>-->
 
             <!-- and not already on a Shipment? -->
             <set field="totalQtyToShip" from="0.0"/>

@@ -503,9 +503,11 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="!orderItem.productId || !productItemTypes.contains(orderItem.itemTypeEnumId)"><continue/></if>
 
                 <!-- see if Product is a physical item -->
+<!--
                 <entity-find-one entity-name="mantle.product.Product" value-field="product" cache="true">
                     <field-map field-name="productId" from="orderItem.productId"/></entity-find-one>
                 <if condition="!(product.productTypeEnumId in ['PtAsset', 'PtDigitalAsset', 'PtAssetUse'])"><continue/></if>
+-->
 
                 <!-- determine quantityNotShipped -->
                 <set field="quantityNotShipped" from="(orderItem.quantity != null ? orderItem.quantity : 1.0) * (orderItem.selectedAmount ?: 1.0)"/>

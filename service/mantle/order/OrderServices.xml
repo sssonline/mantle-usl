@@ -2119,4 +2119,59 @@ General Order Placement and eCommerce Usage
             <service-call name="update#mantle.request.Request" in-map="[requestId:requestId, statusId:'ReqInProgress']"/>
         </actions>
     </service>
+
+    <service verb="get" noun="PurchaseOrdersForUser">
+        <in-parameters>
+            <parameter name="mgrPartyId" required="true">
+                <description>The party id for the manager.</description></parameter>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="users" type="List" required="true"/>
+        </out-parameters>
+        <actions>
+            <!-- Find out if user is a manager -->
+            <set field="managers" from="[:]"/>
+            <entity-find entity-name="mantle.party.PartyRelationship" list="managers">
+                <econdition field-name="toRoleTypeId" value="OrgDivision"/>
+                <econdition field-name="relationshipTypeEnumId" operator="like" value="%Manager"/>
+                <econdition field-name="fromPartyId" from="mgrPartyId"/>
+                <econdition field-name="fromDate" operator="less-equals" from="ec.user.nowTimestamp" or-null="true"/>
+                <econdition field-name="thruDate" operator="greater" from="ec.user.nowTimestamp" or-null="true"/>toPar
+                <select-field field-name="toPartyId"/>
+            </entity-find>
+
+            <set field="users" from="[]"/>
+            
+            <if condition="managers">
+                    <entity-find entity-name="mantle.party.PartyFromAndToRelationship" list="enterpriseList"
+                                 distinct="true">
+                        <econdition field-name="toRoleTypeId" value="OrgDivision"/>
+                        <econdition field-name="fromPartyId" from="mgrPartyId"/>
+                        <select-field field-name="toPartyId"/>
+                    </entity-find>
+                <!-- we have enterprises for the manager, now find all users that created po's for those enterprises-->
+                <iterate list="enterpriseList" entry="enterprise">
+                    <entity-find entity-name="mantle.party.PartyFromAndToRelationship" list="userList"
+                                 distinct="true">
+                        <econdition field-name="toRoleTypeId" value="OrgDivision"/>
+                        <econdition field-name="toPartyId" from="enterprise.toPartyId"/>
+                        <select-field field-name="fromPartyId"/>
+                    </entity-find>
+                </iterate>
+
+                <iterate list="userList" entry="enterprise">
+                    <script>
+                        // add these to the output:
+                        users.add(enterprise.fromPartyId)
+                    </script>
+                </iterate>
+            <else>
+                <script>
+                    users.add(mgrPartyId)
+                </script>
+            </else>
+            </if>
+
+        </actions>
+    </service>
 </services>

@@ -33,6 +33,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="allItemsAuditLogList" type="List"><parameter name="orderItem" type="Map"/></parameter>
             <parameter name="orderItemWithChildrenSet" type="Set"><parameter name="orderItemSeqId"/></parameter>
             <parameter name="productItemTypes" type="List"><parameter name="itemTypeEnumId"/></parameter>
+            <parameter name="glItemList" type="List"><parameter name="glAccountId"/></parameter>
 
             <parameter name="orderPromoCodeDetailList" type="List"><parameter name="orderPromoCode" type="Map"/></parameter>
             <parameter name="paymentList" type="List"><parameter name="payment" type="Map">
@@ -273,6 +274,16 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find entity-name="mantle.order.OrderNote" list="orderNoteList">
                 <econdition field-name="orderId"/><order-by field-name="-noteDate"/></entity-find>
 
+            <set field="glInfoList" from="[]"/>
+            <iterate list="orderItemList" entry="orderItem">
+                <service-call name="mantle.order.OrderServices.get#GlAccount"
+                              in-map="[orderItem:orderItem]"
+                              out-map="glOut"/>
+                <script>
+                    glInfoList.add([itemSeq: orderItem.orderItemSeqId, glAccount: glOut.glAccountId])
+                </script>
+            </iterate>
+
             <entity-find-related value-field="orderHeader" relationship-name="mantle.order.OrderPart" list="orderPartList"/>
             <set field="firstPart" from="orderPartList ? orderPartList[0] : null"/>
 
@@ -356,6 +367,8 @@ along with this software (see the LICENSE.md file). If not, see
                 }
                 BigDecimal partTotalUnpaid = (orderPart.partTotal ?: 0.0) - (paymentsTotal ?: 0.0)
 
+                Map partGlInfo = [glInfoList:glInfoList]
+
                 if (!orderPart.vendorPartyId) placeWarnings.add(ec.resource.expand('OrderPlacePartNoVendor', null, [orderPart:orderPart]))
                 if (!orderPart.customerPartyId) placeWarnings.add(ec.resource.expand('OrderPlacePartNoCustomer', null, [orderPart:orderPart]))
                 if (paymentsTotal < (BigDecimal) orderPart.partTotal)
@@ -413,7 +426,8 @@ along with this software (see the LICENSE.md file). If not, see
                         orderPartPartyList:orderPartPartyList, customerShipToDetail:customerShipToDetail,
                         customerBillToDetail:customerBillToDetail, partShipmentItemSourceList:partShipmentItemSourceList,
                         partShipmentIdSet:partShipmentIdSet, duplicateOrderPartList:duplicateOrderPartList,
-                        openReturnList:openReturnsResult.openReturnList])
+                        openReturnList:openReturnsResult.openReturnList,
+                        partGlInfo:partGlInfo])
             }
             ]]></script>
             <set field="firstPartInfo" from="orderPartInfoList ? orderPartInfoList[0] : null"/>

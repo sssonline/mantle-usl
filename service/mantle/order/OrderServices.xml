@@ -775,12 +775,12 @@ General Order Placement and eCommerce Usage
                 </else>
             </if>
             <if condition="orderItem.itemTypeEnumId == 'ItemAsset'">
-                <entity-find-one entity-name="mantle.product.asset.Asset" value-field="assetDetail">
-                    <field-map field-name="assetId" from="orderItem.fromAssetId"/>
-                </entity-find-one>
-                <set field="assetLastFour" from="assetDetail.softIdentifier"/>
+                <set field="assetLastFour" from="orderItem.fromAssetId"/>
             </if>
-            <set field="builtGlAccountId" from="firstSevenGl + nextThreeGl + assetLastFour"/>
+            <set field="builtGlAccountId" from="firstSevenGl + nextThreeGl"/>
+            <if condition="assetLastFour">
+                <set field="builtGlAccountId" from="builtGlAccountId + assetLastFour"/>
+            </if>
             <entity-find-one entity-name="mantle.ledger.account.GlAccount" value-field="glDetail">
                     <field-map field-name="glAccountId" from="builtGlAccountId"/>
             </entity-find-one>

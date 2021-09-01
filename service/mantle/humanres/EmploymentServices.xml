@@ -619,7 +619,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="timePeriodId"/>
             <parameter name="availableAfterDays" type="Integer"/>
             <parameter name="availableDate" type="Date"/>
-            <parameter name="startDateTime" type="Timestamp"/>
+            <parameter name="startDateTime" type="java.time.ZonedDateTime"/>
         </in-parameters>
         <out-parameters>
             <parameter name="availableDateTime"/>

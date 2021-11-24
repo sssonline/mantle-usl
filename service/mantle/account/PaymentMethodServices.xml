@@ -692,9 +692,15 @@ along with this software (see the LICENSE.md file). If not, see
             <iterate list="paymentList" entry="payment">
                 <!-- set paymentMethodFileId and update statusId on all Payment records -->
                 <set field="outgoing" from="payment.fromPartyId == paymentMethod.ownerPartyId"/>
-                <service-call name="update#mantle.account.payment.Payment"
-                        in-map="[paymentId:payment.paymentId, paymentMethodFileId:paymentMethodFileId,
+                <if condition="payment.statusId in ['PmntCancelled', 'PmntVoid']"><then>
+                    <!-- Don't attempt to update outgoing status if the payment is cancelled or voided. -->
+                    <service-call name="update#mantle.account.payment.Payment"
+                                  in-map="[paymentId:payment.paymentId, paymentMethodFileId:paymentMethodFileId]"/>
+                </then><else>
+                    <service-call name="update#mantle.account.payment.Payment"
+                                  in-map="[paymentId:payment.paymentId, paymentMethodFileId:paymentMethodFileId,
                                  statusId:(outgoing ? outgoingStatusId : incomingStatusId)]"/>
+                </else></if>
             </iterate>
 
             <!-- save full file text, etc to PaymentMethodFile -->

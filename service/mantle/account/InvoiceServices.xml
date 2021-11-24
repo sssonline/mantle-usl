@@ -1817,6 +1817,16 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="update#mantle.account.payment.Payment" in-map="[paymentId:paymentId, statusId:targetStatusId]"/>
             </iterate>
 
+            <!-- remove bank account checks -->
+            <iterate list="paymentList" entry="payment">
+                <if condition="payment.paymentInstrumentEnumId == 'PiCompanyCheck'">
+                    <entity-delete-by-condition entity-name="mantle.account.method.BankAccountCheck">
+                        <econdition field-name="paymentMethodId" from="payment.paymentMethodId"/>
+                        <econdition field-name="paymentId" from="payment.paymentId"/>
+                    </entity-delete-by-condition>
+                </if>
+            </iterate>
+
             <!-- cancel payment method files -->
             <iterate list="paymentMethodFileIdList" entry="paymentMethodFileId">
                 <if condition="paymentMethodFileId">

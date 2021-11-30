@@ -777,9 +777,17 @@ General Order Placement and eCommerce Usage
             <if condition="orderItem.itemTypeEnumId == 'ItemAsset'">
                 <set field="assetLastFour" from="orderItem.fromAssetId"/>
             </if>
-            <set field="builtGlAccountId" from="firstSevenGl + nextThreeGl"/>
-            <if condition="assetLastFour">
-                <set field="builtGlAccountId" from="builtGlAccountId + assetLastFour"/>
+            <if condition="firstSevenGl">
+                <set field="builtGlAccountId" from="firstSevenGl"/>
+                <if condition="nextThreeGl">
+                    <set field="builtGlAccountId" from="firstSevenGl + nextThreeGl"/>
+                    <if condition="assetLastFour">
+                        <set field="builtGlAccountId" from="builtGlAccountId + assetLastFour"/>
+                    </if>
+                </if>
+            <!--<else>
+                <set field="builtGlAccountId" value="null"/>
+            </else>-->
             </if>
             <entity-find-one entity-name="mantle.ledger.account.GlAccount" value-field="glDetail">
                     <field-map field-name="glAccountId" from="builtGlAccountId"/>

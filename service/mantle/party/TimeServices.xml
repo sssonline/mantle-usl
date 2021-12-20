@@ -222,8 +222,13 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="periodNum" from="asOfDateDt.getYear()"/>
                     </then><else-if condition="timePeriodType.lengthUomId == 'TF_mon'">
                         <set field="periodNum" from="((asOfDateDt.getMonthValue() - 1) / timePeriodType.periodLength).intValue() + 1"/>
-                        <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; asOfDateDt.getDayOfMonth() &gt; 1">
-                            <set field="periodNum" from="periodNum + 1"/></if>
+                        <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; asOfDateDt.getDayOfMonth() &gt; 14">
+                            <!-- This is Semi-Monthly, and a specific use case for when a Semi-Monthly pay period's
+                                 pay day needs to align with a Bi-Week pay period.  A more generic solution; would look
+                                 at asOfDateDt.getMonthValue() {1-12} is 2 (Feb) to use 14 days, but it does not fit
+                                 Spokane's use case or at least its current use case in Payroll. -->
+                            <set field="periodNum" from="periodNum + 1"/>
+                        </if>
                     </else-if><else-if condition="timePeriodType.lengthUomId == 'TF_wk'">
                         <set field="periodNum" from="(asOfDateDt.get(java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR) / timePeriodType.periodLength).setScale(0, BigDecimal.ROUND_HALF_UP).intValue()"/>
                     </else-if></if>

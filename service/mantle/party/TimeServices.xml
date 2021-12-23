@@ -220,19 +220,22 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="asOfDateDt" from="java.time.ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(asOfDate.time), java.time.ZoneId.systemDefault())"/>
                     <if condition="timePeriodType.lengthUomId == 'TF_yr'"><then>
                         <set field="periodNum" from="asOfDateDt.getYear()"/>
-                    </then><else-if condition="timePeriodType.lengthUomId == 'TF_mon'">
-                        <set field="periodNum" from="((asOfDateDt.getMonthValue() - 1) / timePeriodType.periodLength).intValue() + 1"/>
-                        <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; asOfDateDt.getDayOfMonth() &gt; 15">
+                    </then><else-if condition="timePeriodType.lengthUomId in ['TF_mon', 'TF_wk']">
+                        <if condition="timePeriodType.lengthUomId == 'TF_mon'"><then>
+                            <set field="periodNum" from="((asOfDateDt.getMonthValue() - 1) / timePeriodType.periodLength).intValue() + 1"/>
+                            <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; asOfDateDt.getDayOfMonth() &gt; 14">
+                                <set field="periodNum" from="periodNum + 1"/>
+                            </if>
+                        </then><else-if condition="timePeriodType.lengthUomId == 'TF_wk'">
+                            <set field="periodNum" from="(asOfDateDt.get(java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR) / timePeriodType.periodLength).setScale(0, BigDecimal.ROUND_HALF_UP).intValue()"/>
+                        </else-if></if>
+                        <!-- Do a couple  quick checks to make sure the period isn't the same as the prior or that
+                             one was not skipped.  This should account for year crossovers fine. -->
+                        <if condition="previousPeriod?.periodNum == periodNum"><then>
                             <set field="periodNum" from="periodNum + 1"/>
-                        </if>
-                        <!-- If previousPeriodId is available, make sure this doesn't have the same period number as the
-                             prior period; this handles cases where perhaps the 14th was a better day of month to compare
-                             to. -->
-                        <if condition="previousPeriod?.periodNum == periodNum">
-                            <set field="periodNum" from="periodNum + 1"/>
-                        </if>
-                    </else-if><else-if condition="timePeriodType.lengthUomId == 'TF_wk'">
-                        <set field="periodNum" from="(asOfDateDt.get(java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR) / timePeriodType.periodLength).setScale(0, BigDecimal.ROUND_HALF_UP).intValue()"/>
+                        </then><else-if condition="previousPeriod?.periodNum == periodNum - 2">
+                            <set field="periodNum" from="periodNum - 1"/>
+                        </else-if></if>
                     </else-if></if>
                 </else></if>
             </if>

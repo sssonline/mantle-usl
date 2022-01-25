@@ -261,25 +261,25 @@ along with this software (see the LICENSE.md file). If not, see
 
             <service-call name="store#mantle.work.time.TimeEntry" out-map="context" in-map="context"/>
 
-            <if condition="hasModifiedRates != 'Y'">
-                <service-call name="mantle.work.TimeServices.get#TimeEntryRate" out-map="context" in-map="context"/>
-                <!-- Because get#TimeEntryRate uses different names for things we need to assign them corresponding values -->
-                <if condition="!clientHourRate">
-                    <set field="clientHourRate" from="rateAmount"/>
-                </if>
-                <if condition="!clientPieceRate">
-                    <set field="clientPieceRate" from="pieceRateAmount"/>
-                </if>
-                <if condition="!vendorHourRate">
-                    <set field="vendorHourRate" from="vendorRateAmount"/>
-                </if>
-                <if condition="!vendorPieceRate">
-                    <set field="vendorPieceRate" from="vendorPieceRateAmount"/>
-                </if>
-            </if>
-
             <!-- If any rate increments were provided, add them to the Time Entry -->
             <if condition="vendorHourRateIncrement || vendorPieceRateIncrement || clientHourRateIncrement || clientPieceRateIncrement">
+                <if condition="hasModifiedRates != 'Y'">
+                    <service-call name="mantle.work.TimeServices.get#TimeEntryRate" out-map="context" in-map="context"/>
+                    <!-- Because get#TimeEntryRate uses different names for things we need to assign them corresponding values -->
+                    <if condition="!clientHourRate">
+                        <set field="clientHourRate" from="rateAmount"/>
+                    </if>
+                    <if condition="!clientPieceRate">
+                        <set field="clientPieceRate" from="pieceRateAmount"/>
+                    </if>
+                    <if condition="!vendorHourRate">
+                        <set field="vendorHourRate" from="vendorRateAmount"/>
+                    </if>
+                    <if condition="!vendorPieceRate">
+                        <set field="vendorPieceRate" from="vendorPieceRateAmount"/>
+                    </if>
+                </if>
+
                 <entity-find-one entity-name="mantle.work.time.TimeEntry" value-field="timeEntry" for-update="true"/>
                 <if condition="vendorHourRateIncrement">
                     <set field="timeEntry.vendorHourRate" from="(vendorHourRate?:0.0)+vendorHourRateIncrement"/>

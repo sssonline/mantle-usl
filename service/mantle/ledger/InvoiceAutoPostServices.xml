@@ -22,7 +22,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- make sure there is no AcctgTrans for this invoiceId -->
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttPayrollBillingInvoice', 'AttVendRtnInvoice',
                     'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
-                    'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
+                    'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
                     'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>
 
             <!-- NOTE: not including 'AttInvoiceAdjust' even though included in revert#InvoicePost for reasons explained there -->
@@ -1348,7 +1348,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- find existing AcctgTrans for this invoiceId -->
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttPayrollBillingInvoice', 'AttVendRtnInvoice',
                         'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
-                        'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
+                        'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
                         'AttInvoiceAdjust', 'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>
             <!-- NOTE: including 'AttInvoiceAdjust' to remove and repost those as well -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="existingTransList">
@@ -1391,7 +1391,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttPayrollBillingInvoice', 'AttVendRtnInvoice',
                     'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
-                    'AttTaxInvoice', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
+                    'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttPayrollOtherInvoice', 'AttCommissionInvoice',
                     'AttInvoiceAdjust', 'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>
             <!-- NOTE: including 'AttInvoiceAdjust', for now, on repost those will be posted with the main transaction (may want to change that somehow in the future) -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="acctgTransList">

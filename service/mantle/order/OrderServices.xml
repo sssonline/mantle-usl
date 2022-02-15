@@ -736,7 +736,6 @@ General Order Placement and eCommerce Usage
         </out-parameters>
         <actions>
             <!-- build and look up gl account code for item-->
-
             <entity-find-one entity-name="mantle.order.OrderHeaderPartFacilityStatus" value-field="orderDetail">
                 <field-map field-name="orderId" from="orderItem.orderId"/>
             </entity-find-one>
@@ -771,7 +770,7 @@ General Order Placement and eCommerce Usage
                     <entity-find-one entity-name="mantle.party.Party" value-field="partyDetail">
                         <field-map field-name="partyId" from="orderItem.overGlAcctOrgPartyId"/>
                     </entity-find-one>
-                    <set field="nextThreeGl" from="partyDetail.pseudoId"/>
+                    <set field="nextThreeGl" from="(partyDetail?.pseudoId)?:'000'"/>
                 </else>
             </if>
             <if condition="orderItem.itemTypeEnumId == 'ItemAsset'">

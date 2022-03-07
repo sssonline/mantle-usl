@@ -78,6 +78,9 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="BANKACCTFROM">
                     <!-- make sure routingNumber matches STMTRS.BANKACCTFROM.BANKID -->
                     <set field="BANKID" from="BANKACCTFROM.BANKID[0].text()"/>
+                    <if condition="BANKID == '000000000'">
+                        <set field="BANKID" from="bankAccount.routingNumber"/>
+                    </if>
                     <if condition="bankAccount.routingNumber != BANKID">
                         <message error="true">OFX BANKID [${BANKID}] does not match routing number [${bankAccount.routingNumber}] on Bank Account [${paymentMethodId}]</message></if>
                     <!-- make sure accountNumber matches STMTRS.BANKACCTFROM.ACCTID (note: may be partial, use contains) -->

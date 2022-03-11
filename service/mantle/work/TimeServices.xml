@@ -25,6 +25,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="vendorPieceRateIncrement" type="BigDecimal"/>
             <parameter name="clientHourRateIncrement" type="BigDecimal"/>
             <parameter name="clientPieceRateIncrement" type="BigDecimal"/>
+
+            <parameter name="bypassEmploymentPayHistoryEeca" type="Boolean" default="false"/>
         </in-parameters>
         <out-parameters>
             <parameter name="timeEntryId"/>

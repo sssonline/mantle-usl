@@ -268,7 +268,9 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="timeEntry.clientHourRate" from="null"/>
                         <set field="timeEntry.vendorHourRate" from="null"/>
                         <set field="timeEntry.clientPieceRate" from="null"/>
+                        <set field="timeEntry.clientPieceRateThreshold" from="null"/>
                         <set field="timeEntry.vendorPieceRate" from="null"/>
+                        <set field="timeEntry.vendorPieceRateThreshold" from="null"/>
                     </if>
                     <set field="timeEntry.invoiceId" from="null"/>
                     <entity-update value-field="timeEntry"/>
@@ -280,7 +282,9 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="timeEntry.clientHourRate" from="null"/>
                         <set field="timeEntry.vendorHourRate" from="null"/>
                         <set field="timeEntry.clientPieceRate" from="null"/>
+                        <set field="timeEntry.clientPieceRateThreshold" from="null"/>
                         <set field="timeEntry.vendorPieceRate" from="null"/>
+                        <set field="timeEntry.vendorPieceRateThreshold" from="null"/>
                     </if>
                     <set field="timeEntry.invoiceId" from="null"/>
                     <entity-update value-field="timeEntry"/>
@@ -493,6 +497,13 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="timeEntry.clientPieceRate" from="clientPieceRateMap?.rateAmount"/>
                     <set field="updated" from="true" type="Boolean"/>
                 </if>
+                <if condition="timeEntry.clientPieceRateThreshold == null &amp;&amp; timeEntry.pieceRateAmountId != null">
+                    <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="clientPieceRateThresholdMap" cache="true">
+                        <field-map field-name="rateAmountId" from="timeEntry.pieceRateAmountId"/>
+                    </entity-find-one>
+                    <set field="timeEntry.clientPieceRateThreshold" from="clientPieceRateThresholdMap?.rateThreshold"/>
+                    <set field="updated" from="true" type="Boolean"/>
+                </if>
                 <if condition="timeEntry.vendorHourRate == null &amp;&amp; timeEntry.vendorRateAmountId != null">
                     <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="vendorHourRateMap" cache="true">
                         <field-map field-name="rateAmountId" from="timeEntry.vendorRateAmountId"/>
@@ -505,6 +516,13 @@ along with this software (see the LICENSE.md file). If not, see
                         <field-map field-name="rateAmountId" from="timeEntry.vendorPieceRateAmountId"/>
                     </entity-find-one>
                     <set field="timeEntry.vendorPieceRate" from="vendorPieceRateMap?.rateAmount"/>
+                    <set field="updated" from="true" type="Boolean"/>
+                </if>
+                <if condition="timeEntry.vendorPieceRateThreshold == null &amp;&amp; timeEntry.vendorPieceRateAmountId != null">
+                    <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="vendorPieceRateThresholdMap" cache="true">
+                        <field-map field-name="rateAmountId" from="timeEntry.vendorPieceRateAmountId"/>
+                    </entity-find-one>
+                    <set field="timeEntry.vendorPieceRateThreshold" from="vendorPieceRateThresholdMap?.rateThreshold"/>
                     <set field="updated" from="true" type="Boolean"/>
                 </if>
 

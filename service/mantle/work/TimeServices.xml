@@ -250,13 +250,16 @@ along with this software (see the LICENSE.md file). If not, see
                     <if condition="(clientHourRate &amp;&amp; (timeEntry?.hasModifiedRates || clientHourRate != timeEntry?.clientHourRate)) ||
                             (vendorHourRate &amp;&amp; (timeEntry?.hasModifiedRates || vendorHourRate != timeEntry?.vendorHourRate)) ||
                             (clientPieceRate &amp;&amp; (timeEntry?.hasModifiedRates || clientPieceRate != timeEntry?.clientPieceRate)) ||
-                            (vendorPieceRate &amp;&amp; (timeEntry?.hasModifiedRates || vendorPieceRate != timeEntry?.vendorPieceRate))">
+                            (clientPieceRateThreshold &amp;&amp; (timeEntry?.hasModifiedRates || clientPieceRateThreshold != timeEntry?.clientPieceRateThreshold)) ||
+                            (vendorPieceRate &amp;&amp; (timeEntry?.hasModifiedRates || vendorPieceRate != timeEntry?.vendorPieceRate)) ||
+                            (vendorPieceRateThreshold &amp;&amp; (timeEntry?.hasModifiedRates || vendorPieceRateThreshold != timeEntry?.vendorPieceRateThreshold))">
                         <set field="hasModifiedRates" value="Y"/>
                     </if>
                 </then><else>
                     <!-- will be set in TimeServices.get#TimeEntryRate -->
                     <set field="clientHourRate" from="null"/><set field="vendorHourRate" from="null"/>
                     <set field="clientPieceRate" from="null"/><set field="vendorPieceRate" from="null"/>
+                    <set field="clientPieceRateThreshold" from="null"/><set field="vendorPieceRateThreshold" from="null"/>
                     <set field="hasModifiedRates" value="N"/>
                 </else></if>
             </if>
@@ -587,6 +590,9 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="pieceAmountTotal" type="BigDecimal"/>
             <parameter name="hourlyAmount" type="BigDecimal"/>
             <parameter name="pieceAmount" type="BigDecimal"/>
+            <parameter name="pieceAmountThreshold" type="BigDecimal"/>
+            <parameter name="pieceAmountProductivityRate" type="BigDecimal"/>
+            <parameter name="pieceAmountDifferentialRate" type="BigDecimal"/>
             <parameter name="hours" type="BigDecimal"/>
             <parameter name="pieceCount" type="BigDecimal"/>
         </out-parameters>
@@ -630,10 +636,13 @@ along with this software (see the LICENSE.md file). If not, see
             </else></if>
             <if condition="pieceCount"><then>
                 <set field="pieceAmount" from="ratePurposeEnumId == 'RaprVendor' ? timeEntry.vendorPieceRate : timeEntry.clientPieceRate"/>
-                <if condition="pieceAmount == null"><then>
+                <set field="pieceAmountProductivityRate" from="0.0"/>
+                <set field="pieceAmountDifferentialRate" from="0.0"/>
+                <set field="pieceRateAmountLookup" from="null"/>
+                <if condition="pieceAmount == null">
                     <set field="pieceRateAmountId" from="ratePurposeEnumId == 'RaprVendor' ? timeEntry.vendorPieceRateAmountId : timeEntry.pieceRateAmountId"/>
                     <if condition="pieceRateAmountId"><then>
-                        <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="pieceRateAmount" cache="true">
+                        <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="pieceRateAmountLookup" cache="true">
                             <field-map field-name="rateAmountId" from="pieceRateAmountId"/></entity-find-one>
                     </then><else>
                         <service-call name="mantle.work.TimeServices.get#TimeEntryRate" out-map="getTerOut" in-map="[timeEntryId:timeEntryId]"/>
@@ -642,22 +651,66 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="timeEntry.vendorPieceRateAmountId" from="getTerOut.vendorPieceRateAmountId"/>
 
                         <set field="pieceRateAmountId" from="ratePurposeEnumId == 'RaprVendor' ? getTerOut.vendorPieceRateAmountId : getTerOut.pieceRateAmountId"/>
-                        <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="pieceRateAmount" cache="true">
+                        <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="pieceRateAmountLookup" cache="true">
                             <field-map field-name="rateAmountId" from="pieceRateAmountId"/></entity-find-one>
                     </else></if>
-                    <if condition="pieceRateAmount"><then>
-                        <set field="pieceAmount" from="pieceRateAmount.rateAmount"/>
-                        <set field="pieceAmountTotal" from="pieceCount * pieceAmount"/>
+                    <if condition="pieceRateAmountLookup"><then>
+                        <set field="pieceAmount" from="pieceRateAmountLookup.rateAmount"/>
                         <set field="currencyUomId" from="rateAmount.rateCurrencyUomId"/>
                     </then><else>
                         <set field="purposeDesc" from="ec.entity.find('enums').condition('enumId', ratePurposeEnumId).one()?.description"/>
                         <message>No ${purposeDesc} piece rate amount found for time entry ${timeEntryId}</message>
+                    </else></if>
+                </if>
+
+                <set field="pieceAmountThreshold" from="ratePurposeEnumId == 'RaprVendor' ? timeEntry.vendorPieceRateThreshold : timeEntry.clientPieceRateThreshold"/>
+                <if condition="pieceAmountThreshold == null &amp;&amp; (timeEntry.pieceRateTypeEnumId == 'RatpPieceTholdDiff')">
+                    <set field="pieceRateAmountId" from="ratePurposeEnumId == 'RaprVendor' ? timeEntry.vendorPieceRateAmountId : timeEntry.pieceRateAmountId"/>
+                    <if condition="pieceRateAmountId"><then>
+                        <if condition="pieceRateAmountLookup"><then>
+                            <set field="pieceRateThresholdLookup" from="pieceRateAmountLookup"/>
+                        </then><else>
+                            <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="pieceRateThresholdLookup" cache="true">
+                                <field-map field-name="rateAmountId" from="pieceRateAmountId"/></entity-find-one>
+                        </else></if>
+                    </then><else>
+                        <service-call name="mantle.work.TimeServices.get#TimeEntryRate" out-map="getTerOut" in-map="[timeEntryId:timeEntryId]"/>
+                        <!-- set the values in the timeEntry record for use below since the service updates the DB record and we don't want to re-query to get it -->
+                        <set field="timeEntry.pieceRateAmountId" from="getTerOut.pieceRateAmountId"/>
+                        <set field="timeEntry.vendorPieceRateAmountId" from="getTerOut.vendorPieceRateAmountId"/>
+
+                        <set field="pieceRateAmountId" from="ratePurposeEnumId == 'RaprVendor' ? getTerOut.vendorPieceRateAmountId : getTerOut.pieceRateAmountId"/>
+                        <entity-find-one entity-name="mantle.humanres.rate.RateAmount" value-field="pieceRateThresholdLookup" cache="true">
+                            <field-map field-name="rateAmountId" from="pieceRateAmountId"/></entity-find-one>
+                    </else></if>
+                    <set field="pieceAmountTotal" from="0.0"/>
+                    <if condition="pieceRateThresholdLookup"><then>
+                        <set field="pieceAmountThreshold" from="pieceRateThresholdLookup.rateAmount"/>
+                    </then><else>
+                        <set field="purposeDesc" from="ec.entity.find('enums').condition('enumId', ratePurposeEnumId).one()?.description"/>
+                        <message>No ${purposeDesc} piece rate amount found for time entry ${timeEntryId}</message>
+                    </else></if>
+                </if>
+
+                <if condition="timeEntry.pieceRateTypeEnumId == 'RatpPieceTholdDiff'"><then>
+                    <if condition="hours"><then>
+                        <set field="pieceAmountProductivityRate" from="pieceCount / hours" type="BigDecimal"/>
+                        <set field="pieceAmountDifferentialRate" from="pieceAmountProductivityRate - (pieceAmountThreshold?:0.0)" type="BigDecimal"/>
+                        <if condition="diffRate &gt; 0"><then>
+                            <set field="effectivePieceRate" from="pieceAmount * pieceAmountDifferentialRate" type="BigDecimal"/>
+                            <set field="pieceAmountTotal" from="pieceCount * effectivePieceRate" type="BigDecimal"/>
+                        </then><else>
+                            <set field="pieceAmountTotal" from="0.0"/>
+                        </else></if>
+                    </then><else>
+                        <set field="pieceAmountTotal" from="0.0"/>
                     </else></if>
                 </then><else>
                     <set field="pieceAmountTotal" from="pieceCount * pieceAmount"/>
                 </else></if>
             </then><else>
                 <set field="pieceAmount" from="0.0"/>
+                <set field="pieceAmountThreshold" from="0.0"/>
                 <set field="pieceAmountTotal" from="0.0"/>
             </else></if>
 
@@ -751,8 +804,10 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="vendorRateAmount"/>
             <parameter name="pieceRateAmountId"/>
             <parameter name="pieceRateAmount"/>
+            <parameter name="pieceRateAmountThreshold"/>
             <parameter name="vendorPieceRateAmountId"/>
             <parameter name="vendorPieceRateAmount"/>
+            <parameter name="vendorPieceRateAmountThreshold"/>
         </out-parameters>
         <actions>
             <entity-find-one entity-name="mantle.work.time.TimeEntry" value-field="timeEntry" for-update="true"/>
@@ -799,10 +854,12 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="timeEntry.pieceRateAmountId" from="pieceRate.rateAmountId"/>
                     <set field="pieceRateAmountId" from="pieceRate.rateAmountId"/>
                     <set field="pieceRateAmount" from="pieceRate.rateAmount"/>
+                    <set field="pieceRateThreshold" from="pieceRate.rateThreshold"/>
                 </if>
             </then><else>
                 <set field="pieceRateAmountId" from="timeEntry.pieceRateAmountId"/>
                 <set field="pieceRateAmount" from="timeEntry.'Piece#mantle.humanres.rate.RateAmount'?.rateAmount"/>
+                <set field="pieceRateThreshold" from="timeEntry.'Piece#mantle.humanres.rate.RateAmount'?.rateThreshold"/>
             </else></if>
             <if condition="!timeEntry.vendorPieceRateAmountId &amp;&amp; timeEntry.pieceRateTypeEnumId"><then>
                 <service-call name="mantle.work.TimeServices.find#TimeEntryRateAmount" out-map="vendorPieceRate"
@@ -812,10 +869,12 @@ along with this software (see the LICENSE.md file). If not, see
                     <set field="timeEntry.vendorPieceRateAmountId" from="vendorPieceRate.rateAmountId"/>
                     <set field="vendorPieceRateAmountId" from="vendorPieceRate.rateAmountId"/>
                     <set field="vendorPieceRateAmount" from="vendorPieceRate.rateAmount"/>
+                    <set field="vendorPieceRateThreshold" from="vendorPieceRate.rateThreshold"/>
                 </if>
             </then><else>
                 <set field="vendorPieceRateAmountId" from="timeEntry.vendorPieceRateAmountId"/>
                 <set field="vendorPieceRateAmount" from="timeEntry.'VendorPiece#mantle.humanres.rate.RateAmount'?.rateAmount"/>
+                <set field="vendorPieceRateThreshold" from="timeEntry.'VendorPiece#mantle.humanres.rate.RateAmount'?.rateThreshold"/>
             </else></if>
 
             <entity-update value-field="timeEntry"/>

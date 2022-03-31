@@ -247,7 +247,9 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="vendorPieceRateAmountId"/>
             <exclude field="pieceCount"/>
             <exclude field="pieceRate"/>
+            <exclude field="pieceRateThreshold"/>
             <exclude field="vendorPieceRate"/>
+            <exclude field="vendorPieceRateThreshold"/>
             <exclude field="invoiceId"/>
             <exclude field="invoiceItemSeqId"/>
             <exclude field="vendorInvoiceId"/>

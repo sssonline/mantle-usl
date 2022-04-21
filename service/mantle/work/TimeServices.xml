@@ -693,12 +693,12 @@ along with this software (see the LICENSE.md file). If not, see
                 </if>
 
                 <if condition="timeEntry.pieceRateTypeEnumId == 'RatpPieceTholdDiff'"><then>
-                    <if condition="hours"><then>
+                    <if condition="hours &amp;&amp; pieceCount"><then>
                         <set field="pieceAmountProductivityRate" from="pieceCount / hours" type="BigDecimal"/>
                         <set field="pieceAmountDifferentialRate" from="pieceAmountProductivityRate - (pieceAmountThreshold?:0.0)" type="BigDecimal"/>
                         <if condition="diffRate &gt; 0"><then>
-                            <set field="effectivePieceRate" from="pieceAmount * pieceAmountDifferentialRate" type="BigDecimal"/>
-                            <set field="pieceAmountTotal" from="pieceCount * effectivePieceRate" type="BigDecimal"/>
+                            <set field="pieceAmountTotal" from="pieceAmount * pieceAmountDifferentialRate * hours" type="BigDecimal"/> <!-- Yes, hours, not pieceCount for TimeEntry -->
+                            <set field="effectivePieceRate" from="pieceAmountTotal / effectivePieceRate" type="BigDecimal"/>           <!-- determine effective piece rate -->
                         </then><else>
                             <set field="pieceAmountTotal" from="0.0"/>
                         </else></if>

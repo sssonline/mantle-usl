@@ -1016,6 +1016,25 @@ along with this software (see the LICENSE.md file). If not, see
                 <set field="emplPositionClassId" from="emplPositionClassId ?: emplPosition?.emplPositionClassId"/>
 
                 <set field="partyRaList" from="rateAmountList.findAll({ it.partyId == partyId })"/>
+                <!-- If there are duplicates for work type, pay grade, and position class, keep the one with the most specific date -->
+                <set field="reducedPartyRaListMap" from="[:]"/>
+                <iterate list="partyRaList" entry="partyRa">
+                    <set field="key" value="${workTypeEnumId}_${payGradeId}_${emplPositionClassId}"/>
+                    <if condition="!reducedPartyRaListMap.containsKey(key)"><then>
+                        <set field="reducedPartyRaListMap[key]" from="partyRa"/>
+                    </then><else-if condition="partyRa.fromDate">
+                        <!-- Choose the one with the larger fromDate -->
+                        <if condition="!reducedPartyRaListMap[key] || partyRa.fromDate &gt; reducedPartyRaListMap[key].fromDate">
+                            <set field="reducedPartyRaListMap[key]" from="partyRa"/>
+                        </if>                        
+                    </else-if><else-if condition="!reducedPartyRaListMap[key].fromDate &amp;&amp; partyRa.thruDate">
+                        <!-- Choose the one with the more recent thruDate, but not if the existing one has a fromDate -->
+                        <if condition="!reducedPartyRaListMap[key].thruDate || partyRa.thruDate &lt; reducedPartyRaListMap[key].thruDate">
+                            <set field="reducedPartyRaListMap[key]" from="partyRa"/>
+                        </if>
+                    </else-if></if>
+                </iterate>
+                <set field="partyRaList" from="reducedPartyRaListMap.values()" type="List"/>
                 <if condition="partyRaList">
                     <set field="partyRateAmountToUse" from="findMaximalMatch(partyRaList,
                         [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
@@ -1025,6 +1044,25 @@ along with this software (see the LICENSE.md file). If not, see
 
             <if condition="organizationPartyId">
                 <set field="orgRaList" from="rateAmountList.findAll({ it.organizationPartyId == organizationPartyId })"/>
+                <!-- If there are duplicates for work type, pay grade, and position class, keep the one with the most specific date -->
+                <set field="reducedOrgRaListMap" from="[:]"/>
+                <iterate list="orgRaList" entry="orgRa">
+                    <set field="key" value="${workTypeEnumId}_${payGradeId}_${emplPositionClassId}"/>
+                    <if condition="!reducedOrgRaListMap.containsKey(key)"><then>
+                        <set field="reducedOrgRaListMap[key]" from="orgRa"/>
+                    </then><else-if condition="orgRa.fromDate">
+                        <!-- Choose the one with the larger fromDate -->
+                        <if condition="!reducedOrgRaListMap[key] || orgRa.fromDate &gt; reducedOrgRaListMap[key].fromDate">
+                            <set field="reducedOrgRaListMap[key]" from="orgRa"/>
+                        </if>
+                    </else-if><else-if condition="!reducedOrgRaListMap[key].fromDate &amp;&amp; orgRa.thruDate">
+                        <!-- Choose the one with the more recent thruDate, but not if the existing one has a fromDate -->
+                        <if condition="!reducedOrgRaListMap[key].thruDate || orgRa.thruDate &lt; reducedOrgRaListMap[key].thruDate">
+                            <set field="reducedOrgRaListMap[key]" from="orgRa"/>
+                        </if>
+                    </else-if></if>
+                </iterate>
+                <set field="orgRaList" from="reducedOrgRaListMap.values()" type="List"/>
                 <if condition="orgRaList">
                     <set field="orgRateAmountToUse" from="findMaximalMatch(orgRaList,
                         [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
@@ -1032,6 +1070,25 @@ along with this software (see the LICENSE.md file). If not, see
             </if>
             <if condition="clientPartyId">
                 <set field="clientRaList" from="rateAmountList.findAll({ it.clientPartyId == clientPartyId })"/>
+                <!-- If there are duplicates for work type, pay grade, and position class, keep the one with the most specific date -->
+                <set field="reducedClientRaListMap" from="[:]"/>
+                <iterate list="clientRaList" entry="clientRa">
+                    <set field="key" value="${workTypeEnumId}_${payGradeId}_${emplPositionClassId}"/>
+                    <if condition="!reducedClientRaListMap.containsKey(key)"><then>
+                        <set field="reducedClientRaListMap[key]" from="clientRa"/>
+                    </then><else-if condition="clientRa.fromDate">
+                        <!-- Choose the one with the larger fromDate -->
+                        <if condition="!reducedClientRaListMap[key] || clientRa.fromDate &gt; reducedClientRaListMap[key].fromDate">
+                            <set field="reducedClientRaListMap[key]" from="clientRa"/>
+                        </if>
+                    </else-if><else-if condition="!reducedClientRaListMap[key].fromDate &amp;&amp; clientRa.thruDate">
+                        <!-- Choose the one with the more recent thruDate, but not if the existing one has a fromDate -->
+                        <if condition="!reducedClientRaListMap[key].thruDate || clientRa.thruDate &lt; reducedClientRaListMap[key].thruDate">
+                            <set field="reducedClientRaListMap[key]" from="clientRa"/>
+                        </if>
+                    </else-if></if>
+                </iterate>
+                <set field="clientRaList" from="reducedClientRaListMap.values()" type="List"/>
                 <if condition="clientRaList">
                     <set field="clientRateAmountToUse" from="findMaximalMatch(clientRaList,
                         [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
@@ -1040,6 +1097,25 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- Do a maximal match on the rates that do not have a partyId. -->
             <set field="nonPartyRaList" from="rateAmountList.findAll({it.partyId == null })"/>
+            <!-- If there are duplicates for work type, pay grade, and position class, keep the one with the most specific date -->
+            <set field="reducedNonPartyRaListMap" from="[:]"/>
+            <iterate list="nonPartyRaList" entry="nonPartyRa">
+                <set field="key" value="${workTypeEnumId}_${payGradeId}_${emplPositionClassId}"/>
+                <if condition="!reducedNonPartyRaListMap.containsKey(key)"><then>
+                    <set field="reducedNonPartyRaListMap[key]" from="nonPartyRa"/>
+                </then><else-if condition="nonPartyRa.fromDate">
+                    <!-- Choose the one with the larger fromDate -->
+                    <if condition="!reducedNonPartyRaListMap[key] || nonPartyRa.fromDate &gt; reducedNonPartyRaListMap[key].fromDate">
+                        <set field="reducedNonPartyRaListMap[key]" from="nonPartyRa"/>
+                    </if>
+                </else-if><else-if condition="!reducedNonPartyRaListMap[key].fromDate &amp;&amp; nonPartyRa.thruDate">
+                    <!-- Choose the one with the more recent thruDate, but not if the existing one has a fromDate -->
+                    <if condition="!reducedNonPartyRaListMap[key].thruDate || nonPartyRa.thruDate &lt; reducedNonPartyRaListMap[key].thruDate">
+                        <set field="reducedNonPartyRaListMap[key]" from="nonPartyRa"/>
+                    </if>
+                </else-if></if>
+            </iterate>
+            <set field="nonPartyRaList" from="reducedNonPartyRaListMap.values()" type="List"/>
             <set field="nonPartyRateAmountToUse" from="findMaximalMatch(nonPartyRaList,
                     [workTypeEnumId:workTypeEnumId, payGradeId:payGradeId, emplPositionClassId:emplPositionClassId])"/>
             <!--<log level="warn" message="=============== nonPartyRaList=${nonPartyRaList}"/>-->

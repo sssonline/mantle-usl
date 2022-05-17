@@ -43,6 +43,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="thruDate" type="Timestamp"/>
             <parameter name="rateAmount" type="BigDecimal" required="true"/>
             <parameter name="rateThreshold" type="BigDecimal"/>
+            <parameter name="payGradeId"/>
         </in-parameters>
         <out-parameters><parameter name="rateAmountId"/></out-parameters>
         <actions>

@@ -21,7 +21,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- make sure there is no AcctgTrans for this invoiceId -->
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice',
-                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
+                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',, 'AttPayrollInvoiceCredit',
                     'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttGarnishmentCredit',
                     'AttPayrollBillingInvoice', 'AttPayrollBillingCredit', 'AttPayrollOtherInvoice', 'AttPayrollOtherCredit',
                     'AttCommissionInvoice', 'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>
@@ -1348,7 +1348,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- find existing AcctgTrans for this invoiceId -->
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice',
-                        'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
+                        'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttPayrollInvoiceCredit',
                         'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttGarnishmentCredit',
                         'AttPayrollBillingInvoice', 'AttPayrollBillingCredit', 'AttPayrollOtherInvoice', 'AttPayrollOtherCredit',
                         'AttCommissionInvoice', 'AttInvoiceAdjust', 'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>
@@ -1392,7 +1392,7 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters><parameter name="invoiceId" required="true"/></in-parameters>
         <actions>
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice',
-                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',
+                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttPayrollInvoiceCredit',
                     'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttGarnishmentCredit',
                     'AttPayrollBillingInvoice', 'AttPayrollBillingCredit', 'AttPayrollOtherInvoice', 'AttPayrollOtherCredit',
                     'AttCommissionInvoice', 'AttInvoiceAdjust', 'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>

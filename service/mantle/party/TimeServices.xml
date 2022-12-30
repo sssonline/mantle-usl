@@ -244,6 +244,9 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="!periodName">
                 <entity-find-one entity-name="mantle.party.PartyDetail" value-field="partyDetail"/>
                 <set field="fromLocalDate" from="java.time.LocalDate.parse(ec.l10n.format(fromDate, 'yyyy-MM-dd'))"/>
+                <if condition="timePeriodTypeId in ['PayrollYear','PayrollSemiYear','PayrollQuarter','PayrollMonth','PayrollSemiMonth','PayrollBiWeek','PayrollWeek','PayrollDay']">
+                    <set field="fromLocalDate" from="java.time.LocalDate.parse(ec.l10n.format(estimatedSettleDate?:thruDate?:fromDate, 'yyyy-MM-dd'))"/>
+                </if>
                 <set field="thruLocalDate" from="java.time.LocalDate.parse(ec.l10n.format(thruDate, 'yyyy-MM-dd'))"/>
                 <set field="periodName" from="ec.resource.expand('TimePeriodBaseNameTemplate', null)"/>
             </if>

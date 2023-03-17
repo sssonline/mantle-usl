@@ -562,6 +562,7 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="lastCheckNumber" type="Long"/>
             <!-- Parameters for NACHA fields, constraints based on spec -->
+            <parameter name="nachaUseCheckNumber"><text-length min="1" max="1"/></parameter>
             <parameter name="nachaImmedDest"><text-digits/><text-length min="9" max="10"/></parameter>
             <parameter name="nachaImmedOrig"><text-digits/><text-length min="9" max="10"/></parameter>
             <parameter name="nachaImmedDestName"><text-length max="23"/></parameter>

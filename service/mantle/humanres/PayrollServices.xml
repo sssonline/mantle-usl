@@ -575,9 +575,9 @@ along with this software (see the LICENSE.md file). If not, see
             <service-call name="create#mantle.humanres.employment.EmploymentPayHistory"
                     in-map="[partyRelationshipId:partyRelationshipId, payDate:payDate, timePeriodId:timePeriodId,
                         invoiceId:invoiceId, internalPayroll:'Y', payAmount:payAmount, taxablePayAmount:taxablePayAmount,
-                        socialTaxablePayAmount:socialTaxablePayAmount, medicalTaxablePayAmount:medicalTaxablePayAmount,
+                        socialTaxablePayAmount:socialTaxablePayAmount, medicalTaxablePayAmount:medicalTaxablePayAmount, unempTaxablePayAmount:unempTaxablePayAmount,
                         netPayAmount:netPayAmount, disposablePayAmount:disposablePayAmount, taxableYtdIncome:taxableYtdIncome,
-                        socialTaxableYtdIncome:socialTaxableYtdIncome, medicalTaxableYtdIncome:medicalTaxableYtdIncome,
+                        socialTaxableYtdIncome:socialTaxableYtdIncome, medicalTaxableYtdIncome:medicalTaxableYtdIncome, unempTaxableYtdIncome:unempTaxableYtdIncome,
                         currencyUomId:currencyUomId]" out-map="ephOut"/>
             <iterate list="adjustmentList" entry="adjustment">
                 <!-- add records for all adjustments, including employer paid (this is the only detail record we have of employer paid) -->
@@ -757,10 +757,12 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="taxablePayAmount" type="BigDecimal"/>
             <parameter name="socialTaxablePayAmount" type="BigDecimal"/>
             <parameter name="medicalTaxablePayAmount" type="BigDecimal"/>
+            <parameter name="unempTaxablePayAmount" type="BigDecimal"/>
             <parameter name="disposablePayAmount" type="BigDecimal"/>
             <parameter name="taxableYtdIncome" type="BigDecimal"/>
             <parameter name="socialTaxableYtdIncome" type="BigDecimal"/>
             <parameter name="medicalTaxableYtdIncome" type="BigDecimal"/>
+            <parameter name="unempTaxableYtdIncome" type="BigDecimal"/>
         </out-parameters>
         <actions>
             <!-- get the pay amount and employment, emplPosition, timePeriod, fromTimestamp, thruTimestamp -->
@@ -780,11 +782,13 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="taxablePayAmount" from="payAmount"/>
             <set field="socialTaxablePayAmount" from="socialMedicalExempt ? 0.0 : payAmount"/>
             <set field="medicalTaxablePayAmount" from="socialMedicalExempt ? 0.0 : payAmount"/>
+            <set field="unempTaxablePayAmount" from="unempMedicalExempt ? 0.0 : payAmount"/>
 
-            <!-- calc taxableYtdIncome, socialTaxableYtdIncome, medicalTaxableYtdIncome -->
+            <!-- calc taxableYtdIncome, socialTaxableYtdIncome, medicalTaxableYtdIncome, unempTaxableYtdIncome -->
             <set field="taxableYtdIncome" from="0.0"/>
             <set field="socialTaxableYtdIncome" from="0.0"/>
             <set field="medicalTaxableYtdIncome" from="0.0"/>
+            <set field="unempTaxableYtdIncome" from="0.0"/>
             <set field="thisYearList" from="ec.user.getPeriodRange('year', '0')"/>
             <set field="yearStart" from="new java.sql.Date(thisYearList[0].time)"/>
             <set field="yearEnd" from="new java.sql.Date(thisYearList[1].time)"/>
@@ -797,6 +801,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <set field="taxableYtdIncome" from="taxableYtdIncome + payHistory.taxablePayAmount"/>
                 <set field="socialTaxableYtdIncome" from="socialTaxableYtdIncome + payHistory.socialTaxablePayAmount"/>
                 <set field="medicalTaxableYtdIncome" from="medicalTaxableYtdIncome + payHistory.medicalTaxablePayAmount"/>
+                <set field="unempTaxableYtdIncome" from="unempTaxableYtdIncome + payHistory.unempTaxablePayAmount"/>
             </iterate>
 
             <!-- get homePostalAddress -->
@@ -875,10 +880,11 @@ along with this software (see the LICENSE.md file). If not, see
 
             <iterate list="phaseEnumIdList" entry="payrollPhaseEnumId">
                 <if condition="payrollPhaseEnumId == 'PrphTax'">
-                    <!-- before tax phase update taxableYtdIncome, socialTaxableYtdIncome, medicalTaxableYtdIncome -->
+                    <!-- before tax phase update taxableYtdIncome, socialTaxableYtdIncome, medicalTaxableYtdIncome, unempTaxableYtdIncome -->
                     <set field="taxableYtdIncome" from="taxableYtdIncome + taxablePayAmount"/>
                     <set field="socialTaxableYtdIncome" from="socialTaxableYtdIncome + socialTaxablePayAmount"/>
                     <set field="medicalTaxableYtdIncome" from="medicalTaxableYtdIncome + medicalTaxablePayAmount"/>
+                    <set field="unempTaxableYtdIncome" from="unempTaxableYtdIncome + unempTaxablePayAmount"/>
                 </if>
 
                 <set field="phaseAdjList" from="applicablePayrollAdjustmentList.findAll({ it.payrollPhaseEnumId == payrollPhaseEnumId })"/>
@@ -886,9 +892,9 @@ along with this software (see the LICENSE.md file). If not, see
                     <service-call name="mantle.humanres.PayrollServices.calculate#PayrollAdjustment" out-map="calcOut" out-map-add-to-existing="false"
                             in-map="[payrollAdjustmentId:payrollAdjustment.payrollAdjustmentId, payrollAdjustment:payrollAdjustment,
                                 payrollPhaseEnumId:payrollPhaseEnumId, taxablePayAmount:taxablePayAmount,
-                                socialTaxablePayAmount:socialTaxablePayAmount, medicalTaxablePayAmount:medicalTaxablePayAmount,
+                                socialTaxablePayAmount:socialTaxablePayAmount, medicalTaxablePayAmount:medicalTaxablePayAmount, unempTaxablePayAmount:unempTaxablePayAmount,
                                 taxableYtdIncome:taxableYtdIncome, socialTaxableYtdIncome:socialTaxableYtdIncome,
-                                medicalTaxableYtdIncome:medicalTaxableYtdIncome, priorAdjustmentList:adjustmentList] + calcAdjParameters"/>
+                                medicalTaxableYtdIncome:medicalTaxableYtdIncome, unempTaxableYtdIncome:unempTaxableYtdIncome,priorAdjustmentList:adjustmentList] + calcAdjParameters"/>
                     <if condition="!calcOut.adjustmentApplies"><continue/></if>
                     <script>adjustmentList.add(calcOut)</script>
                     <if condition="!calcOut.quantity"><set field="calcOut.quantity" from="1.0"/></if>
@@ -898,13 +904,15 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="calcAdjParameters.payAmount" from="payAmount"/>
                     </if>
 
-                    <!-- update taxablePayAmount, socialTaxablePayAmount, medicalTaxablePayAmount -->
+                    <!-- update taxablePayAmount, socialTaxablePayAmount, medicalTaxablePayAmount, unempTaxablePayAmount -->
                     <if condition="payrollAdjustment.isTaxable == 'Y' &amp;&amp; payrollAdjustment.isEmployerPaid != 'Y'">
                         <set field="taxablePayAmount" from="taxablePayAmount + amountTotal"/></if>
                     <if condition="payrollAdjustment.isSocialTaxable == 'Y' &amp;&amp; payrollAdjustment.isEmployerPaid != 'Y'">
                         <set field="socialTaxablePayAmount" from="socialTaxablePayAmount + amountTotal"/></if>
                     <if condition="payrollAdjustment.isMedicalTaxable == 'Y' &amp;&amp; payrollAdjustment.isEmployerPaid != 'Y'">
                         <set field="medicalTaxablePayAmount" from="medicalTaxablePayAmount + amountTotal"/></if>
+                    <if condition="payrollAdjustment.isUnempTaxable == 'Y' &amp;&amp; payrollAdjustment.isEmployerPaid != 'Y'">
+                        <set field="unempTaxablePayAmount" from="unempTaxablePayAmount + amountTotal"/></if>
                 </iterate>
 
                 <!-- run any services configured for this phase -->
@@ -918,9 +926,9 @@ along with this software (see the LICENSE.md file). If not, see
                     Map parmMap = new HashMap([adjCalcServiceId:adjCalcService.adjCalcServiceId,
                             description:adjCalcService.description, payrollPhaseEnumId:payrollPhaseEnumId,
                             taxablePayAmount:taxablePayAmount, socialTaxablePayAmount:socialTaxablePayAmount,
-                            medicalTaxablePayAmount:medicalTaxablePayAmount, taxableYtdIncome:taxableYtdIncome,
+                            medicalTaxablePayAmount:medicalTaxablePayAmount, unempTaxablePayAmount:unempTaxablePayAmount, taxableYtdIncome:taxableYtdIncome,
                             socialTaxableYtdIncome:socialTaxableYtdIncome, medicalTaxableYtdIncome:medicalTaxableYtdIncome,
-                            priorAdjustmentList:adjustmentList])
+                            unempTaxableYtdIncome:unempTaxableYtdIncome, priorAdjustmentList:adjustmentList])
                     parmMap.putAll(calcAdjParameters)
                     List adjParameterList = adjCalcService.parameters
                     for (adjParameter in adjParameterList) parmMap.put(adjParameter.parameterName, adjParameter.parameterValue)
@@ -1028,9 +1036,11 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="taxablePayAmount" type="BigDecimal" required="true"/>
             <parameter name="socialTaxablePayAmount" type="BigDecimal" required="true"/>
             <parameter name="medicalTaxablePayAmount" type="BigDecimal" required="true"/>
+            <parameter name="unempTaxablePayAmount" type="BigDecimal" required="true"/>
             <parameter name="taxableYtdIncome" type="BigDecimal" required="true"/>
             <parameter name="socialTaxableYtdIncome" type="BigDecimal" required="true"/>
             <parameter name="medicalTaxableYtdIncome" type="BigDecimal" required="true"/>
+            <parameter name="unempTaxableYtdIncome" type="BigDecimal" required="true"/>
 
             <parameter name="priorAdjustmentList" type="List"><parameter name="adjustmentOut" type="Map"/></parameter>
 
@@ -1124,9 +1134,9 @@ along with this software (see the LICENSE.md file). If not, see
             </else-if><else-if condition="rateBasisEnumId == 'PrbsMedical'">
                 <set field="adjustmentBasisAmount" from="medicalTaxablePayAmount"/>
                 <set field="adjustmentYtdAmount" from="medicalTaxableYtdIncome"/>
-            </else-if><else-if condition="rateBasisEnumId == 'PrbsMedical'">
-                <set field="adjustmentBasisAmount" from="medicalTaxablePayAmount"/>
-                <set field="adjustmentYtdAmount" from="medicalTaxableYtdIncome"/>
+            </else-if><else-if condition="rateBasisEnumId == 'PrbsUnemp'">
+                <set field="adjustmentBasisAmount" from="unempTaxablePayAmount"/>
+                <set field="adjustmentYtdAmount" from="unempTaxableYtdIncome"/>
             </else-if><else-if condition="rateBasisEnumId == 'PrbsStraightGross'">
                 <if condition="payrollAdjustment.riskClassEnumId"><then>
                     <set field="adjustmentBasisAmount" from="0.0"/>
@@ -1237,7 +1247,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="!filteredStateSttsList"><return/></if>
             </if>
 
-            <if condition="payrollAdjustment.isTax == 'Y' || payrollAdjustment.isSocialTax == 'Y' || payrollAdjustment.isMedicalTax == 'Y'">
+            <if condition="payrollAdjustment.isTax == 'Y' || payrollAdjustment.isSocialTax == 'Y' || payrollAdjustment.isMedicalTax == 'Y' || payrollAdjustment.isUnempTax == 'Y'">
                 <entity-find-one entity-name="mantle.other.tax.TaxAuthority" value-field="taxAuthority" cache="true">
                     <field-map field-name="taxAuthorityId" from="payrollAdjustment.taxAuthorityId"/></entity-find-one>
 

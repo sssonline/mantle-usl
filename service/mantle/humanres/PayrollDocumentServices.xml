@@ -109,18 +109,19 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="employerAddressString"/>
             <parameter name="employerPhoneString"/>
 
-            <!-- TODO: These are only the federal taxable/social/medical amounts.  They probably should not be separate, but
+            <!-- TODO: These are only the federal taxable/social/medical/unemp amounts.  They probably should not be separate, but
                    should be in the wageAndTaxInfoByTaxAuthorityId Map, as these amounts differ for states and possibly localities.
                    e.g. PA taxes pension plans such as 401k
                    e.g. NC only taxes income that was made in their state; if you work out of state, it is not taxed. -->
             <parameter name="taxablePayAmount" type="BigDecimal"/>
             <parameter name="socialTaxablePayAmount" type="BigDecimal"/>
             <parameter name="medicalTaxablePayAmount" type="BigDecimal"/>
+            <parameter name="unempTaxablePayAmount" type="BigDecimal"/>
             <parameter name="currencyUomId"/>
             <parameter name="hasAnyPay" type="Boolean"/>
 
             <parameter name="wageAndTaxInfoByTaxAuthorityId" type="Map"> <description>contains Map with: taxAuthority,
-                taxAuthorityGeo, incomeTaxWithheldAmount, socialTaxWithheldAmount, medicalTaxWithheldAmount</description></parameter>
+                taxAuthorityGeo, incomeTaxWithheldAmount, socialTaxWithheldAmount, medicalTaxWithheldAmount, unempTaxWithheldAmount</description></parameter>
 
             <parameter name="federalTaxAuthorityIdList" type="List"/>
             <parameter name="stateTaxAuthorityIdList" type="List"/>
@@ -139,14 +140,16 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="taxablePayAmount" from="0.0"/>
             <set field="socialTaxablePayAmount" from="0.0"/>
             <set field="medicalTaxablePayAmount" from="0.0"/>
+            <set field="unempTaxablePayAmount" from="0.0"/>
             <iterate list="payHistoryList" entry="payHistory">
                 <set field="taxablePayAmount" from="taxablePayAmount + payHistory.taxablePayAmount"/>
                 <set field="socialTaxablePayAmount" from="socialTaxablePayAmount + payHistory.socialTaxablePayAmount"/>
                 <set field="medicalTaxablePayAmount" from="medicalTaxablePayAmount + payHistory.medicalTaxablePayAmount"/>
+                <set field="unempTaxablePayAmount" from="unempTaxablePayAmount + payHistory.unempTaxablePayAmount"/>
                 <set field="currencyUomId" from="payHistory.currencyUomId"/><!-- NOTE: assumes all have same currency -->
             </iterate>
 
-            <set field="hasAnyPay" from="taxablePayAmount &gt; 0 || socialTaxablePayAmount &gt; 0 || medicalTaxablePayAmount &gt; 0"/>
+            <set field="hasAnyPay" from="taxablePayAmount &gt; 0 || socialTaxablePayAmount &gt; 0 || medicalTaxablePayAmount &gt; 0 || socialTaxablePayAmount &gt; 0"/>
 
             <!-- TODO: Does this account for the addition of payeePartyId and the newer notion where the
                        payeePartyId exists on the EmploymentPayAdjDetail and the payee invoice amount
@@ -179,6 +182,8 @@ along with this software (see the LICENSE.md file). If not, see
                         addToBigDecimalInMap('socialTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)
                     } else if (payrollAdjustment.isMedicalTax == 'Y') {
                         addToBigDecimalInMap('medicalTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)
+                    } else if (payrollAdjustment.isUnempTax == 'Y') {
+                    addToBigDecimalInMap('unempTaxWithheldAmount', -payAdjDetail.amount, wageAndTaxInfo)
                     }
                 </script>
             </iterate>

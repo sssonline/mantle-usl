@@ -107,6 +107,7 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="taxablePayAmount"/>
             <exclude field="socialTaxablePayAmount"/>
             <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="unempTaxablePayAmount"/>
             <exclude field="netPayAmount"/>
         </alias-all>
         <alias name="payAmount" type="number-decimal">
@@ -133,6 +134,12 @@ along with this software (see the LICENSE.md file). If not, see
                 <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
             </complex-alias>
         </alias>
+        <alias name="unempTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="unempTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
         <alias name="netPayAmount" type="number-decimal">
             <complex-alias operator="+">
                 <complex-alias-field entity-alias="EMPH" field="netPayAmount"/>
@@ -155,6 +162,7 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="taxablePayAmount"/>
             <exclude field="socialTaxablePayAmount"/>
             <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="unempTaxablePayAmount"/>
             <exclude field="netPayAmount"/>
         </alias-all>
         <alias-all entity-alias="EMPAD">
@@ -181,6 +189,12 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="medicalTaxablePayAmount" type="number-decimal">
             <complex-alias operator="+">
                 <complex-alias-field entity-alias="EMPH" field="medicalTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="unempTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="unempTaxablePayAmount"/>
                 <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
             </complex-alias>
         </alias>
@@ -229,6 +243,7 @@ along with this software (see the LICENSE.md file). If not, see
             <exclude field="taxablePayAmount"/>
             <exclude field="socialTaxablePayAmount"/>
             <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="unempTaxablePayAmount"/>
             <exclude field="netPayAmount"/>
         </alias-all>
         <alias-all entity-alias="EMPTD">
@@ -276,6 +291,12 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="medicalTaxablePayAmount" type="number-decimal">
             <complex-alias operator="+">
                 <complex-alias-field entity-alias="EMPH" field="medicalTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="unempTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="unempTaxablePayAmount"/>
                 <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
             </complex-alias>
         </alias>

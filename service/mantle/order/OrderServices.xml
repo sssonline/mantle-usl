@@ -766,6 +766,7 @@ General Order Placement and eCommerce Usage
                     <field-map field-name="facilityPartyId" from="orderItem.overGlAcctOrgPartyId"/>
                     <field-map field-name="facilityId" from="orderItem.overGlAcctFacilityId"/>
                 </entity-find-one>
+                <set field="nextThreeGl" from="(facilityDetail?.pseudoId)?:'000'"/>
                 <else>
                     <entity-find-one entity-name="mantle.party.Party" value-field="partyDetail">
                         <field-map field-name="partyId" from="orderItem.overGlAcctOrgPartyId"/>
@@ -773,7 +774,7 @@ General Order Placement and eCommerce Usage
                     <set field="nextThreeGl" from="(partyDetail?.pseudoId)?:'000'"/>
                 </else>
             </if>
-            <if condition="orderItem.itemTypeEnumId == 'ItemAsset'">
+            <if condition="orderItem.fromAssetId != null">
                 <set field="assetLastFour" from="orderItem.fromAssetId"/>
             </if>
             <if condition="firstSevenGl">

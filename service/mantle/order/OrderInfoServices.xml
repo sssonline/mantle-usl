@@ -276,11 +276,33 @@ along with this software (see the LICENSE.md file). If not, see
 
             <set field="glInfoList" from="[]"/>
             <iterate list="orderItemList" entry="orderItem">
-                <service-call name="mantle.order.OrderServices.get#GlAccount"
-                              in-map="[orderItem:orderItem]"
-                              out-map="glOut"/>
+                <!-- Get accountCodeFormatter for GL Account ID -->
+                <entity-find-one entity-name="mantle.order.OrderHeaderPartFacilityStatus" value-field="orderDetail">
+                    <field-map field-name="orderId" from="orderItem.orderId"/>
+                </entity-find-one>
+                <if condition="orderDetail?.customerPartyId">
+                    <service-call name="mantle.ledger.LedgerServices.find#PartyAcctgPreference" out-map="context"
+                                  in-map="[organizationPartyId:orderDetail.customerPartyId]"/>
+                    <if condition="partyAcctgPreference?.glAccountCodeMask">
+                        <set field="accountCodeFormatter" from="new javax.swing.text.MaskFormatter(partyAcctgPreference.glAccountCodeMask)"/>
+                        <script>accountCodeFormatter.setValueContainsLiteralCharacters(false)</script>
+                    </if>
+                </if>
+
+                <!-- Only get GL Account Number from the override field in OrderItem -->
+                <!-- That should be filled in by the create/update OrderItem -->
+                <if condition="accountCodeFormatter">
+                    <if condition="orderItem.overrideGlAccountId" ><then>
+                        <set field="glAccountId" from="orderItem.overrideGlAccountId"/>
+                        <set field="formattedGlAccountId" from="accountCodeFormatter.valueToString(orderItem.overrideGlAccountId)"/>
+                    </then><else>
+                        <set field="glAccountId" value=""/>
+                        <set field="formattedGlAccountId" value="GL Account Not Found"/>
+                    </else>
+                    </if>
+                </if>
                 <script>
-                    glInfoList.add([itemSeq: orderItem.orderItemSeqId, glAccount: glOut.glAccountId])
+                    glInfoList.add([itemSeq: orderItem.orderItemSeqId, glAccount: glAccountId, formattedGlAccount: formattedGlAccountId])
                 </script>
             </iterate>
 

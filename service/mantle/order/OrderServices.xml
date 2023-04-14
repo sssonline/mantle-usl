@@ -728,30 +728,26 @@ General Order Placement and eCommerce Usage
 
     <service verb="get" noun="GlAccount">
         <in-parameters>
-            <parameter name="orderItem" type="EntityValue"><description>Can be a view-entity with OrderItem and at least
-                the fields orderId, orderItemSeqId</description></parameter>
+            <parameter name="orderItem" type="EntityValue"/>
+            <parameter name="customerPartyId"/>
         </in-parameters>
         <out-parameters>
             <parameter name="glAccountId"/>
         </out-parameters>
         <actions>
             <!-- build and look up gl account code for item-->
-            <entity-find-one entity-name="mantle.order.OrderHeaderPartFacilityStatus" value-field="orderDetail">
-                <field-map field-name="orderId" from="orderItem.orderId"/>
-            </entity-find-one>
-
-            <if condition="orderDetail?.customerPartyId">
-                <service-call name="mantle.ledger.LedgerServices.find#PartyAcctgPreference" out-map="context"
-                              in-map="[organizationPartyId:orderDetail.customerPartyId]"/>
-                <if condition="partyAcctgPreference?.glAccountCodeMask">
-                    <set field="accountCodeFormatter" from="new javax.swing.text.MaskFormatter(partyAcctgPreference.glAccountCodeMask)"/>
-                    <script>accountCodeFormatter.setValueContainsLiteralCharacters(false)</script>
+            <if condition="!customerPartyId">
+                <entity-find-one entity-name="mantle.order.OrderHeaderPartFacilityStatus" value-field="orderDetail">
+                    <field-map field-name="orderId" from="orderItem.orderId"/>
+                </entity-find-one>
+                <if condition="orderDetail">
+                    <set field="customerPartyId" from="orderDetail.customerPartyId"/>
                 </if>
             </if>
 
             <set field="itemGlList" from="[]"/>
             <entity-find entity-name="mantle.ledger.config.ItemTypeAndGlAccount" list="itemTypeGlList">
-                <econdition field-name="organizationPartyId" from="orderDetail.customerPartyId"/>
+                <econdition field-name="organizationPartyId" from="customerPartyId"/>
                 <econdition field-name="itemTypeEnumId" from="orderItem.itemTypeEnumId"/>
                 <econdition field-name="direction" operator="in" value="I,E"/>
             </entity-find>
@@ -785,21 +781,12 @@ General Order Placement and eCommerce Usage
                         <set field="builtGlAccountId" from="builtGlAccountId + assetLastFour"/>
                     </if>
                 </if>
-            <!--<else>
-                <set field="builtGlAccountId" value="null"/>
-            </else>-->
             </if>
             <entity-find-one entity-name="mantle.ledger.account.GlAccount" value-field="glDetail">
                     <field-map field-name="glAccountId" from="builtGlAccountId"/>
             </entity-find-one>
             <if condition="glDetail">
                 <set field="glAccountId" from="glDetail.glAccountId"/>
-                <if condition="accountCodeFormatter">
-                    <set field="glAccountId" from="accountCodeFormatter.valueToString(glAccountId)"/>
-                </if>
-            <else>
-                <set field="glAccountId" value="GL Account Not Found"/>
-            </else>
             </if>
         </actions>
     </service>

@@ -288,7 +288,7 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- get user organizations data (agent/employee/member rel from member to org) -->
             <entity-find entity-name="mantle.party.PartyRelationship" list="userOrgRelList" cache="true">
                 <date-filter/>
-                <econdition field-name="relationshipTypeEnumId" operator="in" value="PrtAgent,PrtEmployee,PrtMember,PrtManager"/>
+                <econdition field-name="relationshipTypeEnumId" operator="in" value="PrtAgent,PrtEmployee,PrtMember"/>
                 <!-- don't limit to OrgInteral, useful for other: <econdition field-name="toRoleTypeId" value="OrgInternal"/> -->
                 <econdition field-name="fromPartyId" from="partyId"/>
             </entity-find>

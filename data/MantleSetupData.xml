@@ -31,6 +31,8 @@ along with this software (see the LICENSE.md file). If not, see
     <!-- Special Permissions -->
     <userPermissions userPermissionId="ORDER_APPROVE" description="Order Approve"/>
     <userGroupPermissions userGroupId="ADMIN" userPermissionId="ORDER_APPROVE" fromDate="0"/>
+    <userPermissions userPermissionId="PAYMENT_AUTHORIZE" description="Payment Authorize"/>
+    <userGroupPermissions userGroupId="ADMIN" userPermissionId="PAYMENT_AUTHORIZE" fromDate="0"/>
     <userPermissions userPermissionId="CARD_NUMBER_EDIT" description="Credit Card Number Edit"/>
     <userGroupPermissions userGroupId="ADMIN" userPermissionId="CARD_NUMBER_EDIT" fromDate="0"/>
 

@@ -1074,6 +1074,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="shipmentItemSourceId"/>
             <parameter name="quantity" type="BigDecimal" required="true"/>
             <parameter name="issuedDate" type="Timestamp" default="ec.user.nowTimestamp"/>
+            <parameter name="invoiceId"/>
+            <parameter name="invoiceItemSeqId"/>
         </in-parameters>
         <actions>
             <if condition="quantity == 0.0"><return type="warning" message="Not issuing zero quantity against AssetReservation ${assetReservation?.assetReservationId}"/></if>
@@ -1111,7 +1113,7 @@ along with this software (see the LICENSE.md file). If not, see
                         in-map="[assetId:assetReservation.assetId, assetReservationId:assetReservation.assetReservationId,
                             orderId:assetReservation.orderId, orderItemSeqId:assetReservation.orderItemSeqId,
                             shipmentId:shipmentId, shipmentItemSourceId:shipmentItemSourceId, productId:assetReservation.productId,
-                            issuedDate:issuedDate, issuedByUserId:ec.user.userId, quantity:quantity]"/>
+                            issuedDate:issuedDate, issuedByUserId:ec.user.userId, quantity:quantity, invoiceId:invoiceId, invoiceItemSeqId:invoiceItemSeqId]"/>
             </else></if>
 
             <!-- create AssetDetail to decrement quantityOnHand -->

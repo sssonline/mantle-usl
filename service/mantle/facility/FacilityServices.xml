@@ -41,6 +41,7 @@ along with this software (see the LICENSE.md file). If not, see
                 contactInfoMap.remove('description')
                 context.putAll(contactInfoMap)
             </script>
+
             <set field="emailAddress" from="contactInfo.emailAddress"/>
         </actions>
     </service>

@@ -317,6 +317,107 @@ along with this software (see the LICENSE.md file). If not, see
         <relationship type="one" related="mantle.work.time.TimeEntry" short-alias="timeEntry"/>
     </view-entity>
 
+    <view-entity entity-name="EmploymentPayHistoryTimeDetailAndInvoice" package="mantle.humanres.employment">
+        <member-entity entity-alias="EMPH" entity-name="mantle.humanres.employment.EmploymentPayHistory"/>
+        <member-entity entity-alias="EMPTD" entity-name="mantle.humanres.employment.EmploymentPayTimeDetail"
+                       join-from-alias="EMPH">
+            <key-map field-name="employmentPayHistoryId"/>
+        </member-entity>
+        <member-entity entity-alias="TENT" entity-name="mantle.work.time.TimeEntry" join-from-alias="EMPTD">
+            <key-map field-name="timeEntryId"/>
+        </member-entity>
+        <member-entity entity-alias="ITEM" entity-name="moqui.basic.Enumeration" join-from-alias="EMPTD">
+            <key-map field-name="payrollPhaseEnumId" related="enumId"/></member-entity>
+        <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice" join-from-alias="EMPH" join-optional="true">
+            <key-map field-name="invoiceId"/>
+        </member-entity>
+        <alias-all entity-alias="EMPH">
+            <!-- Adjust these for the invoice net pay adjustment -->
+            <exclude field="payAmount"/>
+            <exclude field="taxablePayAmount"/>
+            <exclude field="socialTaxablePayAmount"/>
+            <exclude field="medicalTaxablePayAmount"/>
+            <exclude field="unempTaxablePayAmount"/>
+            <exclude field="netPayAmount"/>
+        </alias-all>
+        <alias-all entity-alias="EMPTD">
+            <exclude field="employmentPayHistoryId"/>
+        </alias-all>
+        <alias-all entity-alias="TENT">
+            <exclude field="timeEntryId"/>
+            <exclude field="itemTypeEnumId"/>
+            <exclude field="hours"/>
+            <exclude field="rateAmountId"/>
+            <exclude field="vendorRateAmountId"/>
+            <!--<exclude field="clientPartyId"/>-->
+            <exclude field="hourRate"/>
+            <exclude field="vendorHourRate"/>
+            <exclude field="pieceRateAmountId"/>
+            <exclude field="vendorPieceRateAmountId"/>
+            <exclude field="pieceCount"/>
+            <exclude field="pieceRate"/>
+            <exclude field="pieceRateThreshold"/>
+            <exclude field="vendorPieceRate"/>
+            <exclude field="vendorPieceRateThreshold"/>
+            <exclude field="invoiceId"/>
+            <exclude field="invoiceItemSeqId"/>
+            <exclude field="vendorInvoiceId"/>
+            <exclude field="vendorInvoiceItemSeqId"/>
+        </alias-all>
+        <alias-all entity-alias="INV">
+            <exclude field="description"/>
+            <exclude field="currencyUomId"/>
+            <exclude field="partyRelationshipId"/>
+            <exclude field="timePeriodId"/>
+            <exclude field="payrollBatchId"/>
+        </alias-all>
+        <alias name="payAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="payAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="taxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="taxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="socialTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="socialTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="medicalTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="medicalTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="unempTaxablePayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="unempTaxablePayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="netPayAmount" type="number-decimal">
+            <complex-alias operator="+">
+                <complex-alias-field entity-alias="EMPH" field="netPayAmount"/>
+                <complex-alias-field entity-alias="EMPH" field="netPayInvoiceAdjAmount"/>
+            </complex-alias>
+        </alias>
+        <alias name="payrollPhaseSequenceNum" field="sequenceNum" entity-alias="ITEM"/>
+        <alias name="payrollPhaseDescription" field="description" entity-alias="ITEM"/>
+        <!-- Rename the fields so they are from the perspective of the employer. -->
+        <alias name="rateAmountId" field="vendorRateAmountId" entity-alias="TENT"/>
+        <alias name="pieceRateAmountId" field="vendorPieceRateAmountId" entity-alias="TENT"/>
+        <!--<alias name="hourRate" field="vendorHourRate" entity-alias="TENT"/>-->
+        <!--<alias name="pieceRate" field="vendorPieceRate" entity-alias="TENT"/>-->
+        <!--<alias name="invoiceId" field="invoiceId" entity-alias="EMPH"/>-->
+        <relationship type="one" related="mantle.work.time.TimeEntry" short-alias="timeEntry"/>
+    </view-entity>
+
     <view-entity entity-name="EmploymentSalaryFromDetail" package="mantle.humanres.employment">
         <member-entity entity-alias="EMPL" entity-name="mantle.humanres.employment.Employment"/>
         <member-entity entity-alias="EMSA" entity-name="mantle.humanres.employment.EmploymentSalary" join-from-alias="EMPL">

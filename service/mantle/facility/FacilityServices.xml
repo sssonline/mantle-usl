@@ -26,7 +26,6 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="emailAddress"/>
 
             <parameter name="contactInfo" type="Map"/>
-            <parameter name="contactInfoMap" type="Map"/>
         </out-parameters>
         <actions>
             <entity-find-one entity-name="mantle.facility.Facility" value-field="facility"/>
@@ -36,28 +35,22 @@ along with this software (see the LICENSE.md file). If not, see
                         otherContactMechPurposeId:'WebUrlPrimary']"/>
             <service-call name="mantle.facility.ContactServices.get#FacilityContactInfo" out-map="contactFaxOut"
                     in-map="[facilityId:facilityId, telecomContactMechPurposeId:'PhoneFax']"/>
-
-
-            <set field="contactInfoMap" from="flattenNestedMap(contactInfo)"/>
-
-
-            <!-- this was old fix above two lines seem to be working, further testing needed -->
-<!--            <script>-->
-<!--                try{-->
-<!--                context.putAll(facility)-->
-<!--                Map contactInfoMap = flattenNestedMap(contactInfo)-->
-<!--                contactInfoMap.remove('description')-->
-<!--                context.putAll(contactInfoMap)-->
-<!--                }catch(Exception e){-->
-<!--                    e.printStackTrace()-->
-<!--                    if(facility == null){-->
-<!--                        ec.message.addMessage("There is no designated Facility for this Block", 'error')-->
-<!--                    }else{-->
-<!--                        ec.message.addMessage("Something went Wrong with this Block Setup", 'error')-->
-<!--                    }-->
-<!--                }-->
-<!--                System.out.println("inside script, facility is: "+facility)-->
-<!--            </script>-->
+            <!-- TODO: possible changes in future, make this a moqui block of code and not groovy, find way to make this send message to user -->
+            <script>
+                try{
+                context.putAll(facility)
+                Map contactInfoMap = flattenNestedMap(contactInfo)
+                contactInfoMap.remove('description')
+                context.putAll(contactInfoMap)
+                }catch(Exception e){
+                    e.printStackTrace()
+                    if(facility == null){
+                        ec.message.addMessage("There is no designated Facility for this Block", 'error')
+                    }else{
+                        ec.message.addMessage("Something went Wrong with this Block Setup", 'error')
+                    }
+                }
+            </script>
             <set field="emailAddress" from="contactInfo.emailAddress"/>
         </actions>
     </service>

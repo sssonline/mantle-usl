@@ -21,7 +21,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- make sure there is no AcctgTrans for this invoiceId -->
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice',
-                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice',, 'AttPayrollInvoiceCredit',
+                    'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttPayrollInvoiceCredit',
                     'AttTaxInvoice', 'AttTaxDue', 'AttGarnishmentInvoice', 'AttGarnishmentCredit',
                     'AttPayrollBillingInvoice', 'AttPayrollBillingCredit', 'AttPayrollOtherInvoice', 'AttPayrollOtherCredit',
                     'AttCommissionInvoice', 'AttFinInstAdjCreditInvoice', 'AttFinInstAdjChargeInvoice']"/>

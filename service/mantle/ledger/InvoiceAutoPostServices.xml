@@ -131,7 +131,7 @@ along with this software (see the LICENSE.md file). If not, see
                         in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.fromPartyId, isPayable:'N',
                                  invoiceId: invoice.invoiceId, invoice: invoice]"/>
                 <if condition="!fromInvoiceTypeTransTypeOut.acctgTransTypeEnumId">
-                    <return error="true" message="Cannot post invoice [${invoiceId}], no accounting transaction type for invoice type ${invoice.invoiceTypeEnumId}"/></if>
+                    <return error="true" message="Cannot post invoice [${invoiceId}], no accounting transaction type for invoice type ${invoice.invoiceTypeEnumId} fromParty"/></if>
 
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                         in-map="[acctgTransTypeEnumId:fromInvoiceTypeTransTypeOut.acctgTransTypeEnumId,
@@ -144,7 +144,7 @@ along with this software (see the LICENSE.md file). If not, see
                         in-map="[invoiceTypeEnumId:invoice.invoiceTypeEnumId, organizationPartyId:invoice.toPartyId, isPayable:'Y',
                                  invoiceId: invoice.invoiceId, invoice: invoice]"/>
                 <if condition="!toInvoiceTypeTransTypeOut.acctgTransTypeEnumId">
-                    <return error="true" message="Cannot post invoice [${invoiceId}], no accounting transaction type for invoice type ${invoice.invoiceTypeEnumId}"/></if>
+                    <return error="true" message="Cannot post invoice [${invoiceId}], no accounting transaction type for invoice type ${invoice.invoiceTypeEnumId} toParty"/></if>
 
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                         in-map="[acctgTransTypeEnumId:toInvoiceTypeTransTypeOut.acctgTransTypeEnumId,

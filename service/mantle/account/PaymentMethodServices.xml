@@ -567,6 +567,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="nachaImmedOrig"><text-digits/><text-length min="9" max="10"/></parameter>
             <parameter name="nachaImmedDestName"><text-length max="23"/></parameter>
             <parameter name="nachaImmedOrigName"><text-length max="23"/></parameter>
+            <parameter name="nachaOrigDFI"><text-length max="8"/></parameter>
             <parameter name="nachaCompanyName"><text-length max="16"/></parameter>
             <parameter name="nachaDiscrData"><text-length max="20"/></parameter>
             <parameter name="nachaCompanyId"><text-length max="10"/></parameter>

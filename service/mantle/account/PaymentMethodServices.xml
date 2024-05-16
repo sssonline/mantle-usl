@@ -475,7 +475,6 @@ along with this software (see the LICENSE.md file). If not, see
 
             <if condition="!description"><set field="description" value="${bankName ?: 'Bank Account'} ${accountNumber ?: ''}"/></if>
             <service-call name="create#mantle.account.method.PaymentMethod" in-map="context" out-map="context"/>
-            <set field="nachaPrenoteRequired" value="Y"/>
             <service-call name="create#mantle.account.method.BankAccount" in-map="context"/>
         </actions>
     </service>

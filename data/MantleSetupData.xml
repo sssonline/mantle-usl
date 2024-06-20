@@ -33,6 +33,8 @@ along with this software (see the LICENSE.md file). If not, see
     <userGroupPermissions userGroupId="ADMIN" userPermissionId="ORDER_APPROVE" fromDate="0"/>
     <userPermissions userPermissionId="PAYMENT_AUTHORIZE" description="Payment Authorize"/>
     <userGroupPermissions userGroupId="ADMIN" userPermissionId="PAYMENT_AUTHORIZE" fromDate="0"/>
+    <userPermissions userPermissionId="PAYMENT_RUN_AUTHORIZE" description="Payment Run Authorization"/>
+    <userGroupPermissions userGroupId="ADMIN" userPermissionId="PAYMENT_RUN_AUTHORIZE" fromDate="0"/>
     <userPermissions userPermissionId="CARD_NUMBER_EDIT" description="Credit Card Number Edit"/>
     <userGroupPermissions userGroupId="ADMIN" userPermissionId="CARD_NUMBER_EDIT" fromDate="0"/>
 

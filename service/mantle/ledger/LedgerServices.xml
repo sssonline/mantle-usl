@@ -182,10 +182,10 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <entity-find-one entity-name="moqui.basic.Enumeration" value-field="enumValue" cache="true">
                 <field-map field-name="enumId" from="glAccountClassEnumId"/></entity-find-one>
-            <set field="isContra" from="enumValue.optionIndicator ?: 'N'"/>
+            <set field="isContra" from="enumValue?.optionIndicator ?: 'N'"/>
 
             <set field="ancestorClassEnumIdSet" from="new HashSet([glAccountClassEnumId])"/>
-            <if condition="enumValue.parentEnumId"><then>
+            <if condition="enumValue?.parentEnumId"><then>
                 <service-call name="mantle.ledger.LedgerServices.find#RootGlAccountClassEnum" out-map="nestOut"
                         in-map="[glAccountClassEnumId:enumValue.parentEnumId]"/>
                 <set field="rootGlAccountClassEnumId" from="nestOut.rootGlAccountClassEnumId"/>
@@ -969,6 +969,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <!-- NOTE: this one is not recursive, should really have TimePeriod associated with root parent org so just one will match -->
             <set field="filterSqlDate" from="filterDate != null ? new java.sql.Date(filterDate.time) : null"/>
+
             <entity-find entity-name="mantle.party.time.TimePeriodAndType" list="timePeriodList">
                 <!-- doesn't work as needed with date fields (only date-time): <date-filter valid-date="filterSqlDate" ignore-if-empty="true"/> -->
                 <econdition field-name="fromDate" operator="less-equals" from="filterSqlDate" ignore-if-empty="true"/>

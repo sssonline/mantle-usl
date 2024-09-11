@@ -12,7 +12,7 @@ You should have received a copy of the CC0 Public Domain Dedication
 along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
-<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-2.1.xsd">
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
     <service verb="get" noun="FullCalendarData">
         <description>Get data to display WorkEffort tasks by due date (estimatedCompletionDate) with the FullCalender JS library (see http://fullcalendar.io/)</description>
@@ -95,7 +95,7 @@ along with this software (see the LICENSE.md file). If not, see
         <description>Create a Task in a Project.</description>
         <in-parameters>
             <auto-parameters entity-name="mantle.work.effort.WorkEffort" include="nonpk"/>
-            <parameter name="rootWorkEffortId" required="true"><description>The ID of the Project</description></parameter>
+            <parameter name="rootWorkEffortId"><description>The ID of the Project</description></parameter>
             <parameter name="milestoneWorkEffortId"/>
             <parameter name="workEffortId"/>
             <parameter name="workEffortName" required="true"/>
@@ -119,9 +119,10 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="workEffortId"/>
         </out-parameters>
         <actions>
-            <set field="seqName" value="Project_${rootWorkEffortId}"/>
-            <if condition="!workEffortId">
-                <set field="workEffortId" value="${rootWorkEffortId}-${ec.entity.sequencedIdPrimary(seqName, null, null)}"/></if>
+            <if condition="!workEffortId &amp;&amp; rootWorkEffortId">
+                <set field="seqName" value="Project_${rootWorkEffortId}"/>
+                <set field="workEffortId" value="${rootWorkEffortId}-${ec.entity.sequencedIdPrimary(seqName, null, 10)}"/>
+            </if>
             <service-call name="create#mantle.work.effort.WorkEffort" out-map="context" in-map="context + [workEffortTypeEnumId:'WetTask']"/>
             <if condition="assignToPartyId">
                 <service-call name="create#mantle.work.effort.WorkEffortParty" in-map="[workEffortId:workEffortId, partyId:assignToPartyId,
@@ -258,32 +259,13 @@ along with this software (see the LICENSE.md file). If not, see
     </service>
 
     <service verb="add" noun="TaskTime">
+        <implements service="mantle.work.TimeServices.store#TimeEntry"/>
         <in-parameters>
-            <auto-parameters entity-name="mantle.work.time.TimeEntry" include="nonpk"/>
             <parameter name="workEffortId" required="true"/>
             <parameter name="partyId" default="ec.user.userAccount.partyId"/>
-            <parameter name="rateTypeEnumId" default-value="RatpStandard"/>
-            <parameter name="remainingWorkTime" type="BigDecimal"/>
         </in-parameters>
-        <out-parameters>
-            <parameter name="timeEntryId"/>
-        </out-parameters>
         <actions>
-            <service-call name="mantle.work.TimeServices.store#TimeEntry" out-map="context" in-map="context"/>
-
-            <if condition="remainingWorkTime != null"><then>
-                <service-call name="update#mantle.work.effort.WorkEffort"
-                        in-map="[workEffortId:workEffortId, remainingWorkTime:remainingWorkTime]"/>
-            </then><else>
-                <!-- auto deduct from remainingWorkTime -->
-                <entity-find-one entity-name="mantle.work.time.TimeEntry" value-field="timeEntry"/>
-                <entity-find-one entity-name="mantle.work.effort.WorkEffort" value-field="task"/>
-                <if condition="task.remainingWorkTime">
-                    <set field="task.remainingWorkTime" from="task.remainingWorkTime - timeEntry.hours"/>
-                    <if condition="task.remainingWorkTime &lt; 0"><set field="task.remainingWorkTime" from="0"/></if>
-                    <entity-update value-field="task"/>
-                </if>
-            </else></if>
+            <service-call name="mantle.work.TimeServices.store#TimeEntry" in-map="context" out-map="context"/>
         </actions>
     </service>
     <service verb="update" noun="TaskFromTime" authenticate="anonymous-all">

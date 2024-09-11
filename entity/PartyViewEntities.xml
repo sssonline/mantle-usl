@@ -13,7 +13,7 @@ along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-2.1.xsd">
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
 
     <!-- ========================================================= -->
     <!-- mantle.party -->
@@ -105,6 +105,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="partyId" entity-alias="PTY"/>
         <alias name="pseudoId" entity-alias="PTY"/>
         <alias name="ownerPartyId" entity-alias="PTY"/>
+        <alias name="externalId" entity-alias="PTY"/>
     </view-entity>
     <view-entity entity-name="PersonWithUserAccount" package="mantle.party">
         <description>Like PersonAndUserAccount but UserAccount not optional (necessary for find by userId that might be null)</description>
@@ -118,6 +119,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="partyId" entity-alias="PTY"/>
         <alias name="pseudoId" entity-alias="PTY"/>
         <alias name="ownerPartyId" entity-alias="PTY"/>
+        <alias name="externalId" entity-alias="PTY"/>
     </view-entity>
 
     <view-entity entity-name="PartyDetail" package="mantle.party">

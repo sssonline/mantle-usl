@@ -12,7 +12,7 @@ You should have received a copy of the CC0 Public Domain Dedication
 along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
-<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-2.1.xsd">
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
     <service verb="find" noun="PartyHasDuplicates">
         <in-parameters><parameter name="partyId" required="true"/></in-parameters>
         <out-parameters><parameter name="hasDuplicates" type="Boolean"/></out-parameters>
@@ -513,10 +513,17 @@ along with this software (see the LICENSE.md file). If not, see
 
                 // PartyClassificationAppl
                 for (EntityValue value in ec.entity.find("mantle.party.PartyClassificationAppl").condition("partyId", fromPartyId).list()) {
-                    EntityValue newVal = value.cloneValue()
-                    newVal.partyId = toPartyId
-                    if (!newVal.refresh()) newVal.create()
-                    // value.delete()
+                    // see if to Party already has a PartyClassification of the same type
+                    EntityValue partyClassification = (EntityValue) value.classification
+                    long pcaCount = ec.entity.find("mantle.party.PartyClassificationAndAppl").condition("partyId", toPartyId)
+                            .condition("classificationTypeEnumId", partyClassification.classificationTypeEnumId)
+                            .conditionDate(null, null, null).count()
+                    if (pcaCount == 0) {
+                        EntityValue newVal = value.cloneValue()
+                        newVal.partyId = toPartyId
+                        if (!newVal.refresh()) newVal.create()
+                        // value.delete()
+                    }
                 }
 
                 // PartyContent

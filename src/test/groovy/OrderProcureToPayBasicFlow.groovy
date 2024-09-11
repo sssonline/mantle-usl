@@ -263,9 +263,10 @@ class OrderProcureToPayBasicFlow extends Specification {
                     quantityAccepted:400, facilityId:facilityId, locationSeqId:"01010101", lotNumber:'A1111',
                     manufacturedDate:new Timestamp(effectiveTime - (3600000L*24*14)),
                     expectedEndOfLife:new Date(effectiveTime + (3600000L*24*180))]).call()
+        // receive to Receiving type location, with demo data settings will get On Hold
         ec.service.sync().name("mantle.shipment.ShipmentServices.receive#ShipmentProduct")
                 .parameters([shipmentId:shipResult.shipmentId, productId:'DEMO_3_1',
-                    quantityAccepted:100, facilityId:facilityId, locationSeqId:"01020101", lotNumber:'A2222',
+                    quantityAccepted:100, facilityId:facilityId, locationSeqId:"0801", lotNumber:'A2222',
                     manufacturedDate:new Timestamp(effectiveTime - (3600000L*24*14)),
                     expectedEndOfLife:new Date(effectiveTime + (3600000L*24*240))]).call()
 
@@ -284,8 +285,8 @@ class OrderProcureToPayBasicFlow extends Specification {
                     expectedEndOfLife:(eolDate), salvageValue:1500, depreciationTypeEnumId:'DtpStraightLine']).call()
         equip2AssetId = receiveEquip2Out.assetIdList[0]
 
-        ec.service.sync().name("update#mantle.shipment.Shipment")
-                .parameters([shipmentId:shipResult.shipmentId, statusId:'ShipDelivered']).call()
+        ec.service.sync().name("mantle.shipment.ShipmentServices.deliver#Shipment")
+                .parameters([shipmentId:shipResult.shipmentId]).call()
 
 
         List<String> dataCheckErrors = []
@@ -339,11 +340,11 @@ class OrderProcureToPayBasicFlow extends Specification {
                 quantityOnHandDiff="400" availableToPromiseDiff="400" unitCost="8" shipmentId="${shipResult.shipmentId}"
                 productId="DEMO_1_1" assetReceiptId="55400"/>
 
-            <mantle.product.asset.Asset assetId="55401" assetTypeEnumId="AstTpInventory" statusId="AstAvailable"
+            <mantle.product.asset.Asset assetId="55401" assetTypeEnumId="AstTpInventory" statusId="AstOnHold"
                 ownerPartyId="ORG_ZIZI_RETAIL" productId="DEMO_3_1" hasQuantity="Y" quantityOnHandTotal="100"
                 availableToPromiseTotal="100" assetName="Demo Product Three-One" receivedDate="${effectiveTime}"
-                acquiredDate="${effectiveTime}" facilityId="${facilityId}" acquireOrderId="${purchaseOrderId}"
-                acquireOrderItemSeqId="02" acquireCost="4.5" acquireCostUomId="USD"/>
+                acquiredDate="${effectiveTime}" facilityId="${facilityId}" locationSeqId="0801" 
+                acquireOrderId="${purchaseOrderId}" acquireOrderItemSeqId="02" acquireCost="4.5" acquireCostUomId="USD"/>
             <mantle.product.receipt.AssetReceipt assetReceiptId="55401" assetId="55401" productId="DEMO_3_1"
                 orderId="${purchaseOrderId}" orderItemSeqId="02" shipmentId="${shipResult.shipmentId}"
                 receivedByUserId="EX_JOHN_DOE" receivedDate="${effectiveTime}" quantityAccepted="100"/>
@@ -412,6 +413,26 @@ class OrderProcureToPayBasicFlow extends Specification {
         dataCheckErrors.size() == 0
     }
 
+    def "move Received Inventory"() {
+        when:
+        // move to pick location to make Available with demo settings for autoStatusId
+        ec.service.sync().name("mantle.product.AssetServices.move#Product")
+                .parameters([productId:'DEMO_3_1', quantity:100, quantityAccepted:100,
+                             facilityId:facilityId, locationSeqId:"0801", toLocationSeqId:"01020101"]).call()
+
+        List<String> dataCheckErrors = []
+        long fieldsChecked = ec.entity.makeDataLoader().xmlText("""<entity-facade-xml>
+            <mantle.product.asset.Asset assetId="55401" assetTypeEnumId="AstTpInventory" statusId="AstAvailable"
+                ownerPartyId="ORG_ZIZI_RETAIL" productId="DEMO_3_1" hasQuantity="Y" quantityOnHandTotal="100"
+                availableToPromiseTotal="100" facilityId="${facilityId}" locationSeqId="01020101"/>
+        </entity-facade-xml>""").check(dataCheckErrors)
+        totalFieldsChecked += fieldsChecked
+        logger.info("Checked ${fieldsChecked} fields")
+        if (dataCheckErrors) for (String dataCheckError in dataCheckErrors) logger.info(dataCheckError)
+
+        then:
+        dataCheckErrors.size() == 0
+    }
 
     def "validate Assets Receipt Accounting Transactions"() {
         when:
@@ -664,7 +685,7 @@ class OrderProcureToPayBasicFlow extends Specification {
 
         // generate NACHA file, mark payment delivered (done automatically when file generated)
         ec.service.sync().name("mantle.account.NachaServices.generate#NachaFile")
-                .parameter("paymentMethodId", "ZIRET_BA").call()
+                .parameter("paymentMethodId", "ZIRET_BA").parameter("addOffsetRecord", true).call()
 
         // find PaymentApplication for validation
         EntityList pappList = ec.entity.find("mantle.account.payment.PaymentApplication")
@@ -843,8 +864,8 @@ class OrderProcureToPayBasicFlow extends Specification {
             <mantle.product.asset.Asset assetId="${equip1AssetId}" acquireCost="10000" salvageValue="1500" depreciation="283.33"/>
             <mantle.product.asset.AssetDepreciation assetId="${equip1AssetId}" timePeriodId="${currentFiscalMonthId}"
                     annualDepreciation="3400" yearsRemaining="5" isLastYearPeriod="N"
-                    monthlyDepreciation="283.33" acctgTransId="55413" usefulLifeYears="5"/>
-            <mantle.ledger.transaction.AcctgTrans acctgTransId="55413" amountUomId="USD" isPosted="Y" postedDate="${effectiveTime}"
+                    monthlyDepreciation="283.33" acctgTransId="55411" usefulLifeYears="5"/>
+            <mantle.ledger.transaction.AcctgTrans acctgTransId="55411" amountUomId="USD" isPosted="Y" postedDate="${effectiveTime}"
                     acctgTransTypeEnumId="AttDepreciation" glFiscalTypeEnumId="GLFT_ACTUAL" organizationPartyId="ORG_ZIZI_RETAIL"
                     transactionDate="${deprOut.transactionDate.time}">
                 <mantle.ledger.transaction.AcctgTransEntry amount="283.33" productId="EQUIP_1" glAccountId="182000000"
@@ -856,8 +877,8 @@ class OrderProcureToPayBasicFlow extends Specification {
             </mantle.ledger.transaction.AcctgTrans>
 
             <mantle.product.asset.AssetDepreciation assetId="${equip2AssetId}" timePeriodId="${currentFiscalMonthId}" annualDepreciation="1700"
-                    yearsRemaining="5" isLastYearPeriod="N" monthlyDepreciation="141.67" usefulLifeYears="5" acctgTransId="55414"/>
-            <mantle.ledger.transaction.AcctgTrans acctgTransId="55414" postedDate="${effectiveTime}" amountUomId="USD"
+                    yearsRemaining="5" isLastYearPeriod="N" monthlyDepreciation="141.67" usefulLifeYears="5" acctgTransId="55412"/>
+            <mantle.ledger.transaction.AcctgTrans acctgTransId="55412" postedDate="${effectiveTime}" amountUomId="USD"
                     isPosted="Y" assetId="${equip2AssetId}" acctgTransTypeEnumId="AttDepreciation" glFiscalTypeEnumId="GLFT_ACTUAL"
                     transactionDate="${deprOut.transactionDate.time}" organizationPartyId="ORG_ZIZI_RETAIL">
                 <mantle.ledger.transaction.AcctgTransEntry amount="141.67" productId="EQUIP_1" glAccountId="182000000"
@@ -1100,9 +1121,9 @@ class OrderProcureToPayBasicFlow extends Specification {
                     postedCredits="20000" postedDebits="20000" endingBalance="0" organizationPartyId="ORG_ZIZI_RETAIL"/>
 
             <mantle.ledger.account.GlAccountOrgTimePeriod glAccountId="182000000" timePeriodId="${currentFiscalMonthId}"
-                    postedCredits="491.66" postedDebits="425" endingBalance="66.66" organizationPartyId="ORG_ZIZI_RETAIL"/>
+                    postedCredits="485.6" postedDebits="425" endingBalance="60.6" organizationPartyId="ORG_ZIZI_RETAIL"/>
             <mantle.ledger.account.GlAccountOrgTimePeriod glAccountId="672000000" timePeriodId="${currentFiscalMonthId}"
-                    postedDebits="491.66" endingBalance="491.66" organizationPartyId="ORG_ZIZI_RETAIL"/>
+                    postedDebits="485.6" endingBalance="485.6" organizationPartyId="ORG_ZIZI_RETAIL"/>
             <mantle.ledger.account.GlAccountOrgTimePeriod glAccountId="814100000" timePeriodId="${currentFiscalMonthId}"
                     postedCredits="1141.67" endingBalance="1141.67" organizationPartyId="ORG_ZIZI_RETAIL"/>
             <mantle.ledger.account.GlAccountOrgTimePeriod glAccountId="793100000" timePeriodId="${currentFiscalMonthId}"
@@ -1123,7 +1144,8 @@ class OrderProcureToPayBasicFlow extends Specification {
         when:
         ec.service.sync().name("mantle.product.AssetServices.record#PhysicalInventoryChange")
                 .parameters([productId:'DEMO_1_1', facilityId:facilityId, quantityChange:-10,
-                             varianceReasonEnumId:'InVrLost', comments:'Test lost 10 DEMO_1_1']).call()
+                            statusId:'AstAvailable', locationSeqId:'01010101',
+                            varianceReasonEnumId:'InVrLost', comments:'Test lost 10 DEMO_1_1']).call()
 
         List<String> dataCheckErrors = []
         long fieldsChecked = ec.entity.makeDataLoader().xmlText("""<entity-facade-xml>

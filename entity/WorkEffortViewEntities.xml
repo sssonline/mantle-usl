@@ -13,7 +13,7 @@ along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-2.1.xsd">
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
 
     <!-- ========================================================= -->
     <!--  - mantle.work.effort -->
@@ -230,6 +230,8 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="WEFF_MLSTN" prefix="milestone"/>
         <alias-all entity-alias="WEP"><exclude field="statusId"/></alias-all>
         <alias-all entity-alias="WETP" prefix="team"/>
+
+        <alias name="lastUpdatedStamp" entity-alias="WEFF"/>
         <alias name="partyStatusId" entity-alias="WEP" field="statusId"/>
         <alias name="teamMemberPartyId" entity-alias="TPR" field="fromPartyId"/>
 
@@ -286,6 +288,16 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PFA" prefix="pfa"/>
         <alias-all entity-alias="PFT"/>
     </view-entity>
+    <view-entity entity-name="WorkEffortProductAssoc" package="mantle.work.effort">
+        <member-entity entity-alias="WEP" entity-name="mantle.work.effort.WorkEffortProduct"/>
+        <member-entity entity-alias="PASC" entity-name="mantle.product.ProductAssoc" join-from-alias="WEP">
+            <key-map field-name="productId"/></member-entity>
+        <alias-all entity-alias="WEP"/>
+        <alias-all entity-alias="PASC"><exclude field="quantity"/><exclude field="fromDate"/><exclude field="thruDate"/></alias-all>
+        <alias name="componentQuantity" entity-alias="PASC" field="quantity"/>
+        <alias name="componentFromDate" entity-alias="PASC" field="fromDate"/>
+        <alias name="componentThruDate" entity-alias="PASC" field="thruDate"/>
+    </view-entity>
     <view-entity entity-name="WorkEffortProductWork" package="mantle.work.effort">
         <member-entity entity-alias="WEP" entity-name="mantle.work.effort.WorkEffortProduct"/>
         <member-entity entity-alias="WEFF" entity-name="mantle.work.effort.WorkEffort" join-from-alias="WEP">
@@ -303,13 +315,21 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="SHP" entity-name="mantle.shipment.Shipment" join-from-alias="WEFF" join-optional="true">
             <key-map field-name="workEffortId" related="shipWorkEffortId"/></member-entity>
         <member-entity entity-alias="WEAA" entity-name="mantle.work.effort.WorkEffortAssetAssign" join-from-alias="WEFF" join-optional="true">
-            <key-map field-name="workEffortId"/></member-entity>
+            <key-map field-name="workEffortId"/>
+            <entity-condition><date-filter/></entity-condition>
+        </member-entity>
+        <member-entity entity-alias="WEP" entity-name="mantle.work.effort.WorkEffortParty" join-from-alias="WEFF" join-optional="true">
+            <key-map field-name="workEffortId"/>
+            <entity-condition><date-filter/></entity-condition>
+        </member-entity>
         <member-relationship entity-alias="FAC" join-from-alias="WEFF" relationship="facility"/>
         <alias-all entity-alias="WEFF"/>
         <alias name="shipmentId" entity-alias="SHP"/>
         <alias name="shipFromPartyId" entity-alias="SHP" field="fromPartyId"/>
         <alias name="shipToPartyId" entity-alias="SHP" field="toPartyId"/>
         <alias name="assetId" entity-alias="WEAA"/>
+        <alias name="partyId" entity-alias="WEP"/>
+        <alias name="roleTypeId" entity-alias="WEP"/>
         <alias name="facilityName" entity-alias="FAC"/>
         <!-- included to for user org and active org filter on Facility owner where ShipmentLoad (picklist) takes place, make sure at least one field on FAC selected -->
         <alias name="facilityOwnerPartyId" entity-alias="FAC" field="ownerPartyId"/>
@@ -511,6 +531,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="WEFF" entity-name="mantle.work.effort.WorkEffort"/>
         <alias entity-alias="WEFF" name="rootWorkEffortId"/>
         <alias entity-alias="WEFF" name="workEffortTypeEnumId"/>
+        <alias entity-alias="WEFF" name="ownerPartyId"/>
         <alias entity-alias="WEFF" name="estimatedWorkTime" function="sum"/>
         <alias entity-alias="WEFF" name="actualWorkTime" function="sum"/>
         <alias entity-alias="WEFF" name="remainingWorkTime" function="sum"/>

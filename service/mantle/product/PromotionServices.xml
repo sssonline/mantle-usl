@@ -12,7 +12,7 @@ You should have received a copy of the CC0 Public Domain Dedication
 along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
-<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-2.1.xsd">
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
     <service verb="apply" noun="Promotion" type="interface">
         <description>
@@ -498,6 +498,8 @@ along with this software (see the LICENSE.md file). If not, see
                 <description>Required. Quantity that will receive the discount (must have at least Buy + Get in cart to apply).</description></parameter>
             <parameter name="discountPercent" type="BigDecimal" required="true">
                 <description>Required. Discount percentage such as 50 for half off, 100 for free; applies to Get quantity only.</description></parameter>
+            <parameter name="listDiffPercent" type="BigDecimal">
+                <description>Optional. Don't apply promotion if order item unit amount is less than list price by this percentage.</description></parameter>
             <parameter name="itemsWithPromo" type="Boolean" default="false">
                 <description>If true apply to product item quantities that already have another promotion (defaults to false)</description></parameter>
             <parameter name="includeNonConsumer" type="Boolean" default="false">
@@ -520,7 +522,12 @@ along with this software (see the LICENSE.md file). If not, see
 
             <entity-find entity-name="mantle.product.store.ProductStorePromoProduct" list="psppList" cache="true">
                 <econdition field-name="storePromotionId"/></entity-find>
-            <set field="applProductIdSet" from="psppList ? new HashSet(psppList*.productId) : null"/>
+            <set field="includeProductIdSet" from="new HashSet()"/>
+            <set field="excludeProductIdSet" from="new HashSet()"/>
+            <iterate list="psppList" entry="pspp">
+                <if condition="pspp.excludeProduct == 'Y'"><then><script>excludeProductIdSet.add(pspp.productId)</script></then>
+                    <else><script>includeProductIdSet.add(pspp.productId)</script></else></if>
+            </iterate>
 
             <!-- get the ProductStorePromoCode record for the promoCode to save with the OrderItem(s) generated; will be null if no promoCodeId -->
             <entity-find-one entity-name="mantle.product.store.ProductStorePromoCode" value-field="storePromoCode"/>
@@ -529,18 +536,41 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="useLimitRemaining" from="useLimit ?: 1000.0"/>
 
             <set field="buyGetQuantity" from="buyQuantity + getQuantity"/>
+            <if condition="buyGetQuantity &lt;= 0.0">
+                <log level="error" message="Promotion ${storePromotionId} has buyQuantity ${buyQuantity} getQuantity ${getQuantity} with total &lt;= 0.0 which is invalid, not applying promotion"/>
+                <return/>
+            </if>
+
             <!-- apply promo to each eligible item -->
             <entity-find entity-name="mantle.order.OrderItem" list="prodItemList">
                 <econdition field-name="orderId"/>
                 <econdition field-name="orderPartSeqId"/>
                 <econdition field-name="itemTypeEnumId" value="ItemProduct"/>
-                <econdition field-name="productId" operator="in" from="applProductIdSet" ignore-if-empty="true"/>
+                <econdition field-name="productId" operator="in" from="includeProductIdSet" ignore-if-empty="true"/>
+                <econdition field-name="productId" operator="not-in" from="excludeProductIdSet" ignore-if-empty="true"/>
             </entity-find>
             <iterate list="prodItemList" entry="orderItem">
                 <service-call name="mantle.order.OrderServices.get#OrderItemTotal" out-map-add-to-existing="false"
                         in-map="[orderItem:orderItem, getChildrenTotals:true]" out-map="orderItemTotalOut"/>
                 <!-- <log level="warn" message="orderItemTotalOut ${orderItemTotalOut}"/> -->
                 <if condition="!orderItemTotalOut.combinedAmount"><continue/></if>
+
+                <!-- if listDiffPercent specified check now -->
+                <if condition="listDiffPercent != null">
+                    <set field="unitAmount" from="orderItem.unitAmount ?: 0.0"/>
+                    <set field="listDiffRatio" from="((BigDecimal) listDiffPercent).divide(100.0, 4, BigDecimal.ROUND_HALF_UP)"/>
+                    <service-call name="mantle.product.PriceServices.get#OrderProductPrice" out-map="itemPriceOut"
+                            in-map="[productId:orderItem.productId, orderId:orderId, orderPartSeqId:orderItem.orderPartSeqId]"/>
+                    <if condition="itemPriceOut.listPrice"><then>
+                        <set field="minApplyPrice" from="((BigDecimal) itemPriceOut.listPrice).multiply(BigDecimal.ONE.minus(listDiffRatio))"/>
+                        <if condition="unitAmount &lt; minApplyPrice">
+                            <log message="Not applying store promo ${storePromotionId} to order ${orderId} item ${orderItem.orderItemSeqId} product ${orderItem.productId}, unitAmount ${unitAmount} less than ${minApplyPrice} which is list ${itemPriceOut.listPrice} minus ${listDiffPercent} percent"/>
+                            <continue/>
+                        </if>
+                    </then><else>
+                        <log level="warn" message="Product ${orderItem.productId} has no List Price, ignoring listDiffPercent for store promo ${storePromotionId} order ${orderId}"/>
+                    </else></if>
+                </if>
 
                 <if condition="itemsWithPromo"><then>
                     <set field="eligibleQuantity" from="orderItem.quantity != null ? orderItem.quantity : 1.0"/>
@@ -600,7 +630,12 @@ along with this software (see the LICENSE.md file). If not, see
 
             <entity-find entity-name="mantle.product.store.ProductStorePromoProduct" list="psppList" cache="true">
                 <econdition field-name="storePromotionId"/></entity-find>
-            <set field="applProductIdSet" from="psppList ? new HashSet(psppList*.productId) : null"/>
+            <set field="includeProductIdSet" from="new HashSet()"/>
+            <set field="excludeProductIdSet" from="new HashSet()"/>
+            <iterate list="psppList" entry="pspp">
+                <if condition="pspp.excludeProduct == 'Y'"><then><script>excludeProductIdSet.add(pspp.productId)</script></then>
+                    <else><script>includeProductIdSet.add(pspp.productId)</script></else></if>
+            </iterate>
 
             <!-- get the ProductStorePromoCode record for the promoCode to save with the OrderItem(s) generated; will be null if no promoCodeId -->
             <entity-find-one entity-name="mantle.product.store.ProductStorePromoCode" value-field="storePromoCode"/>
@@ -613,7 +648,8 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="orderId"/>
                 <econdition field-name="orderPartSeqId"/>
                 <econdition field-name="itemTypeEnumId" value="ItemProduct"/>
-                <econdition field-name="productId" operator="in" from="applProductIdSet" ignore-if-empty="true"/>
+                <econdition field-name="productId" operator="in" from="includeProductIdSet" ignore-if-empty="true"/>
+                <econdition field-name="productId" operator="not-in" from="excludeProductIdSet" ignore-if-empty="true"/>
             </entity-find>
             <iterate list="prodItemList" entry="orderItem">
                 <service-call name="mantle.order.OrderServices.get#OrderItemTotal" out-map-add-to-existing="false"

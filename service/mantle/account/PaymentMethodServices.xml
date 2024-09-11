@@ -12,7 +12,7 @@ You should have received a copy of the CC0 Public Domain Dedication
 along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
-<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-2.1.xsd">
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
     <service verb="get" noun="PartyPaymentMethodInfo">
         <in-parameters>
@@ -209,6 +209,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="emailContactMechId"/>
         </out-parameters>
         <actions>
+            <set field="origPaymentMethodId" from="paymentMethodId"/>
             <if condition="paymentMethodId">
                 <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="paymentMethod"/>
                 <set field="paymentMethodTypeEnumId" from="paymentMethod.paymentMethodTypeEnumId"/>
@@ -257,6 +258,29 @@ along with this software (see the LICENSE.md file). If not, see
                 </else-if></if>
             </else></if>
             <!-- NOTE: out paymentMethodId set from service-call.@out-map=context -->
+
+            <if condition="origPaymentMethodId &amp;&amp; origPaymentMethodId != paymentMethodId">
+                <!-- update Payment.paymentMethodId and .toPaymentMethodId on open Payment records -->
+                <entity-find entity-name="mantle.account.payment.Payment" list="paymentList">
+                    <econdition field-name="paymentMethodId" from="origPaymentMethodId"/>
+                    <econdition field-name="statusId" operator="in" value="PmntProposed,PmntPromised,PmntAuthorized,PmntDeclined"/>
+                    <econdition field-name="paymentAuthCode" operator="is-null"/>
+                </entity-find>
+                <iterate list="paymentList" entry="payment">
+                    <set field="payment.paymentMethodId" from="paymentMethodId"/>
+                    <entity-update value-field="payment"/>
+                    <message>Updated Payment Method on Payment ${payment.paymentId}</message>
+                </iterate>
+                <entity-find entity-name="mantle.account.payment.Payment" list="toPaymentList">
+                    <econdition field-name="toPaymentMethodId" from="origPaymentMethodId"/>
+                    <econdition field-name="statusId" operator="in" value="PmntProposed,PmntPromised,PmntAuthorized,PmntDeclined"/>
+                </entity-find>
+                <iterate list="toPaymentList" entry="toPayment">
+                    <set field="toPayment.toPaymentMethodId" from="paymentMethodId"/>
+                    <entity-update value-field="toPayment"/>
+                    <message>Updated To Payment Method on Payment ${toPayment.paymentId}</message>
+                </iterate>
+            </if>
         </actions>
     </service>
 
@@ -275,6 +299,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="ledgerBalance" type="BigDecimal"/>
             <parameter name="availableBalance" type="BigDecimal"/>
             <parameter name="balanceDate" type="Timestamp"/>
+            <parameter name="thruDateSetAuto"/>
         </in-parameters>
         <actions>
             <service-call name="update#mantle.account.method.PaymentMethod" in-map="context"/>
@@ -287,7 +312,43 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="thruDate" type="Timestamp" default="ec.user.nowTimestamp"/>
         </in-parameters>
         <actions>
+            <entity-find-count entity-name="mantle.account.payment.Payment" count-field="paymentCount">
+                <econditions combine="or">
+                    <econdition field-name="paymentMethodId"/>
+                    <econdition field-name="toPaymentMethodId" from="paymentMethodId"/>
+                </econditions>
+                <econdition field-name="statusId" operator="in" value="PmntProposed,PmntPromised,PmntAuthorized,PmntDeclined"/>
+            </entity-find-count>
+            <if condition="paymentCount &gt; 0">
+                <service-call name="update#mantle.account.method.PaymentMethod" in-map="[paymentMethodId:paymentMethodId, thruDateSetAuto:'Y']"/>
+                <return type="danger" message="Payment method ${paymentMethodId} has active payments and will be deleted once completed"/>
+            </if>
+
             <service-call name="update#mantle.account.method.PaymentMethod" in-map="context"/>
+        </actions>
+    </service>
+    <service verb="checkDelete" noun="PaymentPaymentMethods">
+        <description>Check PaymentMethod records associated with Payment, if thruDateSetAuto is Y then call delete#PaymentMethod to expire</description>
+        <in-parameters><parameter name="paymentId" required="true"/></in-parameters>
+        <actions>
+            <entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment"/>
+            <if condition="payment?.statusId in ['PmntProposed', 'PmntPromised', 'PmntAuthorized', 'PmntDeclined']"><return/></if>
+            <if condition="payment?.paymentMethodId">
+                <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="paymentMethod">
+                    <field-map field-name="paymentMethodId" from="payment.paymentMethodId"/></entity-find-one>
+                <if condition="paymentMethod.thruDateSetAuto == 'Y'">
+                    <service-call name="mantle.account.PaymentMethodServices.delete#PaymentMethod"
+                            in-map="[paymentMethodId:paymentMethod.paymentMethodId]"/>
+                </if>
+            </if>
+            <if condition="payment?.toPaymentMethodId">
+                <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="paymentMethod">
+                    <field-map field-name="paymentMethodId" from="payment.toPaymentMethodId"/></entity-find-one>
+                <if condition="paymentMethod.thruDateSetAuto == 'Y'">
+                    <service-call name="mantle.account.PaymentMethodServices.delete#PaymentMethod"
+                            in-map="[paymentMethodId:paymentMethod.paymentMethodId]"/>
+                </if>
+            </if>
         </actions>
     </service>
     <service verb="expunge" noun="PaymentMethod">
@@ -298,25 +359,32 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="paymentMethod"/>
 
-            <entity-find entity-name="mantle.account.method.PaymentMethod" list="pmList">
-                <econdition field-name="originalPaymentMethodId" from="paymentMethod.originalPaymentMethodId"/>
-            </entity-find>
+            <if condition="paymentMethod.originalPaymentMethodId != null"><then>
+                <entity-find entity-name="mantle.account.method.PaymentMethod" list="pmList">
+                    <econdition field-name="originalPaymentMethodId" from="paymentMethod.originalPaymentMethodId"/>
+                </entity-find>
 
-            <iterate list="pmList" entry="pmValue">
+                <iterate list="pmList" entry="pmValue">
+                    <!-- TODO: clear paymentMethodId references for FK error on delete -->
+                    <service-call name="delete#mantle.account.method.BankAccount" in-map="[paymentMethodId:pmValue.paymentMethodId]"/>
+                    <service-call name="delete#mantle.account.method.CreditCard" in-map="[paymentMethodId:pmValue.paymentMethodId]"/>
+                    <service-call name="delete#mantle.account.method.PaymentMethod" in-map="[paymentMethodId:pmValue.paymentMethodId]"/>
+                </iterate>
+
+                <!-- if the original record doesn't have originalPaymentMethodId populated it won't have been deleted above -->
+                <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="origPm">
+                    <field-map field-name="paymentMethodId" from="paymentMethod.originalPaymentMethodId"/></entity-find-one>
+                <if condition="origPm">
+                    <service-call name="delete#mantle.account.method.BankAccount" in-map="[paymentMethodId:origPm.paymentMethodId]"/>
+                    <service-call name="delete#mantle.account.method.CreditCard" in-map="[paymentMethodId:origPm.paymentMethodId]"/>
+                    <service-call name="delete#mantle.account.method.PaymentMethod" in-map="[paymentMethodId:origPm.paymentMethodId]"/>
+                </if>
+            </then><else>
                 <!-- TODO: clear paymentMethodId references for FK error on delete -->
-                <service-call name="delete#mantle.account.method.BankAccount" in-map="[paymentMethodId:pmValue.paymentMethodId]"/>
-                <service-call name="delete#mantle.account.method.CreditCard" in-map="[paymentMethodId:pmValue.paymentMethodId]"/>
-                <service-call name="delete#mantle.account.method.PaymentMethod" in-map="[paymentMethodId:pmValue.paymentMethodId]"/>
-            </iterate>
-
-            <!-- if the original record doesn't have originalPaymentMethodId populated it won't have been deleted above -->
-            <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="origPm">
-                <field-map field-name="paymentMethodId" from="paymentMethod.originalPaymentMethodId"/></entity-find-one>
-            <if condition="origPm">
-                <service-call name="delete#mantle.account.method.BankAccount" in-map="[paymentMethodId:origPm.paymentMethodId]"/>
-                <service-call name="delete#mantle.account.method.CreditCard" in-map="[paymentMethodId:origPm.paymentMethodId]"/>
-                <service-call name="delete#mantle.account.method.PaymentMethod" in-map="[paymentMethodId:origPm.paymentMethodId]"/>
-            </if>
+                <service-call name="delete#mantle.account.method.BankAccount" in-map="[paymentMethodId:paymentMethodId]"/>
+                <service-call name="delete#mantle.account.method.CreditCard" in-map="[paymentMethodId:paymentMethodId]"/>
+                <service-call name="delete#mantle.account.method.PaymentMethod" in-map="[paymentMethodId:paymentMethodId]"/>
+            </else></if>
         </actions>
     </service>
 
@@ -515,7 +583,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <entity-find-one entity-name="mantle.account.method.BankAccount" value-field="origBankAccount"/>
             <set field="newBankAccount" from="origBankAccount.cloneValue()"/>
-            <entity-set value-field="newBankAccount" include="nonpk"/>
+            <entity-set value-field="newBankAccount" include="nonpk" set-if-empty="true"/>
 
             <entity-find-one entity-name="mantle.account.method.PaymentMethod" value-field="origPaymentMethod"/>
             <set field="newPaymentMethod" from="origPaymentMethod.cloneValue()"/>
@@ -571,10 +639,13 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="nachaCompanyName"><text-length max="16"/></parameter>
             <parameter name="nachaDiscrData"><text-length max="20"/></parameter>
             <parameter name="nachaCompanyId"><text-length max="10"/></parameter>
+            <parameter name="nachaOdfiId"><text-digits/><text-length max="8"/></parameter>
             <parameter name="nachaEntryDescription"><text-length max="10"/></parameter>
             <parameter name="nachaOffsetRecordRequired"/>
             <parameter name="nachaPrenoteRequired"/>
             <parameter name="nachaPrenoteValidAfterDays" type="Integer"/>
+            <parameter name="nachaAddNewLine"/>
+            <parameter name="nachaAddOffsetRecord"/>
             <parameter name="posPayBankNumber"/>
             <parameter name="posPayFormatEnumId"/>
         </in-parameters>
@@ -716,7 +787,7 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="paymentMethodFileId" required="true"/>
             <parameter name="outgoingStatusId" default-value="PmntAuthorized"/>
-            <parameter name="incomingStatusId" default-value="PmntPromised"/>
+            <parameter name="incomingStatusId" default-value="PmntAuthorized"/>
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.method.PaymentMethodFile" value-field="paymentMethodFile"/>
@@ -747,8 +818,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- for all Payment with paymentMethodFileId
             - set paymentMethodFileId to null
-            - for outgoing Payment if status Delivered set to Authorized
-            - for incoming Payment if status Delivered set to Promised
+            - for outgoing or incoming Payment if status Delivered set to Authorized
             -->
             <entity-find entity-name="mantle.account.payment.Payment" list="paymentList" for-update="true">
                 <econdition field-name="paymentMethodFileId"/>

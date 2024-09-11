@@ -12,7 +12,7 @@ You should have received a copy of the CC0 Public Domain Dedication
 along with this software (see the LICENSE.md file). If not, see
 <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
-<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-2.1.xsd">
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
     <service verb="store" noun="TimeEntry">
         <in-parameters>
@@ -27,6 +27,8 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="clientPieceRateIncrement" type="BigDecimal"/>
 
             <parameter name="bypassEmploymentPayHistoryEeca" type="Boolean" default="false"/>
+            <!-- If workEffortId use to update WorkEffort -->
+            <parameter name="remainingWorkTime" type="BigDecimal"/>
         </in-parameters>
         <out-parameters>
             <parameter name="timeEntryId"/>
@@ -37,9 +39,11 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="!party"><return error="true" message="Time Entry not created, party with ID ${partyId} was not found."/></if>
                 <if condition="party.disabled == 'Y'"><return error="true" message="Time Entry not created, ${party.pseudoId} is not active."/></if>
             </if>
+            <set field="entryHasHours" from="false"/>
             <if condition="timeEntryId">
                 <entity-find-one entity-name="mantle.work.time.TimeEntry" value-field="timeEntry" for-update="true"/>
                 <if condition="timeEntry != null">
+                    <set field="entryHasHours" from="timeEntry.hours != null &amp;&amp; timeEntry.hours != 0.0"/>
                     <!-- fill in field values not passed into this service so that calcs can run -->
                     <iterate list="timeEntry" entry="fieldValue" key="fieldName">
                         <if condition="fieldValue != null &amp;&amp; !context.containsKey(fieldName)">
@@ -72,8 +76,12 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="hours &amp;&amp; !fromDate &amp;&amp; thruDate">
                 <set field="fromDate" from="new Timestamp((Long) (thruDate.time - (hours*60*60*1000) - (breakHours ? (breakHours*60*60*1000) : 0)))"/>
             </if>
+
+            <if condition="fromDate &amp;&amp; thruDate &amp;&amp; fromDate &gt; thruDate">
+                <return error="true" message="From date ${fromDate} is after thru date ${thruDate}"/></if>
+
             <!-- calculate hours using fromDate/thruDate/breakHours -->
-            <if condition="!hours &amp;&amp; hours != 0 &amp;&amp; fromDate &amp;&amp; thruDate">
+            <if condition="hours == null &amp;&amp; fromDate &amp;&amp; thruDate">
                 <set field="hours" from="((thruDate.time - fromDate.time)/(60*60*1000)) - (breakHours ?: 0)"/>
             </if>
 
@@ -302,6 +310,21 @@ along with this software (see the LICENSE.md file). If not, see
                 <entity-update value-field="timeEntry"/>
             </if>
 
+            <if condition="workEffortId">
+                <!-- WorkEffort specific: handle remainingWorkTime -->
+                <if condition="remainingWorkTime != null"><then>
+                    <service-call name="update#mantle.work.effort.WorkEffort"
+                            in-map="[workEffortId:workEffortId, remainingWorkTime:remainingWorkTime]"/>
+                </then><else-if condition="hours &amp;&amp; !entryHasHours">
+                    <!-- auto deduct from remainingWorkTime -->
+                    <entity-find-one entity-name="mantle.work.effort.WorkEffort" value-field="task"/>
+                    <if condition="task?.remainingWorkTime">
+                        <set field="task.remainingWorkTime" from="task.remainingWorkTime - hours"/>
+                        <if condition="task.remainingWorkTime &lt; 0.0"><set field="task.remainingWorkTime" from="0.0"/></if>
+                        <entity-update value-field="task"/>
+                    </if>
+                </else-if></if>
+            </if>
         </actions>
     </service>
     <service verb="create" noun="TimeEntryClockIn">
@@ -625,7 +648,9 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="currencyUomId" from="rateAmount.rateCurrencyUomId"/>
                     </then><else>
                         <set field="purposeDesc" from="ec.entity.find('enums').condition('enumId', ratePurposeEnumId).one()?.description"/>
-                        <message error="true">No hourly ${purposeDesc} rate amount found for time entry ${timeEntryId}</message>
+                        <entity-find-one entity-name="mantle.party.PartyDetail" value-field="workerParty">
+                            <field-map field-name="partyId" from="timeEntry.partyId"/></entity-find-one>
+                        <message error="true">No hourly ${purposeDesc} rate amount found for time entry ${timeEntryId} for worker ${ec.resource.expand('PartyNameTemplate','',workerParty)}</message>
                     </else></if>
                 </then><else>
                     <set field="hourlyAmountTotal" from="hours * hourlyAmount"/>
@@ -1026,7 +1051,7 @@ along with this software (see the LICENSE.md file). If not, see
                         <!-- Choose the one with the larger fromDate -->
                         <if condition="!reducedPartyRaListMap[key] || partyRa.fromDate &gt; reducedPartyRaListMap[key].fromDate">
                             <set field="reducedPartyRaListMap[key]" from="partyRa"/>
-                        </if>                        
+                        </if>
                     </else-if><else-if condition="!reducedPartyRaListMap[key].fromDate &amp;&amp; partyRa.thruDate">
                         <!-- Choose the one with the more recent thruDate, but not if the existing one has a fromDate -->
                         <if condition="!reducedPartyRaListMap[key].thruDate || partyRa.thruDate &lt; reducedPartyRaListMap[key].thruDate">

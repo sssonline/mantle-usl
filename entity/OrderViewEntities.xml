@@ -29,7 +29,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="OPRT" entity-name="mantle.order.OrderPart" join-from-alias="ORHD">
             <key-map field-name="orderId"/></member-entity>
         <alias-all entity-alias="ORHD"/>
-        <alias-all entity-alias="OPRT"><exclude field="statusId"/></alias-all>
+        <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/></alias-all>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <!-- the lastUpdatedStamp on OrderHeader gets all major order updates because of the revisionNumber increment on major field changes -->
         <alias name="lastUpdatedStamp" entity-alias="ORHD"/>
@@ -79,7 +79,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-relationship entity-alias="PADR" join-from-alias="OPRT" relationship="postalAddress"/>
 
         <alias-all entity-alias="ORHD"/>
-        <alias-all entity-alias="OPRT"><exclude field="statusId"/></alias-all>
+        <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/></alias-all>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <alias name="itemTypeEnumId" entity-alias="OITM"/>
         <alias name="productId" entity-alias="OITM"/>
@@ -134,7 +134,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="OPRT" entity-name="mantle.order.OrderPart" join-from-alias="ORHD">
             <key-map field-name="orderId"/></member-entity>
         <alias-all entity-alias="ORHD"/>
-        <alias-all entity-alias="OPRT"><exclude field="statusId"/><exclude field="partTotal"/></alias-all>
+        <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/><exclude field="partTotal"/></alias-all>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <alias name="orderCount" entity-alias="ORHD" field="orderId" function="count-distinct"/>
         <alias name="partTotal" entity-alias="OPRT" function="sum"/>
@@ -155,11 +155,12 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="VNDRL" entity-name="mantle.party.PartyRole" join-from-alias="OPRT" join-optional="true">
             <key-map field-name="vendorPartyId" related="partyId"/></member-entity>
         <alias-all entity-alias="ORHD"/>
-        <alias-all entity-alias="OPRT"><exclude field="statusId"/></alias-all>
+        <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/></alias-all>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <alias name="statusDescription" entity-alias="STSI" field="description"/>
         <alias name="facilityName" entity-alias="FAC"/>
         <alias name="pseudoId" entity-alias="FAC"/>
+        <alias name="ownerPartyId" entity-alias="FAC"/>
         <alias name="customerRoleTypeId" entity-alias="CSTRL" field="roleTypeId"/>
         <alias name="vendorRoleTypeId" entity-alias="VNDRL" field="roleTypeId"/>
         <alias name="customerClassificationId" entity-alias="CSCLS" field="partyClassificationId"/>
@@ -194,7 +195,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="VNDRL" entity-name="mantle.party.PartyRole" join-from-alias="OPRT" join-optional="true">
             <key-map field-name="vendorPartyId" related="partyId"/></member-entity>
         <alias-all entity-alias="OITM"><exclude field="priority"/></alias-all>
-        <alias-all entity-alias="OPRT"><exclude field="statusId"/></alias-all>
+        <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/></alias-all>
         <alias-all entity-alias="OHDR"/>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <alias name="customerRoleTypeId" entity-alias="CSTRL" field="roleTypeId"/>
@@ -223,7 +224,7 @@ along with this software (see the LICENSE.md file). If not, see
             <key-map field-name="productId"/></member-entity>
         <alias-all entity-alias="OITM"><exclude field="productCategoryId"/><exclude field="quantity"/>
             <exclude field="unitAmount"/><exclude field="priority"/></alias-all>
-        <alias-all entity-alias="OPRT"><exclude field="statusId"/><exclude field="signatureRequiredEnumId"/></alias-all>
+        <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/><exclude field="signatureRequiredEnumId"/></alias-all>
         <alias-all entity-alias="OHDR"/>
         <alias-all entity-alias="PROD"><exclude field="statusId"/><exclude field="comments"/></alias-all>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>

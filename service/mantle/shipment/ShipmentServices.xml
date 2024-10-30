@@ -557,7 +557,7 @@ along with this software (see the LICENSE.md file). If not, see
 <!--
                 <entity-find-one entity-name="mantle.product.Product" value-field="product" cache="true">
                     <field-map field-name="productId" from="orderItem.productId"/></entity-find-one>
-                <if condition="!(product.productTypeEnumId in ['PtAsset', 'PtDigitalAsset', 'PtAssetUse', 'PtPickAssembly'])"><continue/></if>
+                <if condition="!(product.productTypeEnumId in ['PtAsset', 'PtDigitalAsset', 'PtAssetUse', 'PtPickAssembly'])"><continue/></if> -->
 
                 <!-- determine quantityNotShipped -->
                 <set field="quantityNotShipped" from="(orderItem.quantity != null ? orderItem.quantity : 1.0) * (orderItem.selectedAmount ?: 1.0)"/>
@@ -1146,7 +1146,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <entity-find-one entity-name="mantle.product.Product" value-field="product" cache="true"/>
             <if condition="!(product.productTypeEnumId in ['PtAsset', 'PtDigitalAsset', 'PtAssetUse', 'PtPickAssembly'])">
-                <return message="Not packing Product ${productId}, type ${product.type?.description ?: product.productTypeEnumId} is not a physical product type"/></if>
+                <return error="true" message="Not packing Product ${productId}, type ${product.type?.description ?: product.productTypeEnumId} is not a physical product type"/></if>
 
             <entity-find entity-name="mantle.shipment.ShipmentItemSource" list="shipmentItemSourceList" cache="false">
                 <econdition field-name="shipmentId"/><econdition field-name="productId"/>
@@ -1310,7 +1310,7 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- quantityRemaining? something didn't work, wasn't able to get all so return an error and roll back -->
             <if condition="quantityRemaining">
-                <return error="true" message="Unable to issue ${ec.l10n.format(quantityRemaining, '0.00')} out of quantity specified (${ec.l10n.format(quantity, '0.00')}) for Shipment Item Source ${shipmentItemSourceId}, not packing"/>
+                <return error="true" message="Unable to issue ${ec.l10n.format(quantityRemaining, '0.00')} out of quantity specified (${ec.l10n.format(quantity, '0.00')}) not packing, issueAnyOut is: ${issueAnyOut}"/>
             </if>
 
             <!-- add to specified package, or in new package if none specified -->

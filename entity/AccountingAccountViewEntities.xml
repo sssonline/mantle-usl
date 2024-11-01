@@ -857,6 +857,8 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PMSD" name="detailReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMT" name="fromPaymentMethodId" field="paymentMethodId"/>
+        <alias name="invoiceFromPartyId" field="fromPartyId" entity-alias="INV"/>
+        <alias name="invoiceToPartyId" field="toPartyId" entity-alias="INV"/>
     </view-entity>
 
     <view-entity entity-name="PaymentAndPaymentMethodStmtAndDetailSummary" package="mantle.account.method">
@@ -909,6 +911,8 @@ along with this software (see the LICENSE.md file). If not, see
         <alias entity-alias="PMT" name="paymentReconcileStatusId" field="reconcileStatusId"/>
         <alias entity-alias="PMT" name="fromPaymentMethodId" field="paymentMethodId"/>
         <alias entity-alias="PMT" name="amount" function="sum"/>
+        <alias name="invoiceFromPartyId" field="fromPartyId" entity-alias="INV"/>
+        <alias name="invoiceToPartyId" field="toPartyId" entity-alias="INV"/>
     </view-entity>
 
     <view-entity entity-name="PaymentMethodTransAndBankAccountCheckAndPayment" package="mantle.account.method">

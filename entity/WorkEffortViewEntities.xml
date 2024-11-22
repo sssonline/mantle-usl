@@ -378,6 +378,8 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="WEFAPER" entity-name="mantle.party.Person" join-from-alias="WEFAPTY" join-optional="true">
             <key-map field-name="partyId"/></member-entity>
         <alias-all entity-alias="WEFF"/>
+        <alias entity-alias="WEFFPTY" name="wEFFPTYEffortOwnerPartyId" field="ownerPartyId"/>
+        <alias entity-alias="WEFAPTY" name="wEFAPTYOwnerPartyId" field="ownerPartyId"/>
         <alias name="consumeProductId" entity-alias="WEPC" field="productId"/>
         <alias name="consumeTypeEnumId" entity-alias="WEPC" field="typeEnumId"/>
         <alias name="consumeProductPseudoId" entity-alias="PRODC" field="pseudoId"/>

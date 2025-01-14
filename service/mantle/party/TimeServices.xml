@@ -226,6 +226,11 @@ along with this software (see the LICENSE.md file). If not, see
                             <if condition="timePeriodType.periodLength &lt; 1 &amp;&amp; asOfDateDt.getDayOfMonth() &gt; 14">
                                 <set field="periodNum" from="periodNum + 1"/>
                             </if>
+                            <if condition="previousPeriod &amp;&amp;
+                                           (periodNum == 2) &amp;&amp;
+                                           (previousPeriod?.periodNum &gt; periodNum)"><then>
+                                <set field="periodNum" from="1"/> <!-- Don't start the year with period 2 if possible-->
+                            </then></if>
                         </then><else-if condition="timePeriodType.lengthUomId == 'TF_wk'">
                             <set field="periodNum" from="(asOfDateDt.get(java.time.temporal.ChronoField.ALIGNED_WEEK_OF_YEAR) / timePeriodType.periodLength).setScale(0, BigDecimal.ROUND_HALF_UP).intValue()"/>
                         </else-if></if>

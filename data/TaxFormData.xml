@@ -1076,7 +1076,6 @@ along with this software (see the LICENSE.md file). If not, see
                                        layoutSequenceNum="3" fieldTypeEnumId="DBFFT_text-line" printTop="1.65in" printLeft="2.5in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="12"/></moqui.screen.form.DbFormField>
 
-
         <moqui.screen.form.DbFormField fieldName="1099n_d1" title="RECIPIENT's name"
                                        layoutSequenceNum="5" fieldTypeEnumId="DBFFT_text-line" printTop="2.00in" printLeft="0.8125in"/>
         <moqui.screen.form.DbFormField fieldName="1099n_d2" title="RECIPIENT's street address"
@@ -1085,7 +1084,7 @@ along with this software (see the LICENSE.md file). If not, see
                                        layoutSequenceNum="7" fieldTypeEnumId="DBFFT_text-line" printTop="2.8in" printLeft="0.8125in"/>
 
         <moqui.screen.form.DbFormField fieldName="1099n_e" title="Account number"
-                                       layoutSequenceNum="8" fieldTypeEnumId="DBFFT_text-line" printTop="3.125in" printLeft="0.8125in">
+                                       layoutSequenceNum="8" fieldTypeEnumId="DBFFT_text-line" printTop="3.175in" printLeft="0.8125in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="25"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_y" title="Calendar Year"
@@ -1093,47 +1092,47 @@ along with this software (see the LICENSE.md file). If not, see
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="5"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_01" title="1 Nonemployee compensation"
-                                       layoutSequenceNum="20" fieldTypeEnumId="DBFFT_text-line" printTop="1.65in" printLeft="4.50in">
+                                       layoutSequenceNum="20" fieldTypeEnumId="DBFFT_text-line" printTop="1.65in" printLeft="4.25in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_02" title="2 Products For Resale"
-                                       layoutSequenceNum="21" fieldTypeEnumId="DBFFT_drop-down" printTop="1.875in" printLeft="6.625in">
+                                       layoutSequenceNum="21" fieldTypeEnumId="DBFFT_drop-down" printTop="1.925in" printLeft="6.775in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_03" title="3 Reserved"
-                                       layoutSequenceNum="22" fieldTypeEnumId="DBFFT_text-line" printTop="2.25in" printLeft="4.50in">
+                                       layoutSequenceNum="22" fieldTypeEnumId="DBFFT_text-line" printTop="2.35in" printLeft="4.25in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_04" title="4 Federal income tax withheld"
-                                       layoutSequenceNum="23" fieldTypeEnumId="DBFFT_text-line" printTop="2.875in" printLeft="4.50in">
+                                       layoutSequenceNum="23" fieldTypeEnumId="DBFFT_text-line" printTop="2.70in" printLeft="4.25in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_05a" title="5a State tax withheld"
-                                       layoutSequenceNum="30" fieldTypeEnumId="DBFFT_text-line" printTop="3.25in" printLeft="4.50in">
+                                       layoutSequenceNum="30" fieldTypeEnumId="DBFFT_text-line" printTop="3.00in" printLeft="4.25in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="1099n_06a" title="6a State/Payer's state no."
-                                       layoutSequenceNum="31" fieldTypeEnumId="DBFFT_text-line" printTop="3.25in" printLeft="5.125in">
+                                       layoutSequenceNum="31" fieldTypeEnumId="DBFFT_text-line" printTop="3.00in" printLeft="5.275in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="1099n_07a" title="7a State income"
-                                       layoutSequenceNum="32" fieldTypeEnumId="DBFFT_text-line" printTop="3.25in" printLeft="7.125in">
+                                       layoutSequenceNum="32" fieldTypeEnumId="DBFFT_text-line" printTop="3.00in" printLeft="7.05in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="1099n_05b" title="5b State tax withheld"
-                                       layoutSequenceNum="33" fieldTypeEnumId="DBFFT_text-line" printTop="3.50in" printLeft="4.50in">
+                                       layoutSequenceNum="33" fieldTypeEnumId="DBFFT_text-line" printTop="3.1875in" printLeft="4.25in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="1099n_06b" title="6b State/Payer's state no."
-                                       layoutSequenceNum="34" fieldTypeEnumId="DBFFT_text-line" printTop="3.50in" printLeft="5.125in">
+                                       layoutSequenceNum="34" fieldTypeEnumId="DBFFT_text-line" printTop="3.1875in" printLeft="5.275in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="20"/></moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="1099n_07b" title="7b State income"
-                                       layoutSequenceNum="35" fieldTypeEnumId="DBFFT_text-line" printTop="3.50in" printLeft="7.125in">
+                                       layoutSequenceNum="35" fieldTypeEnumId="DBFFT_text-line" printTop="3.1875in" printLeft="7.05in">
             <moqui.screen.form.DbFormFieldAttribute attributeName="size" value="10"/></moqui.screen.form.DbFormField>
 
         <moqui.screen.form.DbFormField fieldName="1099n_void" title="VOID"
-                                       layoutSequenceNum="91" fieldTypeEnumId="DBFFT_drop-down" printTop="0.25in" printLeft="2.625in">
+                                       layoutSequenceNum="91" fieldTypeEnumId="DBFFT_drop-down" printTop="0.375in" printLeft="2.625in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
         <moqui.screen.form.DbFormField fieldName="1099n_corrected" title="CORRECTED"
-                                       layoutSequenceNum="92" fieldTypeEnumId="DBFFT_drop-down" printTop="0.25in" printLeft="3.4375in">
+                                       layoutSequenceNum="92" fieldTypeEnumId="DBFFT_drop-down" printTop="0.375in" printLeft="3.4375in">
             <DbFormFieldOption sequenceNum="1" keyValue="X"/><DbFormFieldAttribute attributeName="allow-empty" value="true"/>
         </moqui.screen.form.DbFormField>
     </moqui.screen.form.DbForm>

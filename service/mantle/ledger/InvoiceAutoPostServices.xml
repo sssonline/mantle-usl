@@ -253,7 +253,7 @@ along with this software (see the LICENSE.md file). If not, see
                                             in-map="[acctgTransTypeEnumId:fromAcctgTrans.acctgTransTypeEnumId,
                                                 organizationPartyId:fromAcctgTrans.organizationPartyId,
                                                 otherPartyId:fromAcctgTrans.otherPartyId, itemTypeEnumId:invoiceItem.itemTypeEnumId,
-                                                productId:invoiceItem.productId, assetId:invoiceItem.assetId, direction:'O']"
+                                                assetId:invoiceItem.assetId, direction:'O']"
                                             out-map="lossGlAccountOut" out-map-add-to-existing="false"/>
                                     <set field="lossGlAccountId" from="lossGlAccountOut?.glAccountId"/>
                                     <set field="lossGlAccountTypeEnumId" from="lossGlAccountOut?.glAccountTypeEnumId"/>
@@ -297,7 +297,7 @@ along with this software (see the LICENSE.md file). If not, see
                                     in-map="[acctgTransTypeEnumId:fromAcctgTrans.acctgTransTypeEnumId,
                                         organizationPartyId:fromAcctgTrans.organizationPartyId,
                                         otherPartyId:fromAcctgTrans.otherPartyId, itemTypeEnumId:invoiceItem.itemTypeEnumId,
-                                        productId:invoiceItem.productId, assetId:invoiceItem.assetId, direction:'O']"
+                                         assetId:invoiceItem.assetId, direction:'O']"
                                     out-map="invoiceItemGlAccountOut" out-map-add-to-existing="false"/>
                             <set field="itemGlAccountId" from="invoiceItemGlAccountOut?.glAccountId"/>
                             <set field="itemGlAccountTypeEnumId" from="invoiceItemGlAccountOut?.glAccountTypeEnumId"/>
@@ -340,7 +340,7 @@ along with this software (see the LICENSE.md file). If not, see
                                 in-map="[acctgTransTypeEnumId:toAcctgTrans.acctgTransTypeEnumId,
                                     organizationPartyId:toAcctgTrans.organizationPartyId,
                                     otherPartyId:toAcctgTrans.otherPartyId, itemTypeEnumId:invoiceItem.itemTypeEnumId,
-                                    productId:invoiceItem.productId, assetId:invoiceItem.assetId, direction:'I']"
+                                     assetId:invoiceItem.assetId, direction:'I']"
                                 out-map="invoiceItemGlAccountOut" out-map-add-to-existing="false"/>
                         <set field="itemGlAccountId" from="invoiceItemGlAccountOut?.glAccountId"/>
                         <set field="itemGlAccountTypeEnumId" from="invoiceItemGlAccountOut?.glAccountTypeEnumId"/>
@@ -950,7 +950,6 @@ along with this software (see the LICENSE.md file). If not, see
                     <econdition field-name="productCategoryId" operator="in" from="productCategoryMemberList.productCategoryId"/>
                     <econdition field-name="organizationPartyId" operator="in" from="orgPartyIdList"/>
                 </entity-find>
-
                 <script>
 //                    ec.logger.log("warn", (
 //                            "\n---------" + logIdToFind + "-6"
@@ -985,7 +984,6 @@ along with this software (see the LICENSE.md file). If not, see
                 -->
                 <set field="glAccountId" from="productCategoryGlAccountList ?
                     (direction == 'O' ? productCategoryGlAccountList[0].glAccountId : productCategoryGlAccountList[0].contraGlAccountId) : null"/>
-
                 <script>
 //                    ec.logger.log("warn", (
 //                            "\n---------" + logIdToFind + "-7"

@@ -668,8 +668,12 @@ along with this software (see the LICENSE.md file). If not, see
                 <set field="currencyUomId" from="partyAcctgPreference?.baseCurrencyUomId"/>
             </if>
             <if condition="!currencyUomId"><set field="currencyUomId" value="USD"/></if>
+            <service-call name="sssonline.basalt.InvoiceServices.get#InvoiceDiscount"
+                          in-map="[toPartyId:toPartyId,
+                                   fromPartyId:fromPartyId]"
+                          out-map="discountInfo"/>
 
-            <service-call name="create#mantle.account.invoice.Invoice" in-map="context" out-map="context"/>
+            <service-call name="create#mantle.account.invoice.Invoice" in-map="context+[discountPercentage:discountInfo?.discountPercentage ?: 0]" out-map="context"/>
         </actions>
     </service>
     <service verb="update" noun="Invoice">

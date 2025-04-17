@@ -65,6 +65,40 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="invoiceTypeDescription" entity-alias="ITEN" field="description"/>
         <alias name="acctgTransTypeDescription" entity-alias="ATTEN" field="description"/>
     </view-entity>
+        <view-entity entity-name="InvoiceTypeTransAndItemTypeDetail" package="mantle.ledger.config">
+        <member-entity entity-alias="ITTT" entity-name="mantle.ledger.config.InvoiceTypeTransType"/>
+        <member-entity entity-alias="ITEN" entity-name="moqui.basic.Enumeration" join-from-alias="ITTT">
+            <key-map field-name="invoiceTypeEnumId" related="enumId"/></member-entity>
+        <member-entity entity-alias="ATTEN" entity-name="moqui.basic.Enumeration" join-from-alias="ITTT" join-optional="true">
+            <key-map field-name="acctgTransTypeEnumId" related="enumId"/></member-entity>
+        <member-entity entity-alias="GLA" entity-name="mantle.ledger.account.GlAccount" join-from-alias="ITTT" join-optional="true">
+            <key-map field-name="glAccountId"/></member-entity>
+        <member-entity entity-alias="OPTY" entity-name="mantle.party.Party" join-from-alias="ITTT" join-optional="true">
+            <key-map field-name="organizationPartyId" related="partyId"/></member-entity>
+        <member-entity entity-alias="ORG" entity-name="mantle.party.Organization" join-from-alias="ITTT" join-optional="true">
+            <key-map field-name="organizationPartyId" related="partyId"/></member-entity>
+        <member-entity entity-alias="IITTT" entity-name="mantle.ledger.config.InvoiceItemTypeTransType" join-from-alias="ITTT" join-optional="true">
+            <key-map field-name="invoiceTypeEnumId"/>
+            <key-map field-name="organizationPartyId"/>
+            <key-map field-name="acctgTransTypeEnumId"/>
+            <key-map field-name="isPayable"/>
+        </member-entity>
+        <member-entity entity-alias="GLA2" entity-name="mantle.ledger.account.GlAccount" join-from-alias="IITTT" join-optional="true">
+            <key-map field-name="glAccountId"/></member-entity>
+        <alias-all entity-alias="ITTT"/>
+        <alias-all entity-alias="IITTT" prefix="ovr">
+            <exclude field="invoiceTypeEnumId"/>
+            <exclude field="organizationPartyId"/>
+            <exclude field="acctgTransTypeEnumId"/>
+            <exclude field="isPayable"/>
+        </alias-all>
+        <alias-all entity-alias="GLA"/>
+        <alias-all entity-alias="GLA2" prefix="ovr"/>
+        <alias name="organizationName" entity-alias="ORG"/>
+        <alias name="organizationPseudoId" entity-alias="OPTY" field="pseudoId"/>
+        <alias name="invoiceTypeDescription" entity-alias="ITEN" field="description"/>
+        <alias name="acctgTransTypeDescription" entity-alias="ATTEN" field="description"/>
+    </view-entity>
     <view-entity entity-name="ItemTypeAndGlAccount" package="mantle.ledger.config">
         <member-entity entity-alias="ITGA" entity-name="mantle.ledger.config.ItemTypeGlAccount"/>
         <member-entity entity-alias="GLA" entity-name="mantle.ledger.account.GlAccount" join-from-alias="ITGA">

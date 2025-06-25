@@ -559,6 +559,8 @@ along with this software (see the LICENSE.md file). If not, see
             <key-map field-name="partyRelationshipId"/></member-entity>
         <member-entity entity-alias="PREL" entity-name="mantle.party.PartyRelationship" join-from-alias="EMPL">
             <key-map field-name="partyRelationshipId"/></member-entity>
+        <member-entity entity-alias="EMPE" entity-name="mantle.humanres.employment.Employee" join-from-alias="PREL">
+            <key-map field-name="fromPartyId" related="partyId"/></member-entity>
         <alias-all entity-alias="PB"/>
         <alias-all entity-alias="PBD">
             <exclude field="payrollBatchId"/>
@@ -569,6 +571,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PREL">
             <exclude field="partyRelationshipId"/>
         </alias-all>
+        <alias-all entity-alias="EMPE" prefix="employee"/>
         <relationship type="one" related="mantle.humanres.position.EmplPosition" short-alias="position"/>
     </view-entity>
     <view-entity entity-name="PayrollBatchAndEmploymentFromDetail" package="mantle.humanres.employment">

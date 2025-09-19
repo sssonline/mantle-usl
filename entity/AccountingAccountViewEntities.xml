@@ -971,4 +971,42 @@ along with this software (see the LICENSE.md file). If not, see
         </alias>
     </view-entity>
 
+
+    <view-entity entity-name="GlJournalWithTotals" package="basalt.ledger">
+        <!-- Base journal -->
+        <member-entity entity-alias="GJ" entity-name="mantle.ledger.transaction.GlJournal"/>
+
+        <!-- LEFT JOIN transactions -->
+        <member-entity entity-alias="AT" entity-name="mantle.ledger.transaction.AcctgTrans"
+                       join-from-alias="GJ" join-optional="true">
+            <key-map field-name="glJournalId"/>
+        </member-entity>
+
+        <!-- LEFT JOIN entries -->
+        <member-entity entity-alias="ATE" entity-name="mantle.ledger.transaction.AcctgTransEntry"
+                       join-from-alias="AT" join-optional="true">
+            <key-map field-name="acctgTransId"/>
+        </member-entity>
+
+        <!-- Journal columns (implicit GROUP BY because we have aggregates below) -->
+        <alias entity-alias="GJ" name="glJournalId"/>
+        <alias entity-alias="GJ" name="glJournalName"/>
+        <alias entity-alias="AT" name="organizationPartyId"/>
+        <alias entity-alias="GJ" name="glJournalTypeEnumId"/>
+        <alias entity-alias="GJ" name="isPosted"/>
+        <alias entity-alias="GJ" name="postedDate"/>
+        <alias entity-alias="GJ" name="createdByPartyId"/>
+
+        <!-- Keep the joins in the SQL without forcing GROUPING -->
+        <alias entity-alias="AT"  name="keepAt"  field="acctgTransId"        function="min"/>
+        <alias entity-alias="ATE" name="keepAte" field="acctgTransEntrySeqId" function="min"/>
+
+        <!-- Totals with SUM and COALESCE so empty journals show -->
+        <alias name="totalDebits" type="number-decimal" is-aggregate="true">
+            <complex-alias expression="COALESCE(SUM(CASE WHEN ATE.DEBIT_CREDIT_FLAG = 'D' THEN ATE.AMOUNT ELSE 0 END), 0)"/>
+        </alias>
+        <alias name="totalCredits" type="number-decimal" is-aggregate="true">
+            <complex-alias expression="COALESCE(SUM(CASE WHEN ATE.DEBIT_CREDIT_FLAG = 'C' THEN ATE.AMOUNT ELSE 0 END), 0)"/>
+        </alias>
+    </view-entity>
 </entities>

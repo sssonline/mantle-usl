@@ -297,13 +297,41 @@ along with this software (see the LICENSE.md file). If not, see
         <!-- NOTE: to on Postgres must do DATE math for integer compare to avoid error: operator does not exist: interval < integer -->
         <!-- was (CURRENT_TIMESTAMP - INV.${dateField ?: 'DUE_DATE'}) for each -->
         <!-- NOTE: on db2i, must use TIMESTAMPDIFF with 16 for to calculate the difference as days' -->
+        <!-- currentDue: use COALESCE(DUE_DATE, INVOICE_DATE) only when dateField == 'DUE_DATE' -->
         <alias name="currentDue" function="sum">
-            <case><when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                      dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
-                                      dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} &lt; 0">
-                <complex-alias expression="INV.UNPAID_TOTAL"/>
-            </when><else><complex-alias expression="0"/></else></case>
+            <case>
+                <when
+                        expression="${
+                dbConfName=='postgres' ?
+                    '(CURRENT_DATE - DATE(' +
+                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
+                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
+                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
+                    '))' :
+                dbConfName=='db2i' ?
+                    '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - ' +
+                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
+                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
+                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
+                    ')))' :
+                dbConfName=='h2' ?
+                    '(DATEDIFF(DAY, CURRENT_TIMESTAMP, ' +
+                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
+                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
+                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
+                    '))' :
+                    '(CURRENT_TIMESTAMP - ' +
+                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
+                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
+                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
+                    ')'
+            } &lt; 0">
+                    <complex-alias expression="INV.UNPAID_TOTAL"/>
+                </when>
+                <else>
+                    <complex-alias expression="0"/>
+                </else>
+            </case>
         </alias>
         <alias name="period1" function="sum">
             <case><when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :

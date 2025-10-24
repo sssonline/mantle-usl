@@ -300,32 +300,15 @@ along with this software (see the LICENSE.md file). If not, see
         <!-- currentDue: use COALESCE(DUE_DATE, INVOICE_DATE) only when dateField == 'DUE_DATE' -->
         <alias name="currentDue" function="sum">
             <case>
-                <when
-                        expression="${
-                dbConfName=='postgres' ?
-                    '(CURRENT_DATE - DATE(' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    '))' :
-                dbConfName=='db2i' ?
-                    '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - ' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    ')))' :
-                dbConfName=='h2' ?
-                    '(DATEDIFF(DAY, CURRENT_TIMESTAMP, ' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    '))' :
-                    '(CURRENT_TIMESTAMP - ' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    ')'
-            } &lt; 0">
+                <when expression="${
+                        dbConfName == 'postgres' ? '((CURRENT_DATE + ' + (currentBucket ?: 0) + ') - DATE(' + 'INV.' + (dateField ?: 'DUE_DATE') + '))'
+                        :
+                        dbConfName == 'db2i' ? '(TIMESTAMPDIFF(16, CHAR((CURRENT_TIMESTAMP + ' + (currentBucket ?: 0) + ' DAYS) - ' + 'INV.' + (dateField ?: 'DUE_DATE') + ')))'
+                        :
+                        dbConfName == 'h2' ? '(DATEDIFF(DAY, DATEADD(DAY, ' + (currentBucket ?: 0) + ', CURRENT_TIMESTAMP), ' + 'INV.' + (dateField ?: 'DUE_DATE') + '))'
+                        :
+                        '((CURRENT_TIMESTAMP + INTERVAL ' + (currentBucket ?: 0) + ' DAY) - ' + 'INV.' + (dateField ?: 'DUE_DATE') + ')'
+                    } &lt; 0">
                     <complex-alias expression="INV.UNPAID_TOTAL"/>
                 </when>
                 <else>
@@ -337,7 +320,7 @@ along with this software (see the LICENSE.md file). If not, see
             <case><when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                       dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                       dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN 0 AND ${(bucket1?:30)}">
+                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${currentBucket} AND ${(currentBucket+bucket1?:30)}">
                 <complex-alias expression="INV.UNPAID_TOTAL"/>
             </when><else><complex-alias expression="0"/></else></case>
         </alias>
@@ -345,7 +328,7 @@ along with this software (see the LICENSE.md file). If not, see
             <case><when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                       dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                       dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(bucket1?:30)+1} AND ${(bucket1+bucket2?:30)}">
+                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(currentBucket+bucket1?:30)+1} AND ${(currentBucket+bucket1+bucket2?:30)}">
                 <complex-alias expression="INV.UNPAID_TOTAL"/>
             </when><else><complex-alias expression="0"/></else></case>
         </alias>
@@ -353,7 +336,7 @@ along with this software (see the LICENSE.md file). If not, see
             <case><when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                       dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                       dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(bucket1+bucket2?:30)+1} AND ${(bucket1+bucket2+bucket3?:30)}">
+                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(currentBucket+bucket1+bucket2?:30)+1} AND ${(currentBucket+bucket1+bucket2+bucket3?:30)}">
                 <complex-alias expression="INV.UNPAID_TOTAL"/>
             </when><else><complex-alias expression="0"/></else></case>
         </alias>
@@ -361,7 +344,7 @@ along with this software (see the LICENSE.md file). If not, see
             <case><when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                       dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                       dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(bucket1+bucket2+bucket3?:30)+1} AND ${(bucket1+bucket2+bucket3+bucket4?:30)}">
+                                                               '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(currentBucket+bucket1+bucket2+bucket3?:30)+1} AND ${(currentBucket+bucket1+bucket2+bucket3+bucket4?:30)}">
             <!--<case><when expression="${dbConfName=='postgres' ? '((CURRENT_DATE - DATE(' : (dbConfName=='db2i' ? 'TIMESTAMPDIFF(16, CHAR' : '') + '((CURRENT_TIMESTAMP - '}INV.${dateField ?: 'DUE_DATE'}))) BETWEEN ${(periodDays?:30)*3+1} AND ${(periodDays?:30)*4}">-->
                 <complex-alias expression="INV.UNPAID_TOTAL"/>
             </when><else><complex-alias expression="0"/></else></case>
@@ -393,41 +376,17 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="dueDate"          entity-alias="INV"/>
         <alias name="unpaidTotal"      entity-alias="INV"/>
 
-        <!-- Bucket columns: return INV.UNPAID_TOTAL when invoice falls in the bucket, else 0 -->
-        <!-- Notes:
-             - dateField may be provided at runtime (e.g., 'DUE_DATE' or 'INVOICE_DATE'); defaults to DUE_DATE.
-             - dbConfName is expected in context like the original (postgres/db2i/h2/other).
-             - CURRENT_DATE is used for Postgres and date math variants like in your source.
-        -->
-
-        <!-- CURRENT (past due): difference < 0 -->
         <alias name="currentDue" type="currency-amount">
             <case>
                 <when expression="${
-                dbConfName=='postgres' ?
-                    '(CURRENT_DATE - DATE(' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    '))' :
-                dbConfName=='db2i' ?
-                    '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - ' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    ')))' :
-                dbConfName=='h2' ?
-                    '(DATEDIFF(DAY, CURRENT_TIMESTAMP, ' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    '))' :
-                    '(CURRENT_TIMESTAMP - ' +
-                        ((dateField ?: 'DUE_DATE') == 'DUE_DATE'
-                            ? 'COALESCE(INV.DUE_DATE, INV.INVOICE_DATE)'
-                            : 'INV.' + (dateField ?: 'DUE_DATE')) +
-                    ')'
-            } &lt; 0">
+                        dbConfName == 'postgres' ? '((CURRENT_DATE + ' + (currentBucket ?: 0) + ') - DATE(' + 'INV.' + (dateField ?: 'DUE_DATE') + '))'
+                        :
+                        dbConfName == 'db2i' ? '(TIMESTAMPDIFF(16, CHAR((CURRENT_TIMESTAMP + ' + (currentBucket ?: 0) + ' DAYS) - ' + 'INV.' + (dateField ?: 'DUE_DATE') + ')))'
+                        :
+                        dbConfName == 'h2' ? '(DATEDIFF(DAY, DATEADD(DAY, ' + (currentBucket ?: 0) + ', CURRENT_TIMESTAMP), ' + 'INV.' + (dateField ?: 'DUE_DATE') + '))'
+                        :
+                        '((CURRENT_TIMESTAMP + INTERVAL ' + (currentBucket ?: 0) + ' DAY) - ' + 'INV.' + (dateField ?: 'DUE_DATE') + ')'
+                    } &lt; 0">
                     <complex-alias expression="INV.UNPAID_TOTAL"/>
                 </when>
                 <else>
@@ -442,7 +401,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN 0 AND ${(bucket1?:30)}">
+                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${currentBucket} AND ${(currentBucket+bucket1?:30)}">
                     <complex-alias expression="INV.UNPAID_TOTAL"/>
                 </when>
                 <else><complex-alias expression="0"/></else>
@@ -455,7 +414,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(bucket1?:30)+1} AND ${(bucket1+bucket2?:30)}">
+                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(currentBucket+bucket1?:30)+1} AND ${(currentBucket+bucket1+bucket2?:30)}">
                     <complex-alias expression="INV.UNPAID_TOTAL"/>
                 </when>
                 <else><complex-alias expression="0"/></else>
@@ -468,7 +427,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(bucket1+bucket2?:30)+1} AND ${(bucket1+bucket2+bucket3?:30)}">
+                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(currentBucket+bucket1+bucket2?:30)+1} AND ${(currentBucket+bucket1+bucket2+bucket3?:30)}">
                     <complex-alias expression="INV.UNPAID_TOTAL"/>
                 </when>
                 <else><complex-alias expression="0"/></else>
@@ -481,7 +440,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <when expression="${dbConfName=='postgres' ? '(CURRENT_DATE - DATE(INV.' + (dateField ?: 'DUE_DATE') + '))' :
                                dbConfName=='db2i'     ? '(TIMESTAMPDIFF(16, CHAR(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')))' :
                                dbConfName=='h2'       ? '(DATEDIFF(DAY, CURRENT_TIMESTAMP, INV.' + (dateField ?: 'DUE_DATE') + '))' :
-                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(bucket1+bucket2+bucket3?:30)+1} AND ${(bucket1+bucket2+bucket3+bucket4?:30)}">
+                                                        '(CURRENT_TIMESTAMP - INV.' + (dateField ?: 'DUE_DATE') + ')'} BETWEEN ${(currentBucket+bucket1+bucket2+bucket3?:30)+1} AND ${(currentBucket+bucket1+bucket2+bucket3+bucket4?:30)}">
                     <complex-alias expression="INV.UNPAID_TOTAL"/>
                 </when>
                 <else><complex-alias expression="0"/></else>

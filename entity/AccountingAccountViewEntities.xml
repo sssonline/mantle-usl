@@ -282,6 +282,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-relationship entity-alias="FRMP" join-from-alias="INV" relationship="fromParty"/>
         <member-relationship entity-alias="FRMO" join-from-alias="INV" relationship="fromOrganization"/>
         <member-relationship entity-alias="TPRL" join-from-alias="INV" relationship="toRoles" join-optional="true"/>
+        <member-relationship entity-alias="TOP" join-from-alias="INV" relationship="toParty"/>
         <member-entity entity-alias="SUPTYPE" entity-name="mantle.party.PartyRole" join-from-alias="INV" join-optional="true">
             <key-map field-name="fromPartyId" related="partyId"/>
             <entity-condition>
@@ -295,6 +296,7 @@ along with this software (see the LICENSE.md file). If not, see
 
         <alias name="fromPartyId" entity-alias="INV"/>
         <alias name="toPartyId" entity-alias="INV"/>
+        <alias name="ownerPartyId" entity-alias="TOP"/>
         <alias name="statusId" entity-alias="INV"/>
         <alias name="invoiceTypeEnumId" entity-alias="INV"/>
         <alias name="currencyUomId" entity-alias="INV"/>
@@ -393,6 +395,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="FROMORG" entity-name="mantle.party.Organization" join-from-alias="INV">
             <key-map field-name="fromPartyId" related="partyId"/>
         </member-entity>
+        <member-relationship entity-alias="TOP" join-from-alias="INV" relationship="toParty"/>
         <member-entity entity-alias="SUPTYPE"
                        entity-name="mantle.party.PartyRole"
                        join-from-alias="INV"
@@ -419,6 +422,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="pseudoId" entity-alias="FROMPAR"/>
         <alias name="organizationName" entity-alias="FROMORG"/>
         <alias name="roleTypeId" entity-alias="SUPTYPE"/>
+        <alias name="ownerPartyId" entity-alias="TOP"/>
 
         <!-- CURRENT: dateField_date <= today + currentBucket -->
         <alias name="currentDue" type="currency-amount">

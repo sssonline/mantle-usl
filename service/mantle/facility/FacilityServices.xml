@@ -94,6 +94,8 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="facilityId"/>
             <auto-parameters entity-name="mantle.facility.Facility" include="nonpk"/>
+            <parameter name="externalFacilityPropertiesPartyId"/>
+            <parameter name="externalId"/>
             <parameter name="facilityName" required="true"/>
 
             <auto-parameters entity-name="mantle.party.contact.PostalAddress" include="nonpk"/>
@@ -109,7 +111,13 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="facilityId" required="true"/>
         </out-parameters>
         <actions>
+            <log level="error" message="context inside create fac is: ${context}"/>
             <service-call name="create#mantle.facility.Facility" out-map="context" in-map="context"/>
+
+            <if condition="externalFacilityPropertiesPartyId &amp;&amp; externalId">
+                <service-call name="create#mantle.facility.ExternalFacilityProperties" in-map="context + [partyId:externalFacilityPropertiesPartyId]"/>
+            </if>
+
 
             <if condition="address1 || city || postalCode">
                 <service-call name="mantle.party.ContactServices.create#PostalAddress" out-map="paOut"
@@ -126,6 +134,9 @@ along with this software (see the LICENSE.md file). If not, see
         <in-parameters>
             <parameter name="facilityId" required="true"/>
             <auto-parameters entity-name="mantle.facility.Facility" include="nonpk"/>
+            <parameter name="externalFacilityPropertiesId"/>
+            <parameter name="externalFacilityPropertiesPartyId"/>
+            <parameter name="externalId"/>
 
             <auto-parameters entity-name="mantle.party.contact.PostalAddress" include="nonpk"/>
             <parameter name="longitude" type="BigDecimal"/>
@@ -138,6 +149,15 @@ along with this software (see the LICENSE.md file). If not, see
         </in-parameters>
         <actions>
             <service-call name="update#mantle.facility.Facility" in-map="context" out-map="context"/>
+
+            <if condition="externalFacilityPropertiesId"><then>
+                <service-call name="update#mantle.facility.ExternalFacilityProperties" in-map="context + [partyId:externalFacilityPropertiesPartyId]" out-map="doesntMatter"/>
+            </then><else>
+                <if condition="externalFacilityPropertiesPartyId &amp;&amp; externalId">
+                    <service-call name="create#mantle.facility.ExternalFacilityProperties" in-map="context + [partyId:externalFacilityPropertiesPartyId]"/>
+                </if>
+            </else>
+            </if>
 
             <if condition="contactNumber">
                 <entity-find entity-name="mantle.facility.FacilityContactMech" list="phoneFcmList"><date-filter/>

@@ -1758,8 +1758,8 @@ along with this software (see the LICENSE.md file). If not, see
                         <field-map field-name="orderId" from="shipmentItemSource.orderId"/>
                         <field-map field-name="orderItemSeqId" from="shipmentItemSource.orderItemSeqId"/>
                     </entity-find-one>
-                    <service-call name="mantle.order.OrderServices.checkComplete#OrderPart"
-                            in-map="[orderId:orderItem.orderId, orderPartSeqId:orderItem.orderPartSeqId]"/>
+<!--                    <service-call name="mantle.order.OrderServices.checkComplete#OrderPart"-->
+<!--                            in-map="[orderId:orderItem.orderId, orderPartSeqId:orderItem.orderPartSeqId]"/>-->
                 </if>
             </iterate>
 
@@ -2096,8 +2096,8 @@ along with this software (see the LICENSE.md file). If not, see
                         <field-map field-name="orderId" from="shipmentItemSource.orderId"/>
                         <field-map field-name="orderItemSeqId" from="shipmentItemSource.orderItemSeqId"/>
                     </entity-find-one>
-                    <service-call name="mantle.order.OrderServices.checkComplete#OrderPart"
-                            in-map="[orderId:orderItem.orderId, orderPartSeqId:orderItem.orderPartSeqId]"/>
+<!--                    <service-call name="mantle.order.OrderServices.checkComplete#OrderPart"-->
+<!--                            in-map="[orderId:orderItem.orderId, orderPartSeqId:orderItem.orderPartSeqId]"/>-->
                 </if>
             </iterate>
         </actions>

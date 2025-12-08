@@ -140,6 +140,9 @@ General Order Placement and eCommerce Usage
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.order.OrderHeader" value-field="orderHeader"/>
+            <if condition="orderHeader.statusId == 'OrderCancelled'">
+                <return message="Order cannot be updated while in cancelled status." error="true"/>
+            </if>
             <entity-set value-field="orderHeader" include="nonpk" set-if-empty="true"/>
             <set field="orderHeader.orderRevision" from="orderHeader.orderRevision + 1"/>
             <entity-update value-field="orderHeader"/>

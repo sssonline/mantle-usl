@@ -431,7 +431,7 @@ along with this software (see the LICENSE.md file). If not, see
         </out-parameters>
         <actions>
             <if condition="!contactMechId &amp;&amp; !contactMechPurposeId">
-                <return error="false" message="Must specify either a contactMechId or contactMechPurposeId (or both)."/>
+                <return message="Must specify either a contactMechId or contactMechPurposeId (or both)."/>
             </if>
 
             <entity-find entity-name="mantle.facility.FacilityContactMech" list="origFcmList">

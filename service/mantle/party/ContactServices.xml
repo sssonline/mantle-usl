@@ -813,7 +813,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="newPostalAddress" from="origPostalAddress.cloneValue()"/>
             <entity-set value-field="newPostalAddress" include="nonpk" set-if-empty="true"/>
             <if condition="newPostalAddress + ['lastUpdatedStamp':null] == origPostalAddress + ['lastUpdatedStamp':null] ">
-                <log message="No fields were different for Postal Address ${contactMechId}, not updating."/>
+                <!--<log message="No fields were different for Postal Address ${contactMechId}, not updating."/>-->
                 <return/>
             </if>
 
@@ -1121,7 +1121,7 @@ along with this software (see the LICENSE.md file). If not, see
                         <set field="updatedPcm" from="true"/>
                     </if>
                 </iterate>
-                <if condition="!updatedPcm"><log message="No fields were different for Phone Number ${contactMechId}, not updating."/></if>
+                <!--<if condition="!updatedPcm"><log message="No fields were different for Phone Number ${contactMechId}, not updating."/></if>-->
                 <return/>
             </if>
 
@@ -1341,7 +1341,7 @@ along with this software (see the LICENSE.md file). If not, see
             <script>newContactMech = origContactMech.cloneValue()</script>
             <set field="newContactMech.infoString" from="infoString"/>
             <if condition="newContactMech == origContactMech">
-                <log message="No fields were different for contact info ${contactMechId}, not updating."/>
+                <!--<log message="No fields were different for contact info ${contactMechId}, not updating."/>-->
                 <return/>
             </if>
 

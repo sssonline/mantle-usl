@@ -283,14 +283,16 @@ along with this software (see the LICENSE.md file). If not, see
         <member-relationship entity-alias="FRMO" join-from-alias="INV" relationship="fromOrganization"/>
         <member-relationship entity-alias="TPRL" join-from-alias="INV" relationship="toRoles" join-optional="true"/>
         <member-relationship entity-alias="TOP" join-from-alias="INV" relationship="toParty"/>
-        <member-entity entity-alias="SUPTYPE" entity-name="mantle.party.PartyRole" join-from-alias="INV" join-optional="true">
+        <member-entity entity-alias="SUPTYPE" entity-name="mantle.party.PartyRole"
+                       join-from-alias="INV" join-optional="true">
             <key-map field-name="fromPartyId" related="partyId"/>
+        </member-entity>
+
+        <member-entity entity-alias="RGM" entity-name="mantle.party.RoleGroupMember"
+                       join-from-alias="SUPTYPE" join-optional="true">
+            <key-map field-name="roleTypeId"/>
             <entity-condition>
-                <econditions combine="or">
-                    <econdition field-name="roleTypeId" value="Grower"/>
-                    <econdition field-name="roleTypeId" value="Vendor"/>
-                    <econdition field-name="roleTypeId" value="Contractor"/>
-                </econditions>
+                <econdition field-name="roleGroupEnumId" entity-alias="RGM" value="SupplierTypeGroup"/>
             </entity-condition>
         </member-entity>
 
@@ -304,7 +306,7 @@ along with this software (see the LICENSE.md file). If not, see
 
         <alias name="pseudoId" entity-alias="FRMP"/>
         <alias name="organizationName" entity-alias="FRMO"/>
-        <alias name="roleTypeId" entity-alias="SUPTYPE"/>
+        <alias name="supplierRoleType" field="roleTypeId" entity-alias="RGM" function="min"/>
 
 
         <alias name="currentDue" type="currency-amount" function="sum">
@@ -401,14 +403,19 @@ along with this software (see the LICENSE.md file). If not, see
                        join-from-alias="INV"
                        join-optional="true">
             <key-map field-name="fromPartyId" related="partyId"/>
+        </member-entity>
+
+        <member-entity entity-alias="RGM" entity-name="mantle.party.RoleGroupMember"
+                       join-from-alias="SUPTYPE" join-optional="true">
+            <key-map field-name="roleTypeId"/>
             <entity-condition>
-                <econditions combine="or">
-                    <econdition field-name="roleTypeId" value="Grower"/>
-                    <econdition field-name="roleTypeId" value="Vendor"/>
-                    <econdition field-name="roleTypeId" value="Contractor"/>
-                </econditions>
+                <econdition field-name="roleGroupEnumId" entity-alias="RGM" value="SupplierTypeGroup"/>
             </entity-condition>
-        </member-entity>        <!-- Keep simple invoice-identifying fields (no aggregation) -->
+        </member-entity>
+
+
+
+        <!-- Keep simple invoice-identifying fields (no aggregation) -->
         <alias name="invoiceId"        entity-alias="INV"/>
         <alias name="referenceNumber"  entity-alias="INV"/>
         <alias name="fromPartyId"      entity-alias="INV"/>
@@ -421,7 +428,7 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="unpaidTotal"      entity-alias="INV"/>
         <alias name="pseudoId" entity-alias="FROMPAR"/>
         <alias name="organizationName" entity-alias="FROMORG"/>
-        <alias name="roleTypeId" entity-alias="SUPTYPE"/>
+        <alias name="supplierRoleType" field="roleTypeId" entity-alias="RGM" function="min"/>
         <alias name="ownerPartyId" entity-alias="TOP"/>
 
         <!-- CURRENT: dateField_date <= today + currentBucket -->

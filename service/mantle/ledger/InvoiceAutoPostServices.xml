@@ -111,6 +111,9 @@ along with this software (see the LICENSE.md file). If not, see
 
             <if condition="!invoiceItemList"><return message="Invoice ${invoiceId} has no items, not posting to GL"/></if>
 
+            <service-call name="sssonline.basalt.LedgerServices.get#APControlGlAccount" in-map="[invoiceId:invoiceId]" out-map="context"/>
+            <log level="error" message="apControlGlAccountOut inside autoPost is: ${apControlGlAccountOut}"/>
+
             <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoicePartyAcctgPreferences"
                     in-map="[invoice:invoice]" out-map="context"/>
 
@@ -379,9 +382,11 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="toPartyAcctgPreference">
                 <if condition="!toInvoiceTypeTransTypeOut.glAccountId"><set field="useErrorJournal" from="true"/></if>
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTransEntry"
-                        in-map="[amount:invoiceTotal, acctgTransId:toAcctgTrans.acctgTransId, acctgTrans:toAcctgTrans,
-                            debitCreditFlag:'C', glAccountTypeEnumId:toInvoiceTypeTransTypeOut.glAccountTypeEnumId,
-                            glAccountId:toInvoiceTypeTransTypeOut.glAccountId]"/>
+                        in-map="[amount:invoiceTotal, acctgTransId:toAcctgTrans.acctgTransId,
+                                 acctgTrans:toAcctgTrans,
+                                 debitCreditFlag:'C',
+                                 glAccountTypeEnumId:apControlGlAccountOut ? apControlGlAccountOut.glAccountTypeEnumId : toInvoiceTypeTransTypeOut.glAccountTypeEnumId,
+                                 glAccountId:apControlGlAccountOut ? apControlGlAccountOut.glAccountId : toInvoiceTypeTransTypeOut.glAccountId]"/>
             </if>
 
             <!-- ==== post the tx ==== -->

@@ -154,8 +154,25 @@ along with this software (see the LICENSE.md file). If not, see
             <key-map field-name="customerPartyId" related="partyId"/></member-entity>
         <member-entity entity-alias="VNDRL" entity-name="mantle.party.PartyRole" join-from-alias="OPRT" join-optional="true">
             <key-map field-name="vendorPartyId" related="partyId"/></member-entity>
+
+        <member-entity entity-alias="EAL" entity-name="moqui.entity.EntityAuditLog" join-from-alias="ORHD" join-optional="true">
+            <key-map field-name="orderId" related="pkPrimaryValue"/>
+
+            <entity-condition>
+                <econdition entity-alias="EAL" field-name="changedEntityName"
+                            value="mantle.order.OrderHeader"/>
+                <econdition entity-alias="EAL" field-name="changedFieldName"
+                            value="statusId"/>
+                <econdition entity-alias="EAL" field-name="oldValueText"
+                            value="OrderPlaced"/>
+                <econdition entity-alias="EAL" field-name="newValueText"
+                            value="OrderApproved"/>
+            </entity-condition>
+        </member-entity>
         <alias-all entity-alias="ORHD"/>
         <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/></alias-all>
+        <alias name="approvedDate" entity-alias="EAL" field="changedDate" function="max"/>
+        <alias name="approvedBy" entity-alias="EAL" field="changedByUserId"/>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <alias name="statusDescription" entity-alias="STSI" field="description"/>
         <alias name="facilityName" entity-alias="FAC"/>

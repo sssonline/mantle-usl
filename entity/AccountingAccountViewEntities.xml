@@ -277,24 +277,34 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="invoiceStatusId" entity-alias="INV" field="statusId"/>
     </view-entity>
 
+    <!-- helper entity for invoiceagingsummary so that amounts dont double due to multiple roles -->
+    <view-entity entity-name="SupplierTypeRoleByParty" package="mantle.party">
+        <member-entity entity-alias="PR" entity-name="mantle.party.PartyRole"/>
+        <member-entity entity-alias="RGM" entity-name="mantle.party.RoleGroupMember"
+                       join-from-alias="PR">
+            <key-map field-name="roleTypeId"/>
+        </member-entity>
+
+        <alias name="partyId" entity-alias="PR"/>
+        <alias name="supplierRoleType" entity-alias="PR" field="roleTypeId" function="min"/>
+
+        <entity-condition>
+            <econdition entity-alias="RGM" field-name="roleGroupEnumId" value="SupplierTypeGroup"/>
+        </entity-condition>
+
+    </view-entity>
+
     <view-entity entity-name="InvoiceAgingSummary" package="mantle.account.invoice">
         <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice"/>
         <member-relationship entity-alias="FRMP" join-from-alias="INV" relationship="fromParty"/>
         <member-relationship entity-alias="FRMO" join-from-alias="INV" relationship="fromOrganization"/>
-        <member-relationship entity-alias="TPRL" join-from-alias="INV" relationship="toRoles" join-optional="true"/>
         <member-relationship entity-alias="TOP" join-from-alias="INV" relationship="toParty"/>
-        <member-entity entity-alias="SUPTYPE" entity-name="mantle.party.PartyRole"
-                       join-from-alias="INV" join-optional="true">
+        <member-entity entity-alias="SUPT" entity-name="mantle.party.SupplierTypeRoleByParty"
+                       join-from-alias="INV" join-optional="true" sub-select="true">
             <key-map field-name="fromPartyId" related="partyId"/>
         </member-entity>
 
-        <member-entity entity-alias="RGM" entity-name="mantle.party.RoleGroupMember"
-                       join-from-alias="SUPTYPE" join-optional="true">
-            <key-map field-name="roleTypeId"/>
-            <entity-condition>
-                <econdition field-name="roleGroupEnumId" entity-alias="RGM" value="SupplierTypeGroup"/>
-            </entity-condition>
-        </member-entity>
+        <alias name="supplierRoleType" entity-alias="SUPT" field="supplierRoleType"/>
 
         <alias name="fromPartyId" entity-alias="INV"/>
         <alias name="toPartyId" entity-alias="INV"/>
@@ -306,8 +316,6 @@ along with this software (see the LICENSE.md file). If not, see
 
         <alias name="pseudoId" entity-alias="FRMP"/>
         <alias name="organizationName" entity-alias="FRMO"/>
-        <alias name="supplierRoleType" field="roleTypeId" entity-alias="RGM" function="min"/>
-
 
         <alias name="currentDue" type="currency-amount" function="sum">
             <complex-alias expression="${(

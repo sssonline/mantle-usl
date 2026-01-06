@@ -299,4 +299,47 @@ along with this software (see the LICENSE.md file). If not, see
         <alias-all entity-alias="PCFGA"/>
         <alias-all entity-alias="PFG"/>
     </view-entity>
+
+
+    <view-entity entity-name="ProductWithFeaturesAndAssets" package="mantle.product">
+        <!-- Base product -->
+        <member-entity entity-alias="PRD" entity-name="mantle.product.Product"/>
+
+        <!-- Feature applications (optional) -->
+        <member-entity entity-alias="PFA" entity-name="mantle.product.feature.ProductFeatureAppl"
+                       join-from-alias="PRD" join-optional="true">
+            <key-map field-name="productId"/>
+        </member-entity>
+
+        <!-- Assets (optional) -->
+        <member-entity entity-alias="AST" entity-name="mantle.product.asset.Asset"
+                       join-from-alias="PRD" join-optional="true">
+            <key-map field-name="productId"/>
+        </member-entity>
+
+        <!-- All Product fields -->
+        <alias-all entity-alias="PRD"/>
+
+        <!-- 1) PLAIN feature id for SEARCH (non-aggregate) -->
+        <alias name="productFeatureId" entity-alias="PFA" field="productFeatureId"/>
+
+        <!-- 2) AGGREGATED feature ids for DISPLAY ONLY -->
+        <alias name="productFeatureIds" type="text-medium" is-aggregate="true">
+            <complex-alias function="LISTAGG">
+                <complex-alias-field entity-alias="PFA" field="productFeatureId"/>
+                <complex-alias expression="','"/>
+            </complex-alias>
+        </alias>
+
+        <!-- Aggregated asset quantities per product -->
+        <alias name="quantityOnHandTotal" is-aggregate="true"
+               function="sum" entity-alias="AST" field="quantityOnHandTotal"/>
+        <alias name="availableToPromiseTotal" is-aggregate="true"
+               function="sum" entity-alias="AST" field="availableToPromiseTotal"/>
+        <alias name="originalQuantityTotal" is-aggregate="true"
+               function="sum" entity-alias="AST" field="originalQuantity"/>
+    </view-entity>
+
+
+
 </entities>

@@ -112,7 +112,6 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="!invoiceItemList"><return message="Invoice ${invoiceId} has no items, not posting to GL"/></if>
 
             <service-call name="sssonline.basalt.LedgerServices.get#APControlGlAccount" in-map="[invoiceId:invoiceId]" out-map="context"/>
-            <log level="error" message="apControlGlAccountOut inside autoPost is: ${apControlGlAccountOut}"/>
 
             <service-call name="mantle.ledger.InvoiceAutoPostServices.get#InvoicePartyAcctgPreferences"
                     in-map="[invoice:invoice]" out-map="context"/>

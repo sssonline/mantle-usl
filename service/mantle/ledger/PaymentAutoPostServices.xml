@@ -63,7 +63,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                               in-map="[acctgTransTypeEnumId:'AttOutgoingPayment', organizationPartyId:payment.fromPartyId,
                             otherPartyId:payment.toPartyId, amountUomId:payment.amountUomId, paymentId:payment.paymentId,
-                            transactionDate:payment.effectiveDate]"/>
+                            transactionDate:ec.user.nowTimestamp]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="fromAcctgTrans"/>
             </if>
             <if condition="toPartyAcctgPreference">
@@ -530,7 +530,7 @@ along with this software (see the LICENSE.md file). If not, see
                               in-map="[acctgTransTypeEnumId:(paymentId ? (invoiceId ? 'AttOutgoingPaymentAp' : 'AttPaymentInOutAppl') : 'AttInvoiceInOutAppl'),
                             organizationPartyId:fromPartyId, otherPartyId:toPartyId, amountUomId:amountUomId,
                             paymentId:paymentId, invoiceId:invoiceId, toPaymentId:toPaymentId, toInvoiceId:toInvoiceId,
-                            paymentApplicationId:paymentApplicationId, transactionDate:transactionDate]"/>
+                            paymentApplicationId:paymentApplicationId, transactionDate:ec.user.nowTimestamp]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="fromAcctgTrans"/>
             </if>
             <if condition="toPartyAcctgPreference != null">

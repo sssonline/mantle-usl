@@ -111,7 +111,6 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="facilityId" required="true"/>
         </out-parameters>
         <actions>
-            <log level="error" message="context inside create fac is: ${context}"/>
             <service-call name="create#mantle.facility.Facility" out-map="context" in-map="context"/>
 
             <if condition="externalFacilityPropertiesPartyId &amp;&amp; externalId">

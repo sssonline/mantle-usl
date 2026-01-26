@@ -1174,7 +1174,7 @@ along with this software (see the LICENSE.md file). If not, see
     <service verb="void" noun="Payment">
         <description>Set to Void status if not already in Cancelled or Void. Un-apply from
             invoice if applied. May be called directly or through SECA rule on any of these statuses.</description>
-        <in-parameters><parameter name="paymentId" required="true"/></in-parameters>
+        <in-parameters><parameter name="paymentId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.payment.Payment" value-field="payment" for-update="true"/>
             <!-- NOTE: including PmntPromised, PmntAuthorized is funny here, but this is used when going from Delivered back to Promised/Authorized -->
@@ -1186,7 +1186,7 @@ along with this software (see the LICENSE.md file). If not, see
             <iterate list="paymentApplicationList" entry="paymentApplication">
                 <if condition="paymentApplication.amountApplied != 0.0">
                     <service-call name="mantle.account.PaymentServices.unapply#PaymentApplication"
-                            in-map="[paymentApplicationId:paymentApplication.paymentApplicationId]"/>
+                            in-map="[paymentApplicationId:paymentApplication.paymentApplicationId, transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                 </if>
             </iterate>
         </actions>
@@ -1195,13 +1195,15 @@ along with this software (see the LICENSE.md file). If not, see
     <service verb="unapply" noun="PaymentApplication">
         <in-parameters>
             <parameter name="paymentApplicationId" required="true"/>
+            <parameter name="transactionDate"/>
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.payment.PaymentApplication" value-field="paymentApplication" for-update="true"/>
             <if condition="paymentApplication.amountApplied != 0.0">
                 <service-call name="update#mantle.account.payment.PaymentApplication"
                         in-map="[paymentApplicationId:paymentApplicationId, amountApplied:0.0,
-                            amountOriginallyApplied:paymentApplication.amountApplied]"/>
+                                 amountOriginallyApplied:paymentApplication.amountApplied,
+                                 transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
 
                 <if condition="paymentApplication.invoiceId">
                     <!-- if Invoice is in InvoicePmtSent or InvoicePmtRecvd, set status back to unpaid -->

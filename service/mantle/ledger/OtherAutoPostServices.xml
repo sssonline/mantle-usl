@@ -28,6 +28,7 @@ along with this software (see the LICENSE.md file). If not, see
     <service verb="post" noun="FinancialAccountTrans">
         <in-parameters>
             <parameter name="finAccountTransId" required="true"/>
+            <parameter name="transactionDate"/>
         </in-parameters>
         <out-parameters><parameter name="acctgTransId"/></out-parameters>
         <actions>

@@ -15,7 +15,7 @@ along with this software (see the LICENSE.md file). If not, see
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
     <service verb="post" noun="Payment">
-        <in-parameters><parameter name="paymentId" required="true"/></in-parameters>
+        <in-parameters><parameter name="paymentId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <out-parameters><parameter name="acctgTransId"/></out-parameters>
         <actions>
             <!-- make sure there is no AcctgTrans for this paymentId -->
@@ -63,7 +63,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                               in-map="[acctgTransTypeEnumId:'AttOutgoingPayment', organizationPartyId:payment.fromPartyId,
                             otherPartyId:payment.toPartyId, amountUomId:payment.amountUomId, paymentId:payment.paymentId,
-                            transactionDate:ec.user.nowTimestamp]"/>
+                            transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="fromAcctgTrans"/>
             </if>
             <if condition="toPartyAcctgPreference">
@@ -72,7 +72,7 @@ along with this software (see the LICENSE.md file). If not, see
                             otherPartyId:payment.fromPartyId, amountUomId:payment.amountUomId, paymentId:payment.paymentId,
                             invoiceId:(isFullSinglePa ? paymentApplicationList[0].invoiceId : null),
                             paymentApplicationId:(isFullSinglePa ? paymentApplicationList[0].paymentApplicationId : null),
-                            transactionDate:payment.effectiveDate]"/>
+                            transactionDate:transactionDate ?: payment.effectiveDate]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="toAcctgTrans"/>
             </if>
 
@@ -103,7 +103,7 @@ along with this software (see the LICENSE.md file). If not, see
 
                 <iterate list="paymentApplicationList" entry="paymentApplication">
                     <service-call name="mantle.ledger.PaymentAutoPostServices.post#PaymentApplication"
-                                  in-map="[paymentApplicationId:paymentApplication.paymentApplicationId]"/>
+                                  in-map="[paymentApplicationId:paymentApplication.paymentApplicationId, transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                 </iterate>
             </if>
             <!-- Payment Type entry for to Party (incoming) -->
@@ -127,7 +127,7 @@ along with this software (see the LICENSE.md file). If not, see
                                   out-map="context"/>
                     <iterate list="paymentApplicationList" entry="paymentApplication">
                         <service-call name="mantle.ledger.PaymentAutoPostServices.post#PaymentApplication"
-                                      in-map="[paymentApplicationId:paymentApplication.paymentApplicationId]"/>
+                                      in-map="[paymentApplicationId:paymentApplication.paymentApplicationId, transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                     </iterate>
                 </else></if>
             </if>
@@ -207,7 +207,7 @@ along with this software (see the LICENSE.md file). If not, see
     </service>
 
     <service verb="revert" noun="PaymentPost">
-        <in-parameters><parameter name="paymentId" required="true"/></in-parameters>
+        <in-parameters><parameter name="paymentId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <actions>
             <!-- there should just be one AcctgTrans for this invoice, if there is more than one may already be cancelled -->
             <entity-find entity-name="mantle.ledger.transaction.AcctgTrans" list="acctgTransList">
@@ -219,7 +219,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="acctgTransList"><then>
                 <iterate list="acctgTransList" entry="acctgTrans">
                     <service-call name="mantle.ledger.LedgerServices.post#ReverseAcctgTrans" out-map="revOut" out-map-add-to-existing="false"
-                                  in-map="[acctgTransId:acctgTrans.acctgTransId, deleteIfNotPosted:true]"/>
+                                  in-map="[acctgTransId:acctgTrans.acctgTransId, deleteIfNotPosted:true, transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                     <if condition="revOut.acctgTransId">
                         <message>Created reverse transaction ${revOut.acctgTransId} from tx ${acctgTrans.acctgTransId} for payment ${paymentId}</message></if>
                 </iterate>
@@ -419,7 +419,7 @@ along with this software (see the LICENSE.md file). If not, see
 
     <service verb="post" noun="PaymentApplication">
         <description>If payment was posted as unapplied then post to consider it applied in the GL.</description>
-        <in-parameters><parameter name="paymentApplicationId" required="true"/></in-parameters>
+        <in-parameters><parameter name="paymentApplicationId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <out-parameters><parameter name="acctgTransId"/></out-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.payment.PaymentApplication" value-field="paymentApplication" for-update="true"/>
@@ -524,13 +524,13 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="isPayablePayment" from="(fromPartyOrgInternal &amp;&amp; toPartySupplier)"/>
 
             <!-- ==== create the main tx record(s) ==== -->
-            <set field="transactionDate" from="paymentApplication.appliedDate ?: payment.effectiveDate"/>
+<!--            <set field="transactionDate" from="paymentApplication.appliedDate ?: payment.effectiveDate"/>-->
             <if condition="fromPartyAcctgPreference != null">
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                               in-map="[acctgTransTypeEnumId:(paymentId ? (invoiceId ? 'AttOutgoingPaymentAp' : 'AttPaymentInOutAppl') : 'AttInvoiceInOutAppl'),
                             organizationPartyId:fromPartyId, otherPartyId:toPartyId, amountUomId:amountUomId,
                             paymentId:paymentId, invoiceId:invoiceId, toPaymentId:toPaymentId, toInvoiceId:toInvoiceId,
-                            paymentApplicationId:paymentApplicationId, transactionDate:ec.user.nowTimestamp]"/>
+                            paymentApplicationId:paymentApplicationId, transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="fromAcctgTrans"/>
             </if>
             <if condition="toPartyAcctgPreference != null">
@@ -538,7 +538,7 @@ along with this software (see the LICENSE.md file). If not, see
                               in-map="[acctgTransTypeEnumId:(paymentId ? (invoiceId ? 'AttIncomingPaymentAp' : 'AttPaymentInOutAppl') : 'AttInvoiceInOutAppl'),
                             organizationPartyId:toPartyId, otherPartyId:fromPartyId, amountUomId:amountUomId,
                             paymentId:paymentId, invoiceId:invoiceId, toPaymentId:toPaymentId, toInvoiceId:toInvoiceId,
-                            paymentApplicationId:paymentApplicationId, transactionDate:transactionDate]"/>
+                            paymentApplicationId:paymentApplicationId, transactionDate:transactionDate ?: ec.user.nowTimestamp]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="toAcctgTrans"/>
             </if>
 
@@ -649,7 +649,7 @@ along with this software (see the LICENSE.md file). If not, see
     </service>
 
     <service verb="revert" noun="PaymentApplicationPost">
-        <in-parameters><parameter name="paymentApplicationId" required="true"/></in-parameters>
+        <in-parameters><parameter name="paymentApplicationId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.account.payment.PaymentApplication" value-field="paymentApplication" for-update="true"/>
 
@@ -662,7 +662,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="acctgTransList"><then>
                 <if condition="acctgTransList.size() == 1"><then>
                     <service-call name="mantle.ledger.LedgerServices.post#ReverseAcctgTrans" out-map="revOut"
-                                  in-map="[acctgTransId:acctgTransList[0].acctgTransId, deleteIfNotPosted:true]"/>
+                                  in-map="[acctgTransId:acctgTransList[0].acctgTransId, deleteIfNotPosted:true, transactionDate:transactionDate ?:ec.user.nowTimestamp]"/>
                     <if condition="revOut.acctgTransId">
                         <message>Created reverse transaction ${revOut.acctgTransId} from tx ${acctgTransList[0].acctgTransId} for payment application ${paymentApplicationId}</message></if>
                 </then><else>

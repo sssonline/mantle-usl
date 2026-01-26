@@ -121,30 +121,30 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- TODO: CreditCardTypeGlAccount, GlAccountTypePartyDefault, ProductCategoryGlAccount, ProductGlAccount, TaxAuthorityGlAccount, VarianceReasonGlAccount -->
 
             <!-- setup mantle.party.time.TimePeriod for FiscalMonth, FiscalQuarter, FiscalYear -->
-            <if condition="startYear"><then>
-                <set field="nextYearInt" from="((Calendar) ec.user.nowCalendar).get(Calendar.YEAR) + 1"/>
-                <set field="lastYear" from="ec.l10n.format(nextYearInt, '0000')"/>
+<!--            <if condition="startYear"><then>-->
+<!--                <set field="nextYearInt" from="((Calendar) ec.user.nowCalendar).get(Calendar.YEAR) + 1"/>-->
+<!--                <set field="lastYear" from="ec.l10n.format(nextYearInt, '0000')"/>-->
 
-                <set field="curYear" from="startYear"/>
-                <set field="prevPeriodId" from="null"/>
-                <while condition="curYear &lt;= lastYear">
-                    <set field="fromDate" from="ec.l10n.parseDate(curYear + '-01-01', 'yyyy-MM-dd')"/>
-                    <service-call name="mantle.party.TimeServices.getOrCreate#TimePeriod" out-map="curYearOut"
-                            in-map="[partyId:organizationPartyId, timePeriodTypeId:'FiscalYear', fromDate:fromDate, previousPeriodId:prevPeriodId]"/>
-                    <service-call name="mantle.party.TimeServices.get#DescendantPeriods" out-map="quartersOut"
-                            in-map="[parentPeriodId:curYearOut.timePeriodId, timePeriodTypeId:'FiscalQuarter', createMissing:true]"/>
-                    <iterate list="quartersOut.timePeriodList" entry="quarterPeriod">
-                        <service-call name="mantle.party.TimeServices.get#DescendantPeriods" out-map="quartersOut"
-                                in-map="[parentPeriodId:quarterPeriod.timePeriodId, timePeriodTypeId:'FiscalMonth', createMissing:true]"/>
-                    </iterate>
+<!--                <set field="curYear" from="startYear"/>-->
+<!--                <set field="prevPeriodId" from="null"/>-->
+<!--                <while condition="curYear &lt;= lastYear">-->
+<!--                    <set field="fromDate" from="ec.l10n.parseDate(curYear + '-01-01', 'yyyy-MM-dd')"/>-->
+<!--                    <service-call name="mantle.party.TimeServices.getOrCreate#TimePeriod" out-map="curYearOut"-->
+<!--                            in-map="[partyId:organizationPartyId, timePeriodTypeId:'FiscalYear', fromDate:fromDate, previousPeriodId:prevPeriodId]"/>-->
+<!--                    <service-call name="mantle.party.TimeServices.get#DescendantPeriods" out-map="quartersOut"-->
+<!--                            in-map="[parentPeriodId:curYearOut.timePeriodId, timePeriodTypeId:'FiscalQuarter', createMissing:true]"/>-->
+<!--                    <iterate list="quartersOut.timePeriodList" entry="quarterPeriod">-->
+<!--                        <service-call name="mantle.party.TimeServices.get#DescendantPeriods" out-map="quartersOut"-->
+<!--                                in-map="[parentPeriodId:quarterPeriod.timePeriodId, timePeriodTypeId:'FiscalMonth', createMissing:true]"/>-->
+<!--                    </iterate>-->
 
-                    <set field="prevPeriodId" from="curYearOut.timePeriodId"/>
-                    <set field="curYear" from="((curYear as int) + 1) as String"/>
-                </while>
-            </then><else>
-                <service-call name="mantle.ledger.LedgerServices.check#NextFiscalTimePeriods"
-                        in-map="[organizationPartyId:organizationPartyId]"/>
-            </else></if>
+<!--                    <set field="prevPeriodId" from="curYearOut.timePeriodId"/>-->
+<!--                    <set field="curYear" from="((curYear as int) + 1) as String"/>-->
+<!--                </while>-->
+<!--            </then><else>-->
+<!--                <service-call name="mantle.ledger.LedgerServices.check#NextFiscalTimePeriods"-->
+<!--                        in-map="[organizationPartyId:organizationPartyId]"/>-->
+<!--            </else></if>-->
         </actions>
     </service>
 
@@ -839,6 +839,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="acctgTransId" required="true"/>
             <parameter name="deleteIfNotPosted" type="Boolean" default="false"/>
             <parameter name="createOnly" type="Boolean" default="false"/>
+            <parameter name="transactionDate"/>
         </in-parameters>
         <out-parameters><parameter name="acctgTransId" required="true"/></out-parameters>
         <actions>
@@ -863,6 +864,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="reverseAcctgTrans.reverseOfAcctgTransId" from="acctgTransId"/>
             <!-- don't do this! use same transactionDate as original, if posting fails then it can be updated manually: <set field="reverseAcctgTrans.transactionDate" from="ec.user.nowTimestamp"/> -->
             <set field="reverseAcctgTrans.isPosted" value="N"/>
+            <set field="reverseAcctgTrans.transactionDate" from="transactionDate ?: reverseAcctgTrans.transactionDate"/>
             <entity-create value-field="reverseAcctgTrans"/>
 
             <set field="reverseAcctgTransId" from="reverseAcctgTrans.acctgTransId"/>
@@ -980,58 +982,58 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="periodName" operator="like" value="%${term}%" ignore-case="true" ignore="!term"/>
             </entity-find>
 
-            <if condition="!timePeriodList">
-                <!-- see if a parent org has time periods, if so create for current org based on them -->
-                <entity-find entity-name="mantle.party.PartyRelationship" list="partyRelationshipList" cache="true">
-                    <date-filter/>
-                    <econdition field-name="fromPartyId" from="organizationPartyId"/>
-                    <econdition field-name="relationshipTypeEnumId" value="PrtOrgRollup"/>
-                    <econdition field-name="fromRoleTypeId" value="OrgInternal"/>
-                    <econdition field-name="toRoleTypeId" value="OrgInternal"/>
-                </entity-find>
-                <if condition="partyRelationshipList">
-                    <service-call name="mantle.ledger.LedgerServices.get#OrganizationFiscalTimePeriods" out-map="parentPeriodsOut"
-                            in-map="[organizationPartyId:partyRelationshipList[0].toPartyId, filterDate:filterDate, timePeriodTypeId:timePeriodTypeId, term:term]"/>
-                    <set field="parentOrgPeriodList" from="parentPeriodsOut.timePeriodList"/>
+<!--            <if condition="!timePeriodList">-->
+<!--                &lt;!&ndash; see if a parent org has time periods, if so create for current org based on them &ndash;&gt;-->
+<!--                <entity-find entity-name="mantle.party.PartyRelationship" list="partyRelationshipList" cache="true">-->
+<!--                    <date-filter/>-->
+<!--                    <econdition field-name="fromPartyId" from="organizationPartyId"/>-->
+<!--                    <econdition field-name="relationshipTypeEnumId" value="PrtOrgRollup"/>-->
+<!--                    <econdition field-name="fromRoleTypeId" value="OrgInternal"/>-->
+<!--                    <econdition field-name="toRoleTypeId" value="OrgInternal"/>-->
+<!--                </entity-find>-->
+<!--                <if condition="partyRelationshipList">-->
+<!--                    <service-call name="mantle.ledger.LedgerServices.get#OrganizationFiscalTimePeriods" out-map="parentPeriodsOut"-->
+<!--                            in-map="[organizationPartyId:partyRelationshipList[0].toPartyId, filterDate:filterDate, timePeriodTypeId:timePeriodTypeId, term:term]"/>-->
+<!--                    <set field="parentOrgPeriodList" from="parentPeriodsOut.timePeriodList"/>-->
 
-                    <!-- if periods are from a parent org, create clone for this org -->
-                    <set field="timePeriodList" from="[]"/>
-                    <!-- go through periods largest to smallest to set parent -->
-                    <set field="timePeriodTypeIdList" from="['FiscalYear', 'FiscalQuarter', 'FiscalMonth', 'FiscalBiWeek', 'FiscalWeek']"/>
-                    <set field="parentPeriodId" from="null"/>
-                    <iterate list="timePeriodTypeIdList" entry="timePeriodTypeId">
-                        <filter-map-list list="parentOrgPeriodList" to-list="matchPeriodList">
-                            <field-map field-name="timePeriodTypeId"/></filter-map-list>
+<!--                    &lt;!&ndash; if periods are from a parent org, create clone for this org &ndash;&gt;-->
+<!--                    <set field="timePeriodList" from="[]"/>-->
+<!--                    &lt;!&ndash; go through periods largest to smallest to set parent &ndash;&gt;-->
+<!--                    <set field="timePeriodTypeIdList" from="['FiscalYear', 'FiscalQuarter', 'FiscalMonth', 'FiscalBiWeek', 'FiscalWeek']"/>-->
+<!--                    <set field="parentPeriodId" from="null"/>-->
+<!--                    <iterate list="timePeriodTypeIdList" entry="timePeriodTypeId">-->
+<!--                        <filter-map-list list="parentOrgPeriodList" to-list="matchPeriodList">-->
+<!--                            <field-map field-name="timePeriodTypeId"/></filter-map-list>-->
 
-                        <if condition="matchPeriodList">
-                            <set field="parentOrgPeriod" from="matchPeriodList[0]"/>
-                            <service-call name="mantle.party.TimeServices.getOrCreate#TimePeriod" out-map="createTpOut"
-                                    in-map="[partyId:organizationPartyId, timePeriodTypeId:parentOrgPeriod.timePeriodTypeId,
-                                        fromDate:parentOrgPeriod.fromDate, parentPeriodId:parentPeriodId]"/>
-                            <if condition="!createTpOut.timePeriodId">
-                                <return error="true" message="Get or create TimePeriod returned null value for partyId ${partyId}, timePeriodTypeId ${parentOrgPeriod.timePeriodTypeId}, fromDate ${parentOrgPeriod.fromDate}"/></if>
-                            <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod">
-                                <field-map field-name="timePeriodId" from="createTpOut.timePeriodId"/></entity-find-one>
-                            <set field="parentPeriodId" from="createTpOut.timePeriodId"/>
+<!--                        <if condition="matchPeriodList">-->
+<!--                            <set field="parentOrgPeriod" from="matchPeriodList[0]"/>-->
+<!--                            <service-call name="mantle.party.TimeServices.getOrCreate#TimePeriod" out-map="createTpOut"-->
+<!--                                    in-map="[partyId:organizationPartyId, timePeriodTypeId:parentOrgPeriod.timePeriodTypeId,-->
+<!--                                        fromDate:parentOrgPeriod.fromDate, parentPeriodId:parentPeriodId]"/>-->
+<!--                            <if condition="!createTpOut.timePeriodId">-->
+<!--                                <return error="true" message="Get or create TimePeriod returned null value for partyId ${partyId}, timePeriodTypeId ${parentOrgPeriod.timePeriodTypeId}, fromDate ${parentOrgPeriod.fromDate}"/></if>-->
+<!--                            <entity-find-one entity-name="mantle.party.time.TimePeriod" value-field="timePeriod">-->
+<!--                                <field-map field-name="timePeriodId" from="createTpOut.timePeriodId"/></entity-find-one>-->
+<!--                            <set field="parentPeriodId" from="createTpOut.timePeriodId"/>-->
 
-                            <if condition="!timePeriodTypeId || timePeriodTypeId == timePeriod.timePeriodTypeId">
-                                <script>timePeriodList.add(timePeriod)</script></if>
-                        </if>
-                    </iterate>
-                </if>
-            </if>
-            <if condition="!timePeriodList">
-                <!-- still no time periods for current org, use check#NextFiscalTimePeriods to create -->
-                <service-call name="mantle.ledger.LedgerServices.check#NextFiscalTimePeriods"
-                        in-map="[organizationPartyId:organizationPartyId, basisDate:filterSqlDate]"/>
-                <entity-find entity-name="mantle.party.time.TimePeriodAndType" list="timePeriodList">
-                    <econdition field-name="fromDate" operator="less-equals" from="filterSqlDate" ignore-if-empty="true"/>
-                    <econdition field-name="thruDate" operator="greater-equals" from="filterSqlDate" ignore-if-empty="true"/>
-                    <econdition field-name="periodPurposeEnumId" value="Fiscal" ignore="timePeriodTypeId"/>
-                    <econdition field-name="partyId" from="organizationPartyId"/>
-                    <econdition field-name="timePeriodTypeId" ignore-if-empty="true"/>
-                </entity-find>
-            </if>
+<!--                            <if condition="!timePeriodTypeId || timePeriodTypeId == timePeriod.timePeriodTypeId">-->
+<!--                                <script>timePeriodList.add(timePeriod)</script></if>-->
+<!--                        </if>-->
+<!--                    </iterate>-->
+<!--                </if>-->
+<!--            </if>-->
+<!--            <if condition="!timePeriodList">-->
+<!--                &lt;!&ndash; still no time periods for current org, use check#NextFiscalTimePeriods to create &ndash;&gt;-->
+<!--                <service-call name="mantle.ledger.LedgerServices.check#NextFiscalTimePeriods"-->
+<!--                        in-map="[organizationPartyId:organizationPartyId, basisDate:filterSqlDate]"/>-->
+<!--                <entity-find entity-name="mantle.party.time.TimePeriodAndType" list="timePeriodList">-->
+<!--                    <econdition field-name="fromDate" operator="less-equals" from="filterSqlDate" ignore-if-empty="true"/>-->
+<!--                    <econdition field-name="thruDate" operator="greater-equals" from="filterSqlDate" ignore-if-empty="true"/>-->
+<!--                    <econdition field-name="periodPurposeEnumId" value="Fiscal" ignore="timePeriodTypeId"/>-->
+<!--                    <econdition field-name="partyId" from="organizationPartyId"/>-->
+<!--                    <econdition field-name="timePeriodTypeId" ignore-if-empty="true"/>-->
+<!--                </entity-find>-->
+<!--            </if>-->
         </actions>
     </service>
     <service verb="check" noun="NextFiscalTimePeriods">
@@ -1255,7 +1257,7 @@ along with this software (see the LICENSE.md file). If not, see
             <set field="thruTimestamp" from="periodInfo.thruTimestamp"/>
 
             <!-- get or create the next TimePeriod (gets nextTimePeriodId, nextTimePeriod); always set its begin balance from this period's end balance -->
-            <service-call name="mantle.party.TimeServices.getOrCreate#NextTimePeriod" out-map="context" in-map="[timePeriodId:timePeriodId]"/>
+            <service-call name="mantle.party.TimeServices.get#NextTimePeriod" out-map="context" in-map="[timePeriodId:timePeriodId]"/>
 
             <!-- get any existing subsequent time periods to update those as well (unlike next get only, no create) -->
             <set field="subsequentPeriodIds" from="[nextTimePeriodId]"/>
@@ -1646,7 +1648,7 @@ along with this software (see the LICENSE.md file). If not, see
 
                 <!-- get or create the next TimePeriod (gets nextTimePeriodId, nextTimePeriod); always set its begin balance
                     from this period's end balance -->
-                <service-call name="mantle.party.TimeServices.getOrCreate#NextTimePeriod" out-map="context"
+                <service-call name="mantle.party.TimeServices.get#NextTimePeriod" out-map="context"
                               in-map="[timePeriodId:timePeriodId]"/>
 
                 <!-- get any existing subsequent time periods to update those as well (unlike next get only, no create) -->

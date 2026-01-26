@@ -16,7 +16,7 @@ along with this software (see the LICENSE.md file). If not, see
 
     <service verb="post" noun="Invoice">
         <description>Post an Invoice if there is a PartyAcctgPreference for from and/or to parties.</description>
-        <in-parameters><parameter name="invoiceId" required="true"/></in-parameters>
+        <in-parameters><parameter name="invoiceId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <out-parameters><parameter name="fromAcctgTransId"/><parameter name="toAcctgTransId"/></out-parameters>
         <actions>
             <!-- make sure there is no AcctgTrans for this invoiceId -->
@@ -138,7 +138,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                         in-map="[acctgTransTypeEnumId:fromInvoiceTypeTransTypeOut.acctgTransTypeEnumId,
                             organizationPartyId:invoice.fromPartyId, otherPartyId:invoice.toPartyId,
-                            amountUomId:invoice.currencyUomId, invoiceId:invoice.invoiceId, transactionDate:invoice.invoiceDate]"/>
+                            amountUomId:invoice.currencyUomId, invoiceId:invoice.invoiceId, transactionDate:transactionDate ?: invoice.invoiceDate]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="fromAcctgTrans"/>
             </if>
             <if condition="toPartyAcctgPreference != null">
@@ -151,7 +151,7 @@ along with this software (see the LICENSE.md file). If not, see
                 <service-call name="mantle.ledger.LedgerServices.create#AcctgTrans" out-map="context"
                         in-map="[acctgTransTypeEnumId:toInvoiceTypeTransTypeOut.acctgTransTypeEnumId,
                             organizationPartyId:invoice.toPartyId, otherPartyId:invoice.fromPartyId,
-                            amountUomId:invoice.currencyUomId, invoiceId:invoice.invoiceId, transactionDate:invoice.invoiceDate]"/>
+                            amountUomId:invoice.currencyUomId, invoiceId:invoice.invoiceId, transactionDate:transactionDate ?: invoice.invoiceDate]"/>
                 <entity-find-one entity-name="mantle.ledger.transaction.AcctgTrans" value-field="toAcctgTrans"/>
             </if>
 
@@ -1434,7 +1434,7 @@ along with this software (see the LICENSE.md file). If not, see
         </actions>
     </service>
     <service verb="revert" noun="InvoicePost">
-        <in-parameters><parameter name="invoiceId" required="true"/></in-parameters>
+        <in-parameters><parameter name="invoiceId" required="true"/><parameter name="transactionDate"/></in-parameters>
         <actions>
             <set field="allInvoiceTxTypes" from="['AttSalesInvoice', 'AttVendRtnInvoice',
                     'AttPurchaseInvoice', 'AttCustRtnInvoice', 'AttCreditMemo', 'AttVendCreditMemo', 'AttPayrollInvoice', 'AttPayrollInvoiceCredit',
@@ -1451,7 +1451,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="acctgTransList"><then>
                 <iterate list="acctgTransList" entry="acctgTrans">
                     <service-call name="mantle.ledger.LedgerServices.post#ReverseAcctgTrans" out-map="revOut" out-map-add-to-existing="false"
-                            in-map="[acctgTransId:acctgTrans.acctgTransId, deleteIfNotPosted:true]"/>
+                            in-map="[acctgTransId:acctgTrans.acctgTransId, deleteIfNotPosted:true, transactionDate:transactionDate]"/>
                     <if condition="revOut.acctgTransId">
                         <message>Created reverse transaction ${revOut.acctgTransId} from tx ${acctgTrans.acctgTransId} for invoice ${invoiceId}</message></if>
                 </iterate>

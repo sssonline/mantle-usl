@@ -2012,9 +2012,20 @@ along with this software (see the LICENSE.md file). If not, see
             <service-call name="mantle.account.InvoiceServices.unpay#Invoice"
                     in-map="[invoiceId:invoiceId, statusId:'InvoiceCancelled']"/>
 
-            <!-- zero quantity on OrderItemBilling, ReturnItemBilling, WorkEffortBilling -->
             <entity-find entity-name="mantle.order.OrderItemBilling" list="oibList">
                 <econdition field-name="invoiceId"/></entity-find>
+
+            <!-- uncomplete order if completed and cancelling invoice -->
+            <entity-find-one entity-name="mantle.order.OrderHeader" value-field="theOrder">
+                <field-map field-name="statusId" value="OrderCompleted"/>
+                <field-map field-name="orderId" from="oibList?[0]?.orderId"/>
+            </entity-find-one>
+            <if condition="theOrder">
+                <set field="theOrder.statusId" value="OrderSent"/>
+                <entity-update value-field="theOrder"/>
+            </if>
+
+            <!-- zero quantity on OrderItemBilling, ReturnItemBilling, WorkEffortBilling -->
             <iterate list="oibList" entry="oib">
                 <set field="oib.quantity" from="0.0"/>
                 <entity-update value-field="oib"/>

@@ -297,7 +297,7 @@ along with this software (see the LICENSE.md file). If not, see
     <view-entity entity-name="InvoiceAgingSummary" package="mantle.account.invoice">
         <member-entity entity-alias="INV" entity-name="mantle.account.invoice.Invoice"/>
         <member-relationship entity-alias="FRMP" join-from-alias="INV" relationship="fromParty"/>
-        <member-relationship entity-alias="FRMO" join-from-alias="INV" relationship="fromOrganization"/>
+        <member-relationship entity-alias="FRMO" join-from-alias="INV" relationship="fromOrganization" join-optional="true"/>
         <member-relationship entity-alias="TOP" join-from-alias="INV" relationship="toParty"/>
         <member-entity entity-alias="SUPT" entity-name="mantle.party.SupplierTypeRoleByParty"
                        join-from-alias="INV" join-optional="true" sub-select="true">
@@ -402,7 +402,7 @@ along with this software (see the LICENSE.md file). If not, see
         <member-entity entity-alias="FROMPAR" entity-name="mantle.party.Party" join-from-alias="INV" join-optional="true">
             <key-map field-name="fromPartyId" related="partyId"/>
         </member-entity>
-        <member-entity entity-alias="FROMORG" entity-name="mantle.party.Organization" join-from-alias="INV">
+        <member-entity entity-alias="FROMORG" entity-name="mantle.party.Organization" join-from-alias="INV" join-optional="true">
             <key-map field-name="fromPartyId" related="partyId"/>
         </member-entity>
         <member-relationship entity-alias="TOP" join-from-alias="INV" relationship="toParty"/>

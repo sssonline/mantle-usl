@@ -31,6 +31,11 @@ along with this software (see the LICENSE.md file). If not, see
         <actions><service-call name="mantle.product.AssetServices.reserve#AssetsForOrder" in-map="context"/></actions>
     </seca>
 
+    <seca id="OrderOpenRemoveReservations" service="update#mantle.order.OrderHeader" when="post-service">
+        <condition><expression>statusChanged &amp;&amp; statusId == 'OrderOpen'</expression></condition>
+        <actions><service-call name="mantle.product.AssetServices.remove#OrderReservations" in-map="context"/></actions>
+    </seca>
+
     <seca id="OrderItemCreateCheckReserve" service="create#mantle.order.OrderItem" when="post-service">
         <actions><service-call name="mantle.product.AssetServices.checkReserve#AssetForOrderItem" in-map="context"/></actions>
     </seca>

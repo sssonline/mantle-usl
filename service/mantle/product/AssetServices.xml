@@ -704,6 +704,12 @@ along with this software (see the LICENSE.md file). If not, see
             <entity-find-one entity-name="mantle.product.Product" value-field="product" cache="true"/>
             <if condition="!(product.productTypeEnumId in ['PtAsset', 'PtDigitalAsset', 'PtAssetUse', 'PtPickAssembly'])"><return/></if>
 
+            <!-- BYPASS RESERVATION FOR DIRECT SHIP / BUY-SELL -->
+            <if condition="orderItem.supplierPartyId != null">
+                <!-- If the item is being drop-shipped directly from a supplier, do not reserve inventory (prevents ghost backorder assets) -->
+                <return/>
+            </if>
+
             <!-- see if itemTypeEnumId is a product type -->
             <entity-find entity-name="moqui.basic.EnumGroupMember" list="productItemTypeEgms" cache="true">
                 <econdition field-name="enumGroupEnumId" value="EngItemsProduct"/></entity-find>

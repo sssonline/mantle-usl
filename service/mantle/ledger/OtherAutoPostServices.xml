@@ -154,7 +154,6 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="glAccountTypeEnumId"/>
         </out-parameters>
         <actions>
-            <log message="context beginning get FinancialAccountGlAccount is: ${context}"/>
             <service-call name="mantle.ledger.LedgerServices.expand#ParentOrganizationList" out-map="context"
                     in-map="[organizationPartyId:organizationPartyId]"/>
 
@@ -170,7 +169,6 @@ along with this software (see the LICENSE.md file). If not, see
                     <field-map field-name="glAccountId"/></entity-find-one>
                 <set field="glAccountTypeEnumId" from="glAccount?.glAccountTypeEnumId"/>
             </if>
-            <log message="context end get FinancialAccountGlAccount is: ${context}"/>
         </actions>
     </service>
     <service verb="get" noun="FinancialAccountTransGlAccount">

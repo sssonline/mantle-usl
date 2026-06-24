@@ -76,6 +76,13 @@ class AccountingActivities extends Specification {
 
     def "initial Investment AcctgTrans"() {
         when:
+        // run through the Basalt Fiscal Year creations
+        String curYear = ec.user.nowTimestamp.format('yyyy')
+        ec.service.sync().name("sssonline.basalt.TimeServices.create#FiscalYear")
+                .parameters([partyId:organizationPartyId, fiscalYear:curYear, fromDate:curYear + '-01-01']).call()
+        ec.service.sync().name("sssonline.basalt.TimeServices.create#FiscalYear")
+                .parameters([partyId:organizationPartyId2, fiscalYear:curYear, fromDate:curYear + '-01-01']).call()
+
         // find the current Fiscal Months
         Map fiscalMonthOut = ec.service.sync().name("mantle.ledger.LedgerServices.get#OrganizationFiscalTimePeriods")
                 .parameters([organizationPartyId:organizationPartyId, filterDate:ec.user.nowTimestamp, timePeriodTypeId:'FiscalMonth']).call()

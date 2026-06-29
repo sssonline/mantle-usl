@@ -1070,6 +1070,15 @@ General Order Placement and eCommerce Usage
                 <econdition field-name="orderPartSeqId" ignore-if-empty="true"/>
             </entity-find>
             <iterate list="orderPartList" entry="orderPart">
+                <!-- Skip already-cancelled parts on sales orders so status syncs (place, approve, etc.)
+                     do not overwrite a user-cancelled part. Sales orders have an internal org as vendorPartyId. -->
+                <if condition="orderPart.statusId == 'OrderCancelled' &amp;&amp; orderPart.vendorPartyId">
+                    <entity-find-one entity-name="mantle.party.PartyRole" value-field="vendorInternalRole" cache="true">
+                        <field-map field-name="partyId" from="orderPart.vendorPartyId"/>
+                        <field-map field-name="roleTypeId" value="OrgInternal"/>
+                    </entity-find-one>
+                    <if condition="vendorInternalRole != null"><continue/></if>
+                </if>
                 <service-call name="update#mantle.order.OrderPart" out-map="context"
                         in-map="[orderId:orderId, orderPartSeqId:orderPart.orderPartSeqId, statusId:statusId]"/>
             </iterate>
@@ -1083,6 +1092,8 @@ General Order Placement and eCommerce Usage
                 <set field="allPartsSame" from="true"/>
                 <entity-find entity-name="mantle.order.OrderPart" list="allPartList"><econdition field-name="orderId"/></entity-find>
                 <iterate list="allPartList" entry="orderPart">
+                    <!-- exclude independently-cancelled parts from the same-status check -->
+                    <if condition="orderPart.statusId == 'OrderCancelled' &amp;&amp; statusId != 'OrderCancelled'"><continue/></if>
                     <if condition="orderPart.statusId != statusId"><set field="allPartsSame" from="false"/></if>
                 </iterate>
                 <if condition="allPartsSame">

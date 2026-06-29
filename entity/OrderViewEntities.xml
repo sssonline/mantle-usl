@@ -177,6 +177,9 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="statusDescription" entity-alias="STSI" field="description"/>
         <alias name="facilityName" entity-alias="FAC"/>
         <alias name="pseudoId" entity-alias="FAC"/>
+        <!-- order's user-friendly id (OrderHeader.pseudoId); the unqualified pseudoId above is the facility's,
+             so this is aliased explicitly. Additive: existing callers (incl. purchase orders) are unaffected. -->
+        <alias name="orderPseudoId" entity-alias="ORHD" field="pseudoId"/>
         <alias name="ownerPartyId" entity-alias="FAC"/>
         <alias name="customerRoleTypeId" entity-alias="CSTRL" field="roleTypeId"/>
         <alias name="vendorRoleTypeId" entity-alias="VNDRL" field="roleTypeId"/>

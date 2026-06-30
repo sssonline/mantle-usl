@@ -1798,6 +1798,7 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="shipmentBoxTypeId &amp;&amp; !originalQuantityUomId">
                 <entity-find-one entity-name="mantle.shipment.ShipmentBoxType" value-field="shipmentBoxType" cache="true"/>
                 <set field="originalQuantityUomId" from="shipmentBoxType.capacityUomId"/>
+                <set field="originalQuantity" from="originalQuantity * (shipmentBoxType.boxCapacity?:1)"/>
             </if>
 
             <entity-find-one entity-name="mantle.product.Product" value-field="product" cache="true"/>

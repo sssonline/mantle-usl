@@ -128,6 +128,8 @@ class RestApiTests extends Specification {
                 ['"assetReservationId" : "55800"', '"orderId" : "55800"', '"productId" : "DEMO_1_1"']
 
         "post" | "s1/mantle/orders/55800/parts/01/shipments" | [moquiSessionToken:token] | ['"shipmentId" : "55800"']
+        // ship#OrderPart packs/ships but does not create sales invoice (ShipmentOutgoingPackedCreateInvoices SECA disabled)
+        "post" | "s1/mantle/shipments/55800/salesInvoices" | [moquiSessionToken:token] | ['"invoiceIdByOrderPartIdMap"', '"55800"']
         "get" | "s1/mantle/orders/55800/items/01/billings" | null | ['"orderItemBillingId" : "55800"', '"orderId" : "55800"',
                 '"orderItemSeqId" : "01"', '"invoiceId" : "55800"', '"assetIssuanceId" : "55800"', '"shipmentId" : "55800"']
         "get" | "s1/mantle/orders/55800/items/01/shipments" | null | ['"shipmentItemSourceId" : "55800"',

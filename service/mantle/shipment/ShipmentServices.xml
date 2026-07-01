@@ -1179,6 +1179,11 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="invoiceItemSeqId"/>
             <parameter name="forceIssueOther" type="Boolean" default="false"/>
             <parameter name="forceAddToPackage" type="Boolean" default="true"><description>Add to new package if no shipmentPackageSeqId specified</description></parameter>
+            <!-- SSS customization: opt-out flag for the auto ShipInput/ShipScheduled -> ShipPicked advance below.
+                 Defaults true so every existing caller is unchanged; the outgoing tag-picker services pass false
+                 so status advancement is driven solely by evaluate#OutgoingShipmentPickStatus (advance only when
+                 every line is exactly fully picked, with no bump-then-revert churn). -->
+            <parameter name="autoAdvanceStatus" type="Boolean" default="true"/>
         </in-parameters>
         <actions>
             <entity-find-one entity-name="mantle.shipment.ShipmentItemSource" value-field="shipmentItemSource"/>
@@ -1190,8 +1195,8 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="shipment.statusId in ['ShipPacked', 'ShipShipped', 'ShipDelivered', 'ShipRejected', 'ShipCancelled']">
                 <return error="true" message="Cannot pack Shipment ${shipmentId} in status ${shipment.status?.description ?: shipment.statusId}"/>
             </if>
-            <!-- set Shipment to Picked if in Input or Scheduled status -->
-            <if condition="shipment.statusId in ['ShipInput', 'ShipScheduled']">
+            <!-- set Shipment to Picked if in Input or Scheduled status (SSS: skippable via autoAdvanceStatus=false) -->
+            <if condition="autoAdvanceStatus &amp;&amp; shipment.statusId in ['ShipInput', 'ShipScheduled']">
                 <service-call name="update#mantle.shipment.Shipment" in-map="[shipmentId:shipmentId, statusId:'ShipPicked']"/>
             </if>
 

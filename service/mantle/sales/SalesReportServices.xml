@@ -391,7 +391,6 @@ along with this software (see the LICENSE.md file). If not, see
                 // don't include the first (most recent) period in the total and average
                 if (salesInvoiceSummaryList.size() > 1) addBigDecimalsInMap(invoicesTotal, curLine)
             }
-            ec.logger.info("In SalesInvoiceSummary invoiceTempMap remaining: ${invoiceTempMap}")
 
             // get the this, last, prior periods before reversing list
             invoicesThis = salesInvoiceSummaryList.size() > 0 ? salesInvoiceSummaryList[0] : null

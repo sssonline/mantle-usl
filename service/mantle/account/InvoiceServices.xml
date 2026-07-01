@@ -1692,7 +1692,7 @@ along with this software (see the LICENSE.md file). If not, see
     <service verb="create" noun="WorkerInvoiceItems">
         <in-parameters>
             <parameter name="workerPartyId" required="true"/>
-            <parameter name="vendorPartyId" required="true"><description>Matches TimeEntry.vendorPartyId, a Project Vendor or Employer</description></parameter>
+            <parameter name="vendorPartyId" required="true"><description>Matches TimeEntry.organizationPartyId, a Project Vendor or Employer</description></parameter>
             <parameter name="invoiceId"><description>If specified add item(s) to this Invoice. If empty an Invoice will be created.</description></parameter>
             <parameter name="thruDate" type="Timestamp" default="ec.user.nowTimestamp">
                 <description>Only TimeEntry records before this date will be included. Defaults to now.</description></parameter>
@@ -1763,7 +1763,7 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="ratePurposeEnumId" default-value="RaprClient"><description>If RaprVendor TimeEntry.vendorInvoiceId is
                 populated and time entries with it populated are excluded, otherwise with default of RaprClient TimeEntry.invoiceId is used.</description></parameter>
             <parameter name="workerPartyId"><description>If specified only include time entries from this Party (matches TimeEntry.partyId)</description></parameter>
-            <parameter name="vendorPartyId"><description>Matches TimeEntry.vendorPartyId, a Project Vendor or Employer</description></parameter>
+            <parameter name="vendorPartyId"><description>Matches TimeEntry.organizationPartyId, a Project Vendor or Employer</description></parameter>
         </in-parameters>
         <out-parameters>
             <parameter name="invoiceItemCreatedCount" type="Long"/>
@@ -1799,7 +1799,7 @@ along with this software (see the LICENSE.md file). If not, see
                 </econditions>
                 <!-- filter by workerPartyId if specified -->
                 <econdition field-name="partyId" from="workerPartyId" ignore-if-empty="true"/>
-                <econdition field-name="vendorPartyId" ignore-if-empty="true" or-null="true"/>
+                <econdition field-name="organizationPartyId" from="vendorPartyId" ignore-if-empty="true" or-null="true"/>
                 <order-by field-name="fromDate"/>
             </entity-find>
 

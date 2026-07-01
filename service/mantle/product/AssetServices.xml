@@ -881,8 +881,6 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="checkQuantityRemaining &gt; 0.0">
                 <set field="baseAssetCond" from="[productId:productId, statusId:'AstAvailable']"/>
                 <if condition="inventoryFacilityId"><set field="baseAssetCond.facilityId" from="inventoryFacilityId"/></if>
-                <!-- TODO 20180503 remove this at some point, added to monitor corner case issue -->
-                <if condition="!baseAssetCond.facilityId"><log level="warn" message="Reserving inventory for order ${orderId} item ${orderItemSeqId} with no facilityId"/></if>
 
                 <!-- see if we need to try for single lot and newer inventory, done via lotsToUse list -->
                 <set field="lotsToUse" from="null"/>
@@ -991,10 +989,6 @@ along with this software (see the LICENSE.md file). If not, see
                         <entity-find-one entity-name="mantle.product.asset.Asset" value-field="asset" for-update="true">
                             <field-map field-name="assetId" from="checkAsset.assetId"/></entity-find-one>
 
-                        <!-- TODO 20180503 remove this at some point, added to monitor corner case issue -->
-                        <if condition="inventoryFacilityId != asset.facilityId">
-                            <log level="warn" message="Inventory Facility ${inventoryFacilityId} did not match asset ${asset?.assetId} facility ${asset?.facilityId} reserving for order ${orderId} item ${orderItemSeqId}"/></if>
-
                         <set field="quantityToReserve" from="asset.availableToPromiseTotal &gt; checkQuantityRemaining ? checkQuantityRemaining : asset.availableToPromiseTotal"/>
                         <if condition="quantityToReserve &gt; 0.0">
                             <set field="checkQuantityRemaining" from="checkQuantityRemaining - quantityToReserve"/>
@@ -1027,10 +1021,6 @@ along with this software (see the LICENSE.md file). If not, see
                         <!-- here we do the lock query, check the ATP using the locked value -->
                         <entity-find-one entity-name="mantle.product.asset.Asset" value-field="asset" for-update="true">
                             <field-map field-name="assetId" from="checkAsset.assetId"/></entity-find-one>
-
-                        <!-- TODO 20180503 remove this at some point, added to monitor corner case issue -->
-                        <if condition="inventoryFacilityId != asset.facilityId">
-                            <log level="warn" message="Inventory Facility ${inventoryFacilityId} did not match asset ${asset?.assetId} facility ${asset?.facilityId} reserving for order ${orderId} item ${orderItemSeqId}"/></if>
 
                         <set field="quantityToReserve" from="asset.availableToPromiseTotal &gt; checkQuantityRemaining ? checkQuantityRemaining : asset.availableToPromiseTotal"/>
                         <if condition="quantityToReserve &gt; 0.0">

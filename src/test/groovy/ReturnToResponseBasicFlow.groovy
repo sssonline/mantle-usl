@@ -349,7 +349,7 @@ class ReturnToResponseBasicFlow extends Specification {
             </mantle.account.financial.FinancialAccount>
             <mantle.ledger.transaction.AcctgTrans acctgTransId="55700" otherPartyId="CustJqp" postedDate="${effectiveTime}"
                     amountUomId="USD" isPosted="Y" acctgTransTypeEnumId="AttFinancialDeposit"
-                    glFiscalTypeEnumId="GLFT_ACTUAL" transactionDate="${effectiveTime}" organizationPartyId="ORG_ZIZI_RETAIL">
+                    glFiscalTypeEnumId="GLFT_ACTUAL" organizationPartyId="ORG_ZIZI_RETAIL">
                 <mantle.ledger.transaction.AcctgTransEntry acctgTransEntrySeqId="01" amount="23.07" glAccountId="430000000"
                         reconcileStatusId="AterNot" isSummary="N" glAccountTypeEnumId="GatSales" debitCreditFlag="D"/>
                 <mantle.ledger.transaction.AcctgTransEntry acctgTransEntrySeqId="02" amount="23.07" glAccountId="251100000"
@@ -372,6 +372,11 @@ class ReturnToResponseBasicFlow extends Specification {
         EntityValue returnItem = ec.entity.find("mantle.order.return.ReturnItem").condition([returnId:returnId, returnItemSeqId:'01']).one()
         replaceShipResult = ec.service.sync().name("mantle.shipment.ShipmentServices.ship#OrderPart")
                 .parameters([orderId:returnItem.replacementOrderId, orderPartSeqId:'01']).call()
+        ec.service.sync().name("mantle.order.OrderServices.update#OrderStatus")
+                .parameters([orderId:returnItem.replacementOrderId, statusId:'OrderSent']).call()
+        // ShipmentOutgoingPackedCreateInvoices SECA is disabled — create sales invoice explicitly
+        ec.service.sync().name("mantle.account.InvoiceServices.create#SalesShipmentInvoices")
+                .parameters([shipmentId:replaceShipResult.shipmentId]).call()
 
         List<String> dataCheckErrors = []
         long fieldsChecked = ec.entity.makeDataLoader().xmlText("""<entity-facade-xml>
@@ -476,8 +481,11 @@ class ReturnToResponseBasicFlow extends Specification {
 
         ec.user.loginUser("john.doe", "moqui")
         ec.service.sync().name("mantle.order.OrderServices.approve#Order").parameters([orderId:orderId]).call()
-        ec.service.sync().name("mantle.shipment.ShipmentServices.ship#OrderPart")
+        Map shipOut = ec.service.sync().name("mantle.shipment.ShipmentServices.ship#OrderPart")
                 .parameters([orderId:orderId, orderPartSeqId:orderPartSeqId]).call()
+        // ShipmentOutgoingPackedCreateInvoices SECA is disabled — capture fin-account payment via sales invoice
+        ec.service.sync().name("mantle.account.InvoiceServices.create#SalesShipmentInvoices")
+                .parameters([shipmentId:shipOut.shipmentId]).call()
 
         // ========== check data
 

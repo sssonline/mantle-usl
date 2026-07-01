@@ -87,6 +87,14 @@ class WorkPlanToCashBasicFlow extends Specification {
         ec.service.sync().name("create#mantle.party.PartyRole").parameters([partyId:vendorResult.partyId, roleTypeId:'OrgInternal']).call()
         ec.service.sync().name("mantle.ledger.LedgerServices.init#PartyAccountingConfiguration")
                 .parameters([sourcePartyId:'DefaultSettings', organizationPartyId:vendorResult.partyId, startYear:startYear]).call()
+        // Seed FiscalYear/Quarter/Month TimePeriods (see AspenBasicFlowTests; init#PartyAccountingConfiguration no longer does this)
+        int endFiscalYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) + 1
+        for (int fy = Integer.parseInt(startYear); fy <= endFiscalYear; fy++) {
+            ec.service.sync().name("sssonline.basalt.TimeServices.create#FiscalYear")
+                    .parameters([partyId:vendorResult.partyId, fiscalYear:fy as String,
+                        fromDate:java.sql.Timestamp.valueOf("${fy}-01-01 00:00:00")]).call()
+        }
+        ec.message.clearErrors()
         // vendor payment/ar rep
         Map vendorRepResult = ec.service.sync().name("mantle.party.PartyServices.create#Account")
                 .parameters([firstName:'Vendor', lastName:'TestRep', emailAddress:'vendor.rep@test.com',
@@ -320,22 +328,7 @@ class WorkPlanToCashBasicFlow extends Specification {
             <mantle.work.effort.WorkEffortParty workEffortId="TEST" partyId="${clientResult.partyId}" roleTypeId="Customer" fromDate="${effectiveTime}"/>
             <mantle.work.effort.WorkEffortParty workEffortId="TEST" partyId="${vendorResult.partyId}" roleTypeId="Vendor" fromDate="${effectiveTime}"/>
             <mantle.work.effort.WorkEffortParty workEffortId="TEST" partyId="${workerResult.partyId}" roleTypeId="Assignee"
-                fromDate="1477976400000" statusId="WeptAssigned" emplPositionClassId="Programmer"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55908" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST" newValueText="WeInPlanning" changedDate="${effectiveTime}"
-                changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55909" changedEntityName="mantle.work.effort.WorkEffortParty"
-                changedFieldName="statusId" pkPrimaryValue="TEST" pkSecondaryValue="EX_JOHN_DOE"
-                pkRestCombinedValue="roleTypeId:'Manager',fromDate:'${effectiveTime}'" newValueText="WeptAssigned"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55910" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST" oldValueText="WeInPlanning" newValueText="WeInProgress"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55911" changedEntityName="mantle.work.effort.WorkEffortParty"
-                changedFieldName="statusId" pkPrimaryValue="TEST" pkSecondaryValue="${workerResult.partyId}"
-                pkRestCombinedValue="roleTypeId:'Assignee',fromDate:'1477976400000'" newValueText="WeptAssigned"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
+                fromDate="${startYear}-11-01 00:00:00.0" statusId="WeptAssigned" emplPositionClassId="Programmer"/>
 
             </entity-facade-xml>""").check()
         logger.info("TEST Project data check results: " + dataCheckErrors)
@@ -360,13 +353,6 @@ class WorkPlanToCashBasicFlow extends Specification {
                 statusId="WeInProgress" workEffortName="Test Milestone 1" estimatedStartDate="${startYear}-11-01 00:00:00.0" estimatedCompletionDate="${startYear}-11-30 00:00:00.0"/>
             <mantle.work.effort.WorkEffort workEffortId="TEST-MS-02" rootWorkEffortId="TEST" workEffortTypeEnumId="WetMilestone"
                 statusId="WeApproved" workEffortName="Test Milestone 2" estimatedStartDate="${startYear}-12-01 00:00:00.0" estimatedCompletionDate="${startYear}-12-31 00:00:00.0"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55912" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-MS-01" newValueText="WeInProgress"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55913" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-MS-02" newValueText="WeApproved"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
             </entity-facade-xml>""").check()
         logger.info("TEST Milestones data check results: " + dataCheckErrors)
 
@@ -422,31 +408,6 @@ class WorkPlanToCashBasicFlow extends Specification {
             <mantle.work.effort.WorkEffortAssoc workEffortId="TEST-MS-01" toWorkEffortId="TEST-001B"
                 workEffortAssocTypeEnumId="WeatMilestone" fromDate="${effectiveTime}"/>
 
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55914" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001" newValueText="WeApproved" changedDate="${effectiveTime}"
-                changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55919" changedEntityName="mantle.work.effort.WorkEffortParty"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001" pkSecondaryValue="${workerResult.partyId}"
-                pkRestCombinedValue="roleTypeId:'Assignee',fromDate:'${effectiveTime}'" newValueText="WeptAssigned"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55920" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001A" newValueText="WeInPlanning"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55925" changedEntityName="mantle.work.effort.WorkEffortParty"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001A" pkSecondaryValue="${workerResult.partyId}"
-                pkRestCombinedValue="roleTypeId:'Assignee',fromDate:'${effectiveTime}'" newValueText="WeptAssigned"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55926" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001B" newValueText="WeApproved"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55931" changedEntityName="mantle.work.effort.WorkEffortParty"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001B" pkSecondaryValue="${workerResult.partyId}"
-                pkRestCombinedValue="roleTypeId:'Assignee',fromDate:'${effectiveTime}'" newValueText="WeptAssigned"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
             </entity-facade-xml>""").check()
         logger.info("TEST Milestones data check results: " + dataCheckErrors)
 
@@ -464,24 +425,28 @@ class WorkPlanToCashBasicFlow extends Specification {
         String comments = "Did stuff. These comments are longer in order to test comment truncation on invoicing as invoice item descriptions are limited to 255 characters so this has to be longer so tests will fail and people won't get paid and the world will end if comments that are too long are not handled adequately."
         // plain hours, nothing else
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
-                .parameters([workEffortId:'TEST-001', partyId:workerResult.partyId, rateTypeEnumId:'RatpStandard', remainingWorkTime:3,
+                .parameters([workEffortId:'TEST-001', partyId:workerResult.partyId, organizationPartyId:vendorResult.partyId,
+                    rateTypeEnumId:'RatpStandard', remainingWorkTime:3,
                              hours:6, fromDate:null, thruDate:null, breakHours:null,
                              workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH', comments:comments]).call()
         // hours and break, no from/thru dates (determined automatically, thru based on now and from based on hours+break)
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
-                .parameters([workEffortId:'TEST-001A', partyId:workerResult.partyId, rateTypeEnumId:'RatpStandard', remainingWorkTime:1,
+                .parameters([workEffortId:'TEST-001A', partyId:workerResult.partyId, organizationPartyId:vendorResult.partyId,
+                    rateTypeEnumId:'RatpStandard', remainingWorkTime:1,
                              hours:1.5, fromDate:null, thruDate:null, breakHours:0.5,
                              workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH',
                              comments:"Hours and break test, no from/thru dates"]).call()
         // break and from/thru dates, hours determined automatically
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
-                .parameters([workEffortId:'TEST-001B', partyId:workerResult.partyId, rateTypeEnumId:'RatpStandard', remainingWorkTime:0.5,
+                .parameters([workEffortId:'TEST-001B', partyId:workerResult.partyId, organizationPartyId:vendorResult.partyId,
+                    rateTypeEnumId:'RatpStandard', remainingWorkTime:0.5,
                              hours:null, fromDate:"${startYear}-11-03 12:00:00", thruDate:"${startYear}-11-03 15:00:00", breakHours:1,
                              workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH',
                              comments:"Break and from/thru dates test, hours calculated"]).call()
         // no charge time entry, test invoicing time with no amount and make sure hour quantity makes it through
         ec.service.sync().name("mantle.work.TaskServices.add#TaskTime")
-                .parameters([workEffortId:'TEST-001B', partyId:workerResult.partyId, rateTypeEnumId:'RatpNoCharge', remainingWorkTime:0.5,
+                .parameters([workEffortId:'TEST-001B', partyId:workerResult.partyId, organizationPartyId:vendorResult.partyId,
+                    rateTypeEnumId:'RatpNoCharge', remainingWorkTime:0.5,
                              hours:4, fromDate:null, thruDate:null, breakHours:1,
                              workTypeEnumId:'WktpGeneralOffice', facilityId:'ZIRET_WH',
                              comments:"No charge for this one because we like you"]).call()
@@ -497,56 +462,18 @@ class WorkPlanToCashBasicFlow extends Specification {
             <mantle.work.effort.WorkEffort workEffortId="TEST-001" resolutionEnumId="WerCompleted" statusId="WeComplete"
                 estimatedWorkTime="10" remainingWorkTime="3" actualWorkTime="6"/>
             <mantle.work.time.TimeEntry timeEntryId="55900" partyId="${workerResult.partyId}" rateTypeEnumId="RatpStandard"
-                rateAmountId="${clientRateResult.rateAmountId}" vendorRateAmountId="${vendorRateResult.rateAmountId}"
                 fromDate="${effectiveThruDate.time-(6*60*60*1000)}" thruDate="${effectiveThruDate.time}" hours="6" workEffortId="TEST-001"/>
 
             <mantle.work.effort.WorkEffort workEffortId="TEST-001A" resolutionEnumId="WerCompleted" statusId="WeComplete"
                 estimatedWorkTime="2" remainingWorkTime="1" actualWorkTime="1.5"/>
             <mantle.work.time.TimeEntry timeEntryId="55901" partyId="${workerResult.partyId}" rateTypeEnumId="RatpStandard"
-                rateAmountId="${clientRateResult.rateAmountId}" vendorRateAmountId="${vendorRateResult.rateAmountId}"
                 fromDate="${effectiveThruDate.time-(2*60*60*1000)}" thruDate="${effectiveThruDate.time}" hours="1.5"
                 breakHours="0.5" workEffortId="TEST-001A"/>
 
             <mantle.work.effort.WorkEffort workEffortId="TEST-001B" resolutionEnumId="WerCompleted" statusId="WeComplete"
                 estimatedWorkTime="2" remainingWorkTime="0.5" actualWorkTime="6"/>
             <mantle.work.time.TimeEntry timeEntryId="55902" partyId="${workerResult.partyId}" rateTypeEnumId="RatpStandard"
-                rateAmountId="${clientRateResult.rateAmountId}" vendorRateAmountId="${vendorRateResult.rateAmountId}"
                 hours="2" breakHours="1" workEffortId="TEST-001B"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55932" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001" oldValueText="WeApproved"
-                newValueText="WeInProgress" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55933" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001A" oldValueText="WeInPlanning"
-                newValueText="WeInProgress" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55934" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001B" oldValueText="WeApproved"
-                newValueText="WeInProgress" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55935" changedEntityName="mantle.work.effort.WorkEffort"
-                changedByUserId="EX_JOHN_DOE" pkPrimaryValue="TEST-001" changedFieldName="remainingWorkTime"
-                oldValueText="10" newValueText="3"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55936" changedEntityName="mantle.work.effort.WorkEffort"
-                changedByUserId="EX_JOHN_DOE" pkPrimaryValue="TEST" changedFieldName="remainingWorkTime"
-                oldValueText="14" newValueText="7"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55941" changedEntityName="mantle.work.effort.WorkEffort"
-                changedByUserId="EX_JOHN_DOE" pkPrimaryValue="TEST-001" changedFieldName="resolutionEnumId"
-                oldValueText="WerUnresolved" newValueText="WerCompleted"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55942" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001" oldValueText="WeInProgress"
-                newValueText="WeComplete" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55943" changedEntityName="mantle.work.effort.WorkEffort"
-                changedByUserId="EX_JOHN_DOE" pkPrimaryValue="TEST-001A" changedFieldName="resolutionEnumId"
-                oldValueText="WerUnresolved" newValueText="WerCompleted"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55944" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001A" oldValueText="WeInProgress"
-                newValueText="WeComplete" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55945" changedEntityName="mantle.work.effort.WorkEffort"
-                changedByUserId="EX_JOHN_DOE" pkPrimaryValue="TEST-001B" changedFieldName="resolutionEnumId"
-                oldValueText="WerUnresolved" newValueText="WerCompleted"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55946" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="TEST-001B" oldValueText="WeInProgress"
-                newValueText="WeComplete" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
         </entity-facade-xml>""").check(dataCheckErrors)
         totalFieldsChecked += fieldsChecked
         logger.info("Checked ${fieldsChecked} fields")
@@ -596,29 +523,6 @@ class WorkPlanToCashBasicFlow extends Specification {
                 estimatedWorkTime="2" remainingWorkTime="2" timeUomId="TF_hr"/>
             <mantle.work.effort.WorkEffortParty workEffortId="${createReqTskResult.workEffortId}" partyId="${workerResult.partyId}"
                 roleTypeId="Assignee" fromDate="${effectiveTime}" statusId="WeptAssigned"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55947" changedEntityName="mantle.request.Request"
-                changedFieldName="statusId" pkPrimaryValue="55900" newValueText="ReqSubmitted"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55948" changedEntityName="mantle.request.Request"
-                changedFieldName="statusId" pkPrimaryValue="55900" oldValueText="ReqSubmitted"
-                newValueText="ReqReviewed" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55949" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="${createReqTskResult.workEffortId}" newValueText="WeApproved"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55954" changedEntityName="mantle.work.effort.WorkEffortParty"
-                changedFieldName="statusId" pkPrimaryValue="${createReqTskResult.workEffortId}"
-                pkSecondaryValue="${workerResult.partyId}"
-                pkRestCombinedValue="roleTypeId:'Assignee',fromDate:'${effectiveTime}'" newValueText="WeptAssigned"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55956" changedEntityName="mantle.work.effort.WorkEffort"
-                changedFieldName="statusId" pkPrimaryValue="${createReqTskResult.workEffortId}" oldValueText="WeApproved"
-                newValueText="WeComplete" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55957" changedEntityName="mantle.request.Request"
-                changedFieldName="statusId" pkPrimaryValue="55900" oldValueText="ReqReviewed"
-                newValueText="ReqCompleted" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
 
         </entity-facade-xml>""").check()
         logger.info("create Request and Task for Request data check results: " + dataCheckErrors)
@@ -675,8 +579,8 @@ class WorkPlanToCashBasicFlow extends Specification {
             <mantle.work.time.TimeEntry timeEntryId="55901" vendorInvoiceId="${expInvResult.invoiceId}" vendorInvoiceItemSeqId="06"/>
 
             <mantle.ledger.transaction.AcctgTrans acctgTransId="55900" acctgTransTypeEnumId="AttPurchaseInvoice"
-                organizationPartyId="${vendorResult.partyId}" transactionDate="${startYear + '-11-08'}" isPosted="Y" postedDate="${effectiveTime}"
-                glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD" otherPartyId="${workerResult.partyId}" invoiceId="${expInvResult.invoiceId}"/>
+                organizationPartyId="${vendorResult.partyId}" isPosted="Y" glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD"
+                otherPartyId="${workerResult.partyId}" invoiceId="${expInvResult.invoiceId}"/>
             <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55900" acctgTransEntrySeqId="01" debitCreditFlag="D"
                 amount="345.67" glAccountId="681100000" reconcileStatusId="AterNot" isSummary="N" invoiceItemSeqId="01"/>
             <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55900" acctgTransEntrySeqId="02" debitCreditFlag="D"
@@ -699,46 +603,25 @@ class WorkPlanToCashBasicFlow extends Specification {
                 amount="1009.12" amountUomId="USD"/>
 
             <mantle.ledger.transaction.AcctgTrans acctgTransId="55901" acctgTransTypeEnumId="AttOutgoingPayment"
-                organizationPartyId="${vendorResult.partyId}" transactionDate="${startYear + '-11-10 12:00:00'}" isPosted="Y"
-                postedDate="${effectiveTime}" glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD" otherPartyId="${workerResult.partyId}"
-                paymentId="${expPmtResult.paymentId}"/>
+                organizationPartyId="${vendorResult.partyId}" isPosted="Y" glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD"
+                otherPartyId="${workerResult.partyId}" paymentId="${expPmtResult.paymentId}"/>
             <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55901" acctgTransEntrySeqId="01" debitCreditFlag="D"
-                amount="1009.12" glAccountId="212000000" reconcileStatusId="AterNot" isSummary="N"/>
+                amount="1009.12" glAccountId="216000000" reconcileStatusId="AterNot" isSummary="N"/>
             <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55901" acctgTransEntrySeqId="02" debitCreditFlag="C"
                 amount="1009.12" glAccountId="111100000" reconcileStatusId="AterNot" isSummary="N"/>
+
+            <mantle.ledger.transaction.AcctgTrans acctgTransId="55902" acctgTransTypeEnumId="AttOutgoingPaymentAp"
+                organizationPartyId="${vendorResult.partyId}" isPosted="Y" glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD"
+                otherPartyId="${workerResult.partyId}" paymentId="${expPmtResult.paymentId}" invoiceId="${expInvResult.invoiceId}"
+                paymentApplicationId="${expPmtResult.paymentApplicationId}"/>
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="01" debitCreditFlag="C"
+                amount="1009.12" glAccountId="216000000" reconcileStatusId="AterNot" isSummary="N"/>
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="02" debitCreditFlag="D"
+                amount="1009.12" glAccountId="212000000" reconcileStatusId="AterNot" isSummary="N"/>
 
             <mantle.account.payment.PaymentApplication paymentApplicationId="${expPmtResult.paymentApplicationId}"
                 paymentId="${expPmtResult.paymentId}" invoiceId="${expInvResult.invoiceId}" amountApplied="1009.12"
                 appliedDate="${startYear + '-11-10 12:00:00'}"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55958" changedEntityName="mantle.account.invoice.Invoice"
-                changedFieldName="statusId" pkPrimaryValue="${expInvResult.invoiceId}" newValueText="InvoiceIncoming"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55959" changedEntityName="mantle.account.invoice.Invoice"
-                changedFieldName="statusId" pkPrimaryValue="${expInvResult.invoiceId}" oldValueText="InvoiceIncoming"
-                newValueText="InvoiceReceived" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55960" changedEntityName="mantle.account.invoice.Invoice"
-                changedFieldName="statusId" pkPrimaryValue="${expInvResult.invoiceId}" oldValueText="InvoiceReceived"
-                newValueText="InvoiceApproved" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55961" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55900" newValueText="N" changedDate="${effectiveTime}"
-                changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55962" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55900" oldValueText="N" newValueText="Y"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55963" changedEntityName="mantle.account.payment.Payment"
-                changedFieldName="statusId" pkPrimaryValue="${expPmtResult.paymentId}" newValueText="PmntPromised"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55964" changedEntityName="mantle.account.payment.Payment"
-                changedFieldName="statusId" pkPrimaryValue="${expPmtResult.paymentId}" oldValueText="PmntPromised"
-                newValueText="PmntDelivered" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55966" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55901" newValueText="N" changedDate="${effectiveTime}"
-                changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55967" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55901" oldValueText="N" newValueText="Y"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
 
         </entity-facade-xml>""").check()
         logger.info("create Worker Time and Expense Invoice and record Payment data check results: ")
@@ -783,38 +666,21 @@ class WorkPlanToCashBasicFlow extends Specification {
             <mantle.account.invoice.InvoiceItemAssoc invoiceItemAssocId="55901" invoiceId="${expInvResult.invoiceId}" invoiceItemSeqId="02"
                 toInvoiceId="${clientInvResult.invoiceId}" toInvoiceItemSeqId="06" invoiceItemAssocTypeEnumId="IiatBillThrough" quantity="1" amount="123.45"/>
 
-            <mantle.ledger.transaction.AcctgTrans acctgTransId="55902" acctgTransTypeEnumId="AttSalesInvoice"
-                organizationPartyId="${vendorResult.partyId}" transactionDate="${startYear + '-11-08'}" isPosted="Y" postedDate="${effectiveTime}"
-                glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD" otherPartyId="${clientResult.partyId}" invoiceId="${clientInvResult.invoiceId}"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="01" debitCreditFlag="C"
+            <mantle.ledger.transaction.AcctgTrans acctgTransId="55903" acctgTransTypeEnumId="AttSalesInvoice"
+                organizationPartyId="${vendorResult.partyId}" isPosted="Y" glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD"
+                otherPartyId="${clientResult.partyId}" invoiceId="${clientInvResult.invoiceId}"/>
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="01" debitCreditFlag="C"
                 amount="120" glAccountId="412000000" reconcileStatusId="AterNot" isSummary="N" invoiceItemSeqId="01"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="02" debitCreditFlag="C"
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="02" debitCreditFlag="C"
                 amount="360" glAccountId="412000000" reconcileStatusId="AterNot" isSummary="N" invoiceItemSeqId="02"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="03" debitCreditFlag="C"
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="03" debitCreditFlag="C"
                 amount="90" glAccountId="412000000" reconcileStatusId="AterNot" isSummary="N" invoiceItemSeqId="04"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="04" debitCreditFlag="C"
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="04" debitCreditFlag="C"
                 amount="345.67" glAccountId="681100000" reconcileStatusId="AterNot" isSummary="N" invoiceItemSeqId="05"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="05" debitCreditFlag="C"
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="05" debitCreditFlag="C"
                 amount="123.45" glAccountId="681100000" reconcileStatusId="AterNot" isSummary="N" invoiceItemSeqId="06"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55902" acctgTransEntrySeqId="06" debitCreditFlag="D"
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="06" debitCreditFlag="D"
                 amount="1,039.12" glAccountTypeEnumId="GatAccountsReceivable" glAccountId="121000000" reconcileStatusId="AterNot" isSummary="N"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55965" changedEntityName="mantle.account.invoice.Invoice"
-                changedFieldName="statusId" pkPrimaryValue="${expInvResult.invoiceId}" oldValueText="InvoiceApproved"
-                newValueText="InvoicePmtSent" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55968" changedEntityName="mantle.account.invoice.Invoice"
-                changedFieldName="statusId" pkPrimaryValue="${clientInvResult.invoiceId}" newValueText="InvoiceInProcess"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55969" changedEntityName="mantle.account.invoice.Invoice"
-                changedFieldName="statusId" pkPrimaryValue="${expInvResult.invoiceId}" oldValueText="InvoicePmtSent"
-                newValueText="InvoiceBilledThrough" changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55971" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55902" newValueText="N" changedDate="${effectiveTime}"
-                changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55972" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55902" oldValueText="N" newValueText="Y"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
 
         </entity-facade-xml>""").check()
         logger.info("create Client Time and Expense Invoice and Finalize data check results: ")
@@ -840,20 +706,13 @@ class WorkPlanToCashBasicFlow extends Specification {
                 paymentId="${clientPmtResult.paymentId}" invoiceId="${clientInvResult.invoiceId}"
                 amountApplied="1,039.12" appliedDate="${startYear + '-11-12 12:00:00'}"/>
 
-            <mantle.ledger.transaction.AcctgTrans acctgTransId="55903" acctgTransTypeEnumId="AttIncomingPayment"
-                organizationPartyId="${vendorResult.partyId}" transactionDate="${startYear + '-11-12 12:00:00'}" isPosted="Y" postedDate="${effectiveTime}"
-                glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD" otherPartyId="${clientResult.partyId}" paymentId="${clientPmtResult.paymentId}"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="01" debitCreditFlag="C"
+            <mantle.ledger.transaction.AcctgTrans acctgTransId="55904" acctgTransTypeEnumId="AttIncomingPayment"
+                organizationPartyId="${vendorResult.partyId}" isPosted="Y" glFiscalTypeEnumId="GLFT_ACTUAL" amountUomId="USD"
+                otherPartyId="${clientResult.partyId}" paymentId="${clientPmtResult.paymentId}"/>
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55904" acctgTransEntrySeqId="01" debitCreditFlag="C"
                 amount="1,039.12" glAccountId="121000000" reconcileStatusId="AterNot" isSummary="N"/>
-            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55903" acctgTransEntrySeqId="02" debitCreditFlag="D"
+            <mantle.ledger.transaction.AcctgTransEntry acctgTransId="55904" acctgTransEntrySeqId="02" debitCreditFlag="D"
                 amount="1,039.12" glAccountId="111100000" reconcileStatusId="AterNot" isSummary="N"/>
-
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55976" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55903" newValueText="N" changedDate="${effectiveTime}"
-                changedByUserId="EX_JOHN_DOE"/>
-            <moqui.entity.EntityAuditLog auditHistorySeqId="55977" changedEntityName="mantle.ledger.transaction.AcctgTrans"
-                changedFieldName="isPosted" pkPrimaryValue="55903" oldValueText="N" newValueText="Y"
-                changedDate="${effectiveTime}" changedByUserId="EX_JOHN_DOE"/>
 
         </entity-facade-xml>""").check()
         logger.info("record Payment for Client Time and Expense Invoice data check results: ")

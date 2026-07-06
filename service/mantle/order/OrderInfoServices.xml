@@ -1458,6 +1458,15 @@ along with this software (see the LICENSE.md file). If not, see
             <parameter name="payableUninvoicedItemList" type="List"><parameter name="orderItem" type="Map">
                 <auto-parameters entity-name="mantle.order.OrderItem"/></parameter></parameter>
 
+            <!-- SSS additive: shipped-quantity-aware RECEIVABLE candidates. Same shape as receivableUninvoicedItem* but
+                 uses a shipped-aware base (if shipped, shipped-not-billed; if not yet shipped, order-qty-not-billed).
+                 Existing receivableUninvoicedItem*/payableUninvoicedItem* outputs are left untouched. Each map is also
+                 enriched with shippedQty, shippedNotBilledReceivable, and receivableBillableBase. -->
+            <parameter name="quantityShippedByItem" type="Map"><description>orderItemSeqId -> actual shipped qty (sum AssetIssuance.quantity).</description></parameter>
+            <parameter name="receivableShippedUninvoicedItemByPart" type="Map"/>
+            <parameter name="receivableShippedUninvoicedItemList" type="List"><parameter name="orderItem" type="Map">
+                <auto-parameters entity-name="mantle.order.OrderItem"/></parameter></parameter>
+
             <!-- condensed payable item info (uninvoiced PAYABLE side; includes receivable+payable amounts for clarity) -->
             <parameter name="payableUninvoicedInfoByPart" type="Map">
                 <description>Key is orderPartSeqId, value is List of maps: supplierPartyId, orderPartSeqId, orderItemSeqId, itemTypeEnumId, productId, quantity, receivableAmount(unitAmount*qty), payableAmount(cost*qty).</description>
@@ -1781,10 +1790,21 @@ along with this software (see the LICENSE.md file). If not, see
                 }
             ]]></script></iterate>
 
+            <!-- SSS additive: actual shipped qty per order item (sum of AssetIssuance across shipments) -->
+            <set field="quantityShippedByItem" from="[:]"/>
+            <entity-find entity-name="mantle.product.issuance.AssetIssuance" list="orderIssuanceList">
+                <econdition field-name="orderId"/>
+            </entity-find>
+            <iterate list="orderIssuanceList" entry="orderIssuance"><script>
+                if (orderIssuance.orderItemSeqId) addToBigDecimalInMap(orderIssuance.orderItemSeqId, (orderIssuance.quantity ?: 0.0), quantityShippedByItem)
+            </script></iterate>
+
             <set field="receivableUninvoicedItemByPart" from="[:]"/>
             <set field="receivableUninvoicedItemList" from="[]"/>
             <set field="payableUninvoicedItemByPart" from="[:]"/>
             <set field="payableUninvoicedItemList" from="[]"/>
+            <set field="receivableShippedUninvoicedItemByPart" from="[:]"/>
+            <set field="receivableShippedUninvoicedItemList" from="[]"/>
 
             <iterate list="orderItemList" entry="orderItem"><script><![CDATA[
             def partKey = orderItem.orderPartSeqId ?: "_NA_"
@@ -1800,6 +1820,27 @@ along with this software (see the LICENSE.md file). If not, see
                     if (partListR == null) { partListR = []; receivableUninvoicedItemByPart.put(partKey, partListR) }
                     partListR.add(oiMap)
                     receivableUninvoicedItemList.add(oiMap)
+                }
+
+                // SSS additive: shipped-AWARE receivable candidate. If the item has shipped, base billable qty on
+                // shipped-not-billed; if it hasn't shipped yet, still offer it based on order-qty-not-billed.
+                // receivableBilled = orderQty - quantityNotBilled; shippedNotBilledReceivable = shipped - receivableBilled.
+                def itemQtyR = (orderItem.quantity != null ? orderItem.quantity : 1.0) * (orderItem.selectedAmount ?: 1.0)
+                def shippedR = (quantityShippedByItem.get(orderItem.orderItemSeqId) ?: 0.0) as BigDecimal
+                def nbqRbd = ((nbqR ?: 0.0) as BigDecimal)
+                def receivableBilledR = (itemQtyR as BigDecimal) - nbqRbd
+                def shippedNotBilledR = shippedR - receivableBilledR
+                def billableBaseR = (shippedR > 0.0) ? shippedNotBilledR : nbqRbd
+                oiMap.shippedQty = shippedR
+                oiMap.shippedNotBilledReceivable = shippedNotBilledR
+                oiMap.receivableBillableBase = billableBaseR
+                // charge/child items (non-product) never ship: flag so the UI blanks shipped/diff and hides the checkbox
+                oiMap.isChargeItem = !productItemTypes.contains(orderItem.itemTypeEnumId)
+                if (billableBaseR > 0.0) {
+                    def partListSR = receivableShippedUninvoicedItemByPart.get(partKey)
+                    if (partListSR == null) { partListSR = []; receivableShippedUninvoicedItemByPart.put(partKey, partListSR) }
+                    partListSR.add(oiMap)
+                    receivableShippedUninvoicedItemList.add(oiMap)
                 }
             }
 

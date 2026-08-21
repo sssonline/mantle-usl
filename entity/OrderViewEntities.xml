@@ -169,9 +169,30 @@ along with this software (see the LICENSE.md file). If not, see
                             value="OrderApproved"/>
             </entity-condition>
         </member-entity>
+        <!-- EAL2: a second EntityAuditLog alias, LEFT JOINed to EAL on the same order with a strictly-later
+             changedDate (still an OrderPlaced -> OrderApproved row). The bottom entity-condition then keeps
+             only rows where no such newer EAL2 match exists, i.e. EAL is already the latest approval - a
+             self-join anti-join, so EAL never needs a max() aggregate and this view never GROUP BYs. Without
+             this, an order approved, reopened and reapproved by a different user has two EntityAuditLog rows
+             for the transition; approvedDate as a max() alias with an unaggregated approvedBy used to make
+             Moqui GROUP BY every other selected column (bucketed by approvedBy), so the order listed once
+             per approver instead of once. That comparison lives in EAL2's own join ON clause (so it doesn't
+             defeat EAL's LEFT JOIN optionality for never-approved orders); the EAL2-is-null check below runs
+             in the WHERE. -->
+        <member-entity entity-alias="EAL2" entity-name="moqui.entity.EntityAuditLog" join-from-alias="EAL" join-optional="true">
+            <key-map field-name="pkPrimaryValue" related="pkPrimaryValue"/>
+            <entity-condition>
+                <econdition entity-alias="EAL2" field-name="changedEntityName" value="mantle.order.OrderHeader"/>
+                <econdition entity-alias="EAL2" field-name="changedFieldName" value="statusId"/>
+                <econdition entity-alias="EAL2" field-name="oldValueText" value="OrderPlaced"/>
+                <econdition entity-alias="EAL2" field-name="newValueText" value="OrderApproved"/>
+                <econdition entity-alias="EAL2" field-name="changedDate" operator="greater"
+                            to-entity-alias="EAL" to-field-name="changedDate"/>
+            </entity-condition>
+        </member-entity>
         <alias-all entity-alias="ORHD"/>
         <alias-all entity-alias="OPRT"><exclude field="settlementTermId"/><exclude field="statusId"/></alias-all>
-        <alias name="approvedDate" entity-alias="EAL" field="changedDate" function="max"/>
+        <alias name="approvedDate" entity-alias="EAL" field="changedDate"/>
         <alias name="approvedBy" entity-alias="EAL" field="changedByUserId"/>
         <alias name="partStatusId" entity-alias="OPRT" field="statusId"/>
         <alias name="statusDescription" entity-alias="STSI" field="description"/>
@@ -186,6 +207,10 @@ along with this software (see the LICENSE.md file). If not, see
         <alias name="customerClassificationId" entity-alias="CSCLS" field="partyClassificationId"/>
         <alias name="customerClassFromDate" entity-alias="CSCLS" field="fromDate"/>
         <alias name="customerClassThruDate" entity-alias="CSCLS" field="thruDate"/>
+
+        <entity-condition>
+            <econdition entity-alias="EAL2" field-name="auditHistorySeqId" operator="is-null"/>
+        </entity-condition>
     </view-entity>
     <view-entity entity-name="OrderPartPartyDetail" package="mantle.order">
         <member-entity entity-alias="OPP" entity-name="mantle.order.OrderPartParty"/>

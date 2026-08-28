@@ -161,6 +161,11 @@ along with this software (see the LICENSE.md file). If not, see
             <iterate list="invoiceItemList" entry="invoiceItem">
                 <!-- skip adjustment items, handle later -->
                 <if condition="invoiceItem.isAdjustment == 'Y'"><continue/></if>
+                <!-- SSS (cards #904/#905): skip non-billable charges (chargeCustomer='N', basalt-extended field,
+                    receivable-only) entirely — no revenue entry, and the accumulated invoiceTotal here feeds the
+                    balancing A/R entry so it must match get#InvoiceTotal's identical skip. The charge's real cost
+                    posts through its payable invoice; posting this line too would double-count. -->
+                <if condition="invoiceItem.chargeCustomer == 'N'"><continue/></if>
                 <!-- calc and check item total -->
                 <!-- NOTE: for debits and credits to match on item entries vs invoice level AR/AP entry they must be rounded the same -->
                 <!-- NOTE: CurrencyRoundingMarker scale here may vary by currency, make configurable -->

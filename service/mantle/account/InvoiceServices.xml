@@ -256,6 +256,11 @@ along with this software (see the LICENSE.md file). If not, see
                 <econdition field-name="invoiceId"/></entity-find>
             <set field="invoiceTotal" from="0.0"/>
             <iterate list="invoiceItemList" entry="invoiceItem">
+                <!-- SSS (cards #904/#905): chargeCustomer='N' (basalt-extended field) marks a non-billable
+                    charge carried from the sales order — shown on the invoice at full amount but excluded
+                    from the total the customer owes. Strictly == 'N': null (payable/payroll/legacy) still counts.
+                    post#Invoice skips the same items so GL A/R stays equal to invoiceTotal. -->
+                <if condition="invoiceItem.chargeCustomer == 'N'"><continue/></if>
                 <!-- NOTE: also a sales/VAT tax calculation concern on item vs invoice level, but using 2 digits so consistent across order, invoice, GL TX entry
                     (tax should generally be calculated to 3 digits on the item level then summed and rounded to 2 digits to get a tax total) -->
                 <!-- NOTE: CurrencyRoundingMarker scale here may vary by currency, make configurable -->

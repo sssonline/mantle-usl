@@ -176,7 +176,11 @@ along with this software (see the LICENSE.md file). If not, see
                 <if condition="!packageRouteSeg.trackingCode"><set field="hasAllTrackingCodes" from="false"/></if>
             </iterate>
 
-            <set field="shippingGatewayConfigId" from="firstRouteSegment.shippingGatewayConfigId"/>
+            <!-- SSS (card #937): a directly-seeded or externally-imported Shipment can have zero
+                 ShipmentRouteSegment rows, making firstRouteSegment/lastRouteSegment null (see
+                 get#ShipmentContactInfo) — safe-navigate here and below so the detail screens still
+                 render; the store/party/preference gateway fallbacks already tolerate a null segment -->
+            <set field="shippingGatewayConfigId" from="firstRouteSegment?.shippingGatewayConfigId"/>
             <!-- if no gateway on ShipmentRouteSegment and Shipment.productStoreId look up from store first -->
             <if condition="!shippingGatewayConfigId &amp;&amp; shipment?.productStoreId">
                 <entity-find-one entity-name="mantle.product.store.ProductStoreShippingGateway" value-field="storeShippingGateway" cache="true">
@@ -198,21 +202,21 @@ along with this software (see the LICENSE.md file). If not, see
             <if condition="shippingGatewayConfigId"><entity-find-one entity-name="mantle.shipment.carrier.ShippingGatewayConfig" value-field="shippingGatewayConfig"/></if>
 
             <!-- get dest ContactMech for trust level -->
-            <if condition="lastRouteSegment.destPostalContactMechId">
+            <if condition="lastRouteSegment?.destPostalContactMechId">
                 <entity-find-one entity-name="mantle.party.contact.ContactMech" value-field="destContactMech">
                     <field-map field-name="contactMechId" from="lastRouteSegment.destPostalContactMechId"/></entity-find-one>
             </if>
             <set field="destContactMechValid" from="destContactMech != null &amp;&amp; destContactMech.trustLevelEnumId in ['CmtlValid', 'CmtlVerified']"/>
 
-            <if condition="firstRouteSegment.carrierPartyId &amp;&amp; firstRouteSegment.carrierPartyId != '_NA_'">
+            <if condition="firstRouteSegment?.carrierPartyId &amp;&amp; firstRouteSegment.carrierPartyId != '_NA_'">
                 <entity-find-one entity-name="mantle.party.PartyDetail" value-field="curCarrierDetail" cache="true">
                     <field-map field-name="partyId" from="firstRouteSegment.carrierPartyId"/></entity-find-one>
             </if>
             <entity-find-one entity-name="moqui.basic.Enumeration" value-field="curShipmentMethodEnum">
-                <field-map field-name="enumId" from="firstRouteSegment.shipmentMethodEnumId"/></entity-find-one>
+                <field-map field-name="enumId" from="firstRouteSegment?.shipmentMethodEnumId"/></entity-find-one>
             <entity-find-one entity-name="mantle.shipment.carrier.CarrierShipmentMethod" value-field="curCarrierShipmentMethod">
-                <field-map field-name="carrierPartyId" from="firstRouteSegment.carrierPartyId"/>
-                <field-map field-name="shipmentMethodEnumId" from="firstRouteSegment.shipmentMethodEnumId"/>
+                <field-map field-name="carrierPartyId" from="firstRouteSegment?.carrierPartyId"/>
+                <field-map field-name="shipmentMethodEnumId" from="firstRouteSegment?.shipmentMethodEnumId"/>
             </entity-find-one>
 
             <!-- get order carrier and method info -->

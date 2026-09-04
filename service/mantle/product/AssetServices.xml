@@ -2028,21 +2028,22 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- SSS customization: if no invoiceId was passed, resolve the existing invoice link via
                  OrderItemBilling (the authoritative order-item/invoice join) so issuances created after the
-                 invoice still carry the cached invoiceId/invoiceItemSeqId. Only invoices in editable statuses
-                 are linked (never cancelled or posted); an OIB row for a different shipment is never used. -->
+                 invoice still carry the cached invoiceId/invoiceItemSeqId. Any non-cancelled invoice is linked
+                 (card 980: posted/finalized included, so an issuance re-created after invoicing — e.g. a
+                 direct-ship dummy asset re-issued after a reversal — still carries the link); an OIB row for
+                 a different shipment is never used. -->
             <if condition="!invoiceId &amp;&amp; orderId &amp;&amp; orderItemSeqId">
                 <entity-find entity-name="mantle.order.OrderItemBilling" list="resolveOibList">
                     <econdition field-name="orderId"/><econdition field-name="orderItemSeqId"/>
                     <econdition field-name="invoiceId" operator="is-not-null"/>
                 </entity-find>
                 <script><![CDATA[
-                    def editableInvStatusSet = ['InvoiceInProcess', 'InvoiceIncoming', 'InvoiceReceived'] as Set
                     def bestOib = null
                     int bestOibRank = 99
                     for (resolveOib in resolveOibList) {
                         def resolveInv = ec.entity.find('mantle.account.invoice.Invoice')
                                 .condition('invoiceId', resolveOib.invoiceId).one()
-                        if (resolveInv == null || !editableInvStatusSet.contains(resolveInv.statusId)) continue
+                        if (resolveInv == null || resolveInv.statusId == 'InvoiceCancelled') continue
                         int oibRank
                         if (resolveOib.shipmentId != null && resolveOib.shipmentId == shipmentId) oibRank = 0
                         else if (resolveOib.shipmentId == null) oibRank = 1

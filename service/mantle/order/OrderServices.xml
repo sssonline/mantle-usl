@@ -2140,6 +2140,12 @@ General Order Placement and eCommerce Usage
             <set field="orderHeader.recurCronExpression" from="null"/>
             <set field="orderHeader.lastOrderedDate" from="null"/>
             <set field="orderHeader.recurAutoInvoice" from="null"/>
+            <!-- SSS customization (card 982): a clone is a brand-new order and must not reuse the source's
+                 user-facing Order ID (basalt-extended pseudoId). Sales orders get the standard new-order
+                 default (pseudoId = the new orderId sysid); purchase orders never carry one, so null stays
+                 null. Mirrors basalt's own clone#Order; the recurring-order job comes through here, and a
+                 copied pseudoId made every recurrence clone (and its auto-invoice) share the source's number. -->
+            <set field="orderHeader.pseudoId" from="orderHeader.pseudoId ? orderHeader.orderId : null"/>
 
             <if condition="clearDates">
                 <!-- set the fields even if null, don't do this for other fields -->
